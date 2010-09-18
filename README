@@ -1,0 +1,11 @@
+evemu - Kernel device emulation
+
+The evemu library and tools are used to describe devices, record
+data, create devices and replay data from kernel evdev devices.
+
+http://bitmath.org/code/evemu/
+Please send patches to: patches@bitmath.org
+
+---
+Copyright (C) 2010 Henrik Rydberg <rydberg@euromail.se>
+Copyright (C) 2010 Canonical Ltd.
