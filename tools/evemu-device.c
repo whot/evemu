@@ -92,6 +92,7 @@ static int evemu_device(FILE *fp)
 int main(int argc, char *argv[])
 {
 	FILE *fp;
+	int ret;
 	if (argc < 2) {
 		fprintf(stderr, "Usage: %s <dev.prop>\n", argv[0]);
 		return -1;
@@ -101,8 +102,8 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "error: could not open file\n");
 		return -1;
 	}
-	if (evemu_device(fp)) {
-		fprintf(stderr, "error: could not create device\n");
+	if ((ret = evemu_device(fp))) {
+		fprintf(stderr, "error: could not create device: %d\n", ret);
 		return -1;
 	}
 	fclose(fp);
