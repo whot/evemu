@@ -54,6 +54,9 @@ int evemu_extract(struct evemu_device *dev, int fd)
 	SYSCALL(rc = ioctl(fd, EVIOCGNAME(sizeof(dev->name)), dev->name));
 	if (rc < 0)
 		return rc;
+	for (i = 0; i < sizeof(dev->name); i++)
+		if (isspace(dev->name[i]))
+			dev->name[i] = '-';
 
 	SYSCALL(rc = ioctl(fd, EVIOCGID, &dev->id));
 	if (rc < 0)
