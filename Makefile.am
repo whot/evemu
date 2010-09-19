@@ -1,7 +1,7 @@
 SUBDIRS = src tools
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = evemu.pc
+pkgconfig_DATA = utouch-evemu.pc
 
 INCLUDES = $(top_srcdir)/include/
 
