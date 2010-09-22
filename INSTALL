@@ -17,11 +17,11 @@ To record a stream of events, do
 
 To create a device from the properties, do
 
-   sudo ./tools/evemu-create device.properties
+   sudo ./tools/evemu-device device.properties
 
 To replay a stream of events, do
 
-   sudo ./tools/evemu-play /dev/input/eventY device.data
+   sudo ./tools/evemu-play /dev/input/eventY < device.data
 
 To destroy the device, do
 

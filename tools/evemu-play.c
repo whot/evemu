@@ -34,7 +34,7 @@
 int main(int argc, char *argv[])
 {
 	int fd;
-	if (argc < 2) {
+	if (argc != 2) {
 		fprintf(stderr, "Usage: %s <device>\n", argv[0]);
 		fprintf(stderr, "\n");
 		fprintf(stderr, "Event data is read from standard input.\n");
