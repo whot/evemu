@@ -58,7 +58,8 @@ static void hold_device(const struct evemu_device *dev)
 	fd = open(node, O_RDONLY);
 	if (fd < 0)
 		return;
-	printf("%s: %s\n", dev->name, node);
+	fprintf(stdout, "%s: %s\n", dev->name, node);
+	fflush(stdout);
 	while ((ret = read(fd, data, sizeof(data))) > 0);
 	close(fd);
 }
