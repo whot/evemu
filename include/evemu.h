@@ -39,7 +39,21 @@
 struct evemu_device *evemu_new(const char *name);
 void evemu_delete(struct evemu_device *dev);
 
+int evemu_get_version_major(const struct evemu_device *dev);
+int evemu_get_version_minor(const struct evemu_device *dev);
+
 const char *evemu_get_name(const struct evemu_device *dev);
+
+unsigned int evemu_get_id_bustype(const struct evemu_device *dev);
+unsigned int evemu_get_id_vendor(const struct evemu_device *dev);
+unsigned int evemu_get_id_product(const struct evemu_device *dev);
+unsigned int evemu_get_id_version(const struct evemu_device *dev);
+
+int evemu_get_abs_minimum(const struct evemu_device *dev, int code);
+int evemu_get_abs_maximum(const struct evemu_device *dev, int code);
+int evemu_get_abs_fuzz(const struct evemu_device *dev, int code);
+int evemu_get_abs_flat(const struct evemu_device *dev, int code);
+int evemu_get_abs_resolution(const struct evemu_device *dev, int code);
 
 int evemu_has_prop(const struct evemu_device *dev, int code);
 int evemu_has_event(const struct evemu_device *dev, int type, int code);

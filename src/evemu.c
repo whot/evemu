@@ -74,9 +74,64 @@ void evemu_delete(struct evemu_device *dev)
 	free(dev);
 }
 
+int evemu_get_version_major(const struct evemu_device *dev)
+{
+	return dev->version_major;
+}
+
+int evemu_get_version_minor(const struct evemu_device *dev)
+{
+	return dev->version_minor;
+}
+
 const char *evemu_get_name(const struct evemu_device *dev)
 {
 	return dev->name;
+}
+
+unsigned int evemu_get_id_bustype(const struct evemu_device *dev)
+{
+	return dev->id.bustype;
+}
+
+unsigned int evemu_get_id_vendor(const struct evemu_device *dev)
+{
+	return dev->id.vendor;
+}
+
+unsigned int evemu_get_id_product(const struct evemu_device *dev)
+{
+	return dev->id.product;
+}
+
+unsigned int evemu_get_id_version(const struct evemu_device *dev)
+{
+	return dev->id.version;
+}
+
+int evemu_get_abs_minimum(const struct evemu_device *dev, int code)
+{
+	return dev->abs[code].minimum;
+}
+
+int evemu_get_abs_maximum(const struct evemu_device *dev, int code)
+{
+	return dev->abs[code].maximum;
+}
+
+int evemu_get_abs_fuzz(const struct evemu_device *dev, int code)
+{
+	return dev->abs[code].fuzz;
+}
+
+int evemu_get_abs_flat(const struct evemu_device *dev, int code)
+{
+	return dev->abs[code].flat;
+}
+
+int evemu_get_abs_resolution(const struct evemu_device *dev, int code)
+{
+	return dev->abs[code].resolution;
 }
 
 int evemu_has_prop(const struct evemu_device *dev, int code)
