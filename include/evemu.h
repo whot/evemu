@@ -41,7 +41,8 @@ void evemu_delete(struct evemu_device *dev);
 
 const char *evemu_get_name(const struct evemu_device *dev);
 
-int evemu_has(const struct evemu_device *dev, int type, int code);
+int evemu_has_prop(const struct evemu_device *dev, int code);
+int evemu_has_event(const struct evemu_device *dev, int type, int code);
 
 int evemu_extract(struct evemu_device *dev, int fd);
 int evemu_write(const struct evemu_device *dev, FILE *fp);

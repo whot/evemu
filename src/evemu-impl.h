@@ -11,8 +11,9 @@ struct evemu_device {
 	int version_major, version_minor;
 	char name[UINPUT_MAX_NAME_SIZE];
 	struct input_id id;
+	unsigned char prop[EVPLAY_NBYTES];
 	unsigned char mask[EV_CNT][EVPLAY_NBYTES];
-	int bytes[EV_CNT];
+	int pbytes, mbytes[EV_CNT];
 	struct input_absinfo abs[ABS_CNT];
 };
 

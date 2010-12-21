@@ -34,6 +34,17 @@
 #include <errno.h>
 #include <poll.h>
 
+#ifndef UI_SET_PROPBIT
+#define UI_SET_PROPBIT		_IOW(UINPUT_IOCTL_BASE, 110, int)
+#define EVIOCGPROP(len)		_IOC(_IOC_READ, 'E', 0x09, len)
+#define INPUT_PROP_POINTER		0x00
+#define INPUT_PROP_DIRECT		0x01
+#define INPUT_PROP_BUTTONPAD		0x02
+#define INPUT_PROP_SEMI_MT		0x03
+#define INPUT_PROP_MAX			0x1f
+#define INPUT_PROP_CNT			(INPUT_PROP_MAX + 1)
+#endif
+
 #define SYSCALL(call) while (((call) == -1) && (errno == EINTR))
 
 static void copy_bits(unsigned char *mask, const unsigned long *bits, int bytes)
@@ -68,7 +79,12 @@ const char *evemu_get_name(const struct evemu_device *dev)
 	return dev->name;
 }
 
-int evemu_has(const struct evemu_device *dev, int type, int code)
+int evemu_has_prop(const struct evemu_device *dev, int code)
+{
+	return (dev->prop[code >> 3] >> (code & 7)) & 1;
+}
+
+int evemu_has_event(const struct evemu_device *dev, int type, int code)
 {
 	return (dev->mask[type][code >> 3] >> (code & 7)) & 1;
 }
@@ -91,16 +107,22 @@ int evemu_extract(struct evemu_device *dev, int fd)
 	if (rc < 0)
 		return rc;
 
+	SYSCALL(rc = ioctl(fd, EVIOCGPROP(sizeof(bits)), bits));
+	if (rc >= 0) {
+		copy_bits(dev->prop, bits, rc);
+		dev->pbytes = rc;
+	}
+
 	for (i = 0; i < EV_CNT; i++) {
 		SYSCALL(rc = ioctl(fd, EVIOCGBIT(i, sizeof(bits)), bits));
 		if (rc < 0)
 			continue;
 		copy_bits(dev->mask[i], bits, rc);
-		dev->bytes[i] = rc;
+		dev->mbytes[i] = rc;
 	}
 
 	for (i = 0; i < ABS_CNT; i++) {
-		if (!evemu_has(dev, EV_ABS, i))
+		if (!evemu_has_event(dev, EV_ABS, i))
 			continue;
 		SYSCALL(rc = ioctl(fd, EVIOCGABS(i), &dev->abs[i]));
 		if (rc < 0)
@@ -108,6 +130,15 @@ int evemu_extract(struct evemu_device *dev, int fd)
 	}
 
 	return 0;
+}
+
+static void write_prop(FILE * fp, const unsigned char *mask, int bytes)
+{
+	int i;
+	for (i = 0; i < bytes; i += 8)
+		fprintf(fp, "P: %02x %02x %02x %02x %02x %02x %02x %02x\n",
+			mask[i], mask[i + 1], mask[i + 2], mask[i + 3],
+			mask[i + 4], mask[i + 5], mask[i + 6], mask[i + 7]);
 }
 
 static void write_mask(FILE * fp, int index,
@@ -136,12 +167,26 @@ int evemu_write(const struct evemu_device *dev, FILE *fp)
 		dev->id.bustype, dev->id.vendor,
 		dev->id.product, dev->id.version);
 
+	write_prop(fp, dev->prop, dev->pbytes);
+
 	for (i = 0; i < EV_CNT; i++)
-		write_mask(fp, i, dev->mask[i], dev->bytes[i]);
+		write_mask(fp, i, dev->mask[i], dev->mbytes[i]);
 
 	for (i = 0; i < ABS_CNT; i++)
-		if (evemu_has(dev, EV_ABS, i))
+		if (evemu_has_event(dev, EV_ABS, i))
 			write_abs(fp, i, &dev->abs[i]);
+}
+
+static void read_prop(struct evemu_device *dev, FILE *fp)
+{
+	unsigned int mask[8];
+	int i;
+	while (fscanf(fp, "P: %02x %02x %02x %02x %02x %02x %02x %02x\n",
+		      mask + 0, mask + 1, mask + 2, mask + 3,
+		      mask + 4, mask + 5, mask + 6, mask + 7) > 0) {
+		for (i = 0; i < 8; i++)
+			dev->prop[dev->pbytes++] = mask[i];
+	}
 }
 
 static void read_mask(struct evemu_device *dev, FILE *fp)
@@ -152,7 +197,7 @@ static void read_mask(struct evemu_device *dev, FILE *fp)
 		      &index, mask + 0, mask + 1, mask + 2, mask + 3,
 		      mask + 4, mask + 5, mask + 6, mask + 7) > 0) {
 		for (i = 0; i < 8; i++)
-			dev->mask[index][dev->bytes[index]++] = mask[i];
+			dev->mask[index][dev->mbytes[index]++] = mask[i];
 	}
 }
 
@@ -185,6 +230,8 @@ int evemu_read(struct evemu_device *dev, FILE *fp)
 	dev->id.vendor = vendor;
 	dev->id.product = product;
 	dev->id.version = version;
+
+	read_prop(dev, fp);
 
 	read_mask(dev, fp);
 
@@ -254,7 +301,14 @@ int evemu_play(FILE *fp, int fd)
 	return 0;
 }
 
-static int set_bit(int fd, int type, int code)
+static int set_prop_bit(int fd, int code)
+{
+	int ret;
+	SYSCALL(ret = ioctl(fd, UI_SET_PROPBIT, code));
+	return ret;
+}
+
+static int set_event_bit(int fd, int type, int code)
 {
 	int ret = 0;
 
@@ -291,14 +345,28 @@ static int set_bit(int fd, int type, int code)
 	return ret;
 }
 
-static int set_mask(const struct evemu_device *dev, int type, int fd)
+static int set_prop(const struct evemu_device *dev, int fd)
 {
-	int bits = 8 * dev->bytes[type];
+	int bits = 8 * dev->pbytes;
 	int ret, i;
 	for (i = 0; i < bits; i++) {
-		if (!evemu_has(dev, type, i))
+		if (!evemu_has_prop(dev, i))
 			continue;
-		ret = set_bit(fd, type, i);
+		ret = set_prop_bit(fd, i);
+		if (ret < 0)
+			return ret;
+	}
+	return 0;
+}
+
+static int set_mask(const struct evemu_device *dev, int type, int fd)
+{
+	int bits = 8 * dev->mbytes[type];
+	int ret, i;
+	for (i = 0; i < bits; i++) {
+		if (!evemu_has_event(dev, type, i))
+			continue;
+		ret = set_event_bit(fd, type, i);
 		if (ret < 0)
 			return ret;
 	}
@@ -314,13 +382,17 @@ int evemu_create(const struct evemu_device *dev, int fd)
 	memcpy(udev.name, dev->name, sizeof(udev.name));
 	udev.id = dev->id;
 	for (i = 0; i < ABS_CNT; i++) {
-		if (!evemu_has(dev, EV_ABS, i))
+		if (!evemu_has_event(dev, EV_ABS, i))
 			continue;
 		udev.absmax[i] = dev->abs[i].maximum;
 		udev.absmin[i] = dev->abs[i].minimum;
 		udev.absfuzz[i] = dev->abs[i].fuzz;
 		udev.absflat[i] = dev->abs[i].flat;
 	}
+
+	ret = set_prop(dev, fd);
+	if (ret < 0)
+		return ret;
 
 	for (i = 0; i < EV_CNT; i++) {
 		ret = set_mask(dev, i, fd);
