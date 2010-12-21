@@ -50,7 +50,7 @@ static void hold_device(const struct evemu_device *dev)
 		ret = read(fd, name, sizeof(name));
 		if (ret > 0)
 			name[ret - 1] = 0;
-		if (!strcmp(dev->name, name))
+		if (!strcmp(evemu_get_name(dev), name))
 			sprintf(node, "/dev/input/event%d", i + 1);
 		close(fd);
 	}
@@ -58,7 +58,7 @@ static void hold_device(const struct evemu_device *dev)
 	fd = open(node, O_RDONLY);
 	if (fd < 0)
 		return;
-	fprintf(stdout, "%s: %s\n", dev->name, node);
+	fprintf(stdout, "%s: %s\n", evemu_get_name(dev), node);
 	fflush(stdout);
 	while ((ret = read(fd, data, sizeof(data))) > 0);
 	close(fd);
@@ -66,28 +66,36 @@ static void hold_device(const struct evemu_device *dev)
 
 static int evemu_device(FILE *fp)
 {
-	struct evemu_device dev;
-	int ret, fd;
+	struct evemu_device *dev;
+	char name[64];
+	int ret = -ENOMEM;
+	int fd;
 
-	ret = evemu_read(&dev, fp);
+	sprintf(name, "evemu-%d", getpid());
+
+	dev = evemu_new(name);
+	if (!dev)
+		goto out;
+	ret = evemu_read(dev, fp);
 	if (ret <= 0)
-		return ret;
+		goto out;
 
-	sprintf(dev.name, "evemu-%d", getpid());
-
-	fd = open(UINPUT_NODE, O_WRONLY);
-	if (fd < 0)
-		return fd;
-	ret = evemu_create(&dev, fd);
+	ret = fd = open(UINPUT_NODE, O_WRONLY);
 	if (ret < 0)
-		return ret;
+		goto out;
 
-	hold_device(&dev);
-
+	ret = evemu_create(dev, fd);
+	if (ret < 0)
+		goto out_close;
+	hold_device(dev);
 	evemu_destroy(fd);
-	close(fd);
 
-	return 0;
+out_close:
+	close(fd);
+out:
+	evemu_delete(dev);
+
+	return ret;
 }
 
 int main(int argc, char *argv[])

@@ -26,28 +26,22 @@
  *
  ****************************************************************************/
 
-#ifndef _EVPLAY_H
-#define _EVPLAY_H
+#ifndef _EVEMU_H
+#define _EVEMU_H
 
-#include <linux/uinput.h>
 #include <stdio.h>
+#include <errno.h>
+#include <linux/input.h>
 
-#define EVPLAY_NBITS	KEY_CNT
-#define EVPLAY_NBYTES	((EVPLAY_NBITS + 7) / 8)
+#define EVEMU_VERSION_MAJOR	1
+#define EVEMU_VERSION_MINOR	1
 
-struct evemu_device {
-	char name[UINPUT_MAX_NAME_SIZE];
-	struct input_id id;
-	unsigned char mask[EV_CNT][EVPLAY_NBYTES];
-	int bytes[EV_CNT];
-	struct input_absinfo abs[ABS_CNT];
-};
+struct evemu_device *evemu_new(const char *name);
+void evemu_delete(struct evemu_device *dev);
 
-static inline int evemu_has(const struct evemu_device *dev,
-			     int type, int code)
-{
-	return (dev->mask[type][code >> 3] >> (code & 7)) & 1;
-}
+const char *evemu_get_name(const struct evemu_device *dev);
+
+int evemu_has(const struct evemu_device *dev, int type, int code);
 
 int evemu_extract(struct evemu_device *dev, int fd);
 int evemu_write(const struct evemu_device *dev, FILE *fp);

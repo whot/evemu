@@ -33,16 +33,20 @@
 
 static int evemu_echo_describe(FILE *fp)
 {
-	struct evemu_device dev;
-	int ret;
+	struct evemu_device *dev;
+	int ret = -ENOMEM;
 
-	ret = evemu_read(&dev, fp);
+	dev = evemu_new(0);
+	if (!dev)
+		goto out;
+	ret = evemu_read(dev, fp);
 	if (ret <= 0)
-		return ret;
+		goto out;
 
-	evemu_write(&dev, stdout);
-
-	return 0;
+	evemu_write(dev, stdout);
+out:
+	evemu_delete(dev);
+	return ret;
 }
 
 static int evemu_echo_event(FILE *fp)

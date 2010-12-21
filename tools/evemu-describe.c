@@ -26,22 +26,27 @@
  *
  ****************************************************************************/
 
-#include "evemu.h"
+#include <evemu.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
 
 static int describe_device(int fd)
 {
-	struct evemu_device dev;
-	int ret;
+	struct evemu_device *dev;
+	int ret = -ENOMEM;
 
-	ret = evemu_extract(&dev, fd);
+	dev = evemu_new(0);
+	if (!dev)
+		goto out;
+	ret = evemu_extract(dev, fd);
 	if (ret)
-		return ret;
-	evemu_write(&dev, stdout);
+		goto out;
 
-	return 0;
+	evemu_write(dev, stdout);
+out:
+	evemu_delete(dev);
+	return ret;
 }
 
 int main(int argc, char *argv[])

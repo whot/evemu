@@ -26,7 +26,8 @@
  *
  ****************************************************************************/
 
-#include "evemu.h"
+#include "evemu-impl.h"
+#include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -42,6 +43,34 @@ static void copy_bits(unsigned char *mask, const unsigned long *bits, int bytes)
 		int pos = 8 * (i % sizeof(long));
 		mask[i] = (bits[i / sizeof(long)] >> pos) & 0xff;
 	}
+}
+
+struct evemu_device *evemu_new(const char *name)
+{
+	struct evemu_device *dev = calloc(1, sizeof(struct evemu_device));
+
+	dev->version_major = EVEMU_VERSION_MAJOR;
+	dev->version_minor = EVEMU_VERSION_MINOR;
+
+	if (name && strlen(name) < sizeof(dev->name))
+		strcpy(dev->name, name);
+
+	return dev;
+}
+
+void evemu_delete(struct evemu_device *dev)
+{
+	free(dev);
+}
+
+const char *evemu_get_name(const struct evemu_device *dev)
+{
+	return dev->name;
+}
+
+int evemu_has(const struct evemu_device *dev, int type, int code)
+{
+	return (dev->mask[type][code >> 3] >> (code & 7)) & 1;
 }
 
 int evemu_extract(struct evemu_device *dev, int fd)
