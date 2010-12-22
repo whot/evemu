@@ -33,14 +33,12 @@
 #include <errno.h>
 #include <linux/input.h>
 
-#define EVEMU_VERSION_MAJOR	1
-#define EVEMU_VERSION_MINOR	1
+#define EVEMU_VERSION		0x00010000
 
 struct evemu_device *evemu_new(const char *name);
 void evemu_delete(struct evemu_device *dev);
 
-int evemu_get_version_major(const struct evemu_device *dev);
-int evemu_get_version_minor(const struct evemu_device *dev);
+unsigned int evemu_get_version(const struct evemu_device *dev);
 
 const char *evemu_get_name(const struct evemu_device *dev);
 

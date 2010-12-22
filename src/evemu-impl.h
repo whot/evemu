@@ -8,7 +8,7 @@
 #define EVPLAY_NBYTES	((EVPLAY_NBITS + 7) / 8)
 
 struct evemu_device {
-	int version_major, version_minor;
+	unsigned int version;
 	char name[UINPUT_MAX_NAME_SIZE];
 	struct input_id id;
 	unsigned char prop[EVPLAY_NBYTES];

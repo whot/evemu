@@ -70,9 +70,7 @@ struct evemu_device *evemu_new(const char *name)
 {
 	struct evemu_device *dev = calloc(1, sizeof(struct evemu_device));
 
-	dev->version_major = EVEMU_VERSION_MAJOR;
-	dev->version_minor = EVEMU_VERSION_MINOR;
-
+	dev->version = EVEMU_VERSION;
 	if (name && strlen(name) < sizeof(dev->name))
 		strcpy(dev->name, name);
 
@@ -90,14 +88,9 @@ void evemu_delete(struct evemu_device *dev)
 	free(dev);
 }
 
-int evemu_get_version_major(const struct evemu_device *dev)
+unsigned int evemu_get_version(const struct evemu_device *dev)
 {
-	return dev->version_major;
-}
-
-int evemu_get_version_minor(const struct evemu_device *dev)
-{
-	return dev->version_minor;
+	return dev->version;
 }
 
 const char *evemu_get_name(const struct evemu_device *dev)
