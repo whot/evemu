@@ -22,6 +22,17 @@ AC_PROG_LIBTOOL
 AC_PROG_CC
 AC_PROG_INSTALL
 
+# man page generation
+AC_ARG_VAR([XMLTO], [Path to xmlto command])
+AC_PATH_PROG([XMLTO], [xmlto])
+AC_ARG_VAR([ASCIIDOC], [Path to asciidoc command])
+AC_PATH_PROG([ASCIIDOC], [asciidoc])
+AM_CONDITIONAL([HAVE_DOCTOOLS], [test "x$XMLTO" != "x" && test "x$ASCIIDOC" != "x"])
+if test "x$XMLTO" = "x" || test "x$ASCIIDOC" = "x"; then
+	AC_MSG_WARN([xmlto or asciidoc not found - cannot create man pages without it])
+fi
+
+
 AC_CONFIG_FILES([Makefile
                  src/Makefile
                  tools/Makefile

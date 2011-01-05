@@ -1,0 +1,44 @@
+EVEMU-DESCRIBE(1)
+=================
+
+NAME
+----
+
+     evemu-describe, evemu-record  - print information and events from an
+     input device
+
+SYNOPSIS
+--------
+     evemu-describe /dev/input/eventX
+
+     evemu-record /dev/input/eventX
+
+DESCRIPTION
+-----------
+evemu-describe gathers information about the input device and prints it to
+stdout. This information can be parsed by evemu-device(1) to create a
+virtual input device with the same properties.
+
+evemu-record captures events from the input device and prints them to
+stdout. The events can be parsed by evemu-play(1) to let a virtual input
+device created with evemu-device(1) emit the exact same event sequence.
+
+evemu-describe and evemu-record need to be able to read from the device; in
+most cases this means they must be run as root.
+
+DIAGNOSTICS
+-----------
+If evtest-record does not see any events even though the device is being
+used, the device may be grabbed by a process (EVIOCGRAB).  This is usually
+the case when debugging a synaptics or wacom device from within X. VT
+switching to a TTY or shutting down the X server terminates this grab and
+the devices can be recorded.
+
+SEE ALSO
+--------
+evemu-device(1)
+evemu-play(1)
+
+AUTHOR
+------
+evemu was written by Henrik Rydberg <rydberg@euromail.se>

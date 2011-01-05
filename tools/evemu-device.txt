@@ -1,0 +1,38 @@
+EVEMU-DEVICE(1)
+===============
+
+NAME
+----
+
+     evemu-device, evemu-play  - create a virtual input device and replay an
+     event sequence
+
+SYNOPSIS
+--------
+     evemu-device [description-file]
+
+     evemu-play /dev/input/eventX < event-sequence
+
+DESCRIPTION
+-----------
+evemu-device creates a virtual input device based on the description-file.
+This description is usually created by evemu-describe(1). evemu-device then
+creates a new input device with uinput and prints the name and the device
+file to
+stdout.
+
+evemu-play replays the event sequence given on stdin through the input
+device. The event sequence must be in the form created by evemu-record(1).
+
+evemu-device must be able to write to the uinput device node, and evemu-play
+must be able to write to the device node specified; in most cases this means
+it must be run as root.
+
+SEE ALSO
+--------
+evemu-describe(1)
+evemu-record(1)
+
+AUTHOR
+------
+evemu was written by Henrik Rydberg <rydberg@euromail.se>
