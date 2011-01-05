@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
+#include <unistd.h>
 
 #define UINPUT_NODE "/dev/uinput"
 #define MAX_EVENT_NODE 32

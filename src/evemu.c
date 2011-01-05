@@ -33,6 +33,8 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <poll.h>
+#include <ctype.h>
+#include <unistd.h>
 
 #ifndef UI_SET_PROPBIT
 #define UI_SET_PROPBIT		_IOW(UINPUT_IOCTL_BASE, 110, int)

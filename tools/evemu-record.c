@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
+#include <unistd.h>
 
 #define WAIT_MS 10000
 
