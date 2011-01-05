@@ -241,6 +241,8 @@ int evemu_write(const struct evemu_device *dev, FILE *fp)
 	for (i = 0; i < ABS_CNT; i++)
 		if (evemu_has_event(dev, EV_ABS, i))
 			write_abs(fp, i, &dev->abs[i]);
+
+	return 0;
 }
 
 static void read_prop(struct evemu_device *dev, FILE *fp)
