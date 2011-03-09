@@ -68,7 +68,7 @@ class EvEmu(object):
         """
         The play method replays the event sequence, as provided by the
         events-file, through the input device. The event sequence must be in
-        the form created by evemu-record(1).
+        the form created by the record method.
 
         Scripts that use this method need to be run as root.
         """
