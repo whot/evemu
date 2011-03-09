@@ -1,5 +1,6 @@
-import unittest
 from ctypes.util import find_library
+import os
+import unittest
 
 from evemu import LIB, EvEmu
 
@@ -28,6 +29,15 @@ class EvEmuTestCase(unittest.TestCase):
         if not library:
             library = LOCAL_LIB
         self.evemu = EvEmu(library=library)
+        from evemu import tests
+        basedir = tests.__path__[0]
+        self.data_dir = os.path.join(basedir, "data")
+
+    def _get_device_file(self):
+        return os.path.join(self.data_dir, "device.prop")
+
+    def _get_events_file(self):
+        return os.path.join(self.data_dir, "gesture.events")
 
     def test_initialize(self):
         # Make sure that the library loads
@@ -42,12 +52,14 @@ class EvEmuTestCase(unittest.TestCase):
         pass
 
     def test_create_device(self):
+        # Load the device file
         pass
 
     def test_record(self):
         pass
 
     def test_play(self):
+        # Load the device file
         pass
 
 
