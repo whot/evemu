@@ -6,13 +6,6 @@ import sys
 LIB = "libutouch-evemu"
 
 
-class Device(object):
-    """
-    """
-    def __init__(self, description_file):
-        pass
-
-
 class EvEmu(object):
     """
     """
