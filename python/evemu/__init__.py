@@ -1,3 +1,10 @@
+from ctypes import CDLL
+from ctypes.util import find_library
+
+
+LIB = "libutouch-evemu"
+
+
 class Device(object):
     """
     """
@@ -8,6 +15,13 @@ class Device(object):
 class EvEmu(object):
     """
     """
+    def __init__(self, library=""):
+        """
+        """
+        if not library:
+            library = find_library(LIB)
+        self._evemu = CDLL(library)
+
     def describe(self):
         """
         The describe gathers information about the input device and prints it
