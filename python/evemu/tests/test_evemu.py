@@ -7,10 +7,10 @@ from evemu import (
     LIB, EvEmu, EvEmuBase, EvEmuDevice, EvEmuWrapper, WrapperError)
 
 
-# This needs to get updated with new versions of evemu
-LOCAL_LIB = "../src/.libs/libutouch-evemu.so.1.0.0"
+DEFAULT_LIB = "/usr/lib/libutouch-evemu.so"
+LOCAL_LIB = "../src/.libs/libutouch-evemu.so"
 
-# This should also be examined every release of evemu
+# This should be examined every release of evemu
 API = [
     "evemu_new",
     "evemu_delete",
@@ -45,7 +45,10 @@ class BaseTestCase(unittest.TestCase):
     def setUp(self):
         library = find_library(LIB)
         if not library:
-            library = LOCAL_LIB
+            if os.path.exists(DEFAULT_LIB):
+                library = DEFAULT_LIB
+            else:
+                library = LOCAL_LIB
         self.library = library
         self.device_name = "My Special Device"
         from evemu import tests
