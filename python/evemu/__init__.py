@@ -14,6 +14,10 @@ class WrapperError(Exception):
     pass
 
 
+class ExecutionError(Exception):
+    pass
+
+
 class _EvEmuDevice(ctypes.Structure):
     pass
 
@@ -26,8 +30,14 @@ class EvEmuBase(object):
     def __init__(self, library=""):
         if not library:
             library = LIB
-        self._lib = ctypes.CDLL(library)
+        self._lib = ctypes.CDLL(library, use_errno=True)
         self._libc = ctypes.CDLL(find_library("c"))
+
+    def get_c_errno(self):
+        return ctypes.get_errno()
+
+    def get_c_error(self):
+        return os.strerror(ctypes.get_errno())
 
 
 class EvEmuDevice(EvEmuBase):
@@ -120,6 +130,8 @@ class EvEmuWrapper2(EvEmuBase):
     def read(self, filename):
         # XXX this may be borked and thus may need to be re-examined
         stream = self._libc.fopen(filename)
+        if self.get_c_errno() != 0:
+            raise ExecutionError, self.get_c_error()
         return self._lib.evemu_read(self._device, stream)
 
     def extract(self, filename):
@@ -128,8 +140,12 @@ class EvEmuWrapper2(EvEmuBase):
         # XXX is there a better way of doing this, than creating another file
         # to output to? Seems wasteful :-(
         (output_fd, output_filename) = tempfile.mkstemp()
-        #import pdb;pdb.set_trace()
-        self._lib.evemu_extract(self._device, input_fd)
+        ret_code = self._lib.evemu_extract(self._device, input_fd)
+        if self.get_c_errno() != 0:
+            raise ExecutionError, self.get_c_error()
+        return self._lib.evemu_read(self._device, stream)
+        import pdb;pdb.set_trace()
+        print "return code: %s" % ret_code
         #self._lib.evemu_write(self._device, output_fd)
         return os.read(output_fd, 1024)
 
@@ -208,10 +224,7 @@ class EvEmu(object):
     def __init__(self, library=""):
         """
         """
-        if not library:
-            library = find_library(LIB)
-        self._wrapper = EvEmuWrapper(library)
-        self._virtual_device = None
+        pass
 
     def describe(self, path_to_touch_device):
         """
