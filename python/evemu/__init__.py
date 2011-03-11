@@ -14,6 +14,10 @@ class WrapperError(Exception):
     pass
 
 
+class _EvEmuDevice(ctypes.Structure):
+    pass
+
+
 # XXX Move base classes and other supporting classes into their own module(s)
 class EvEmuBase(object):
     """
@@ -121,13 +125,13 @@ class EvEmuWrapper2(EvEmuBase):
     def extract(self, filename):
         # XXX is this crackful?
         input_fd = os.open(filename, os.O_RDONLY)
-        # XXX I'd like to use cStringIO here if possible (instead of a
-        # tmpfile...)
+        # XXX is there a better way of doing this, than creating another file
+        # to output to? Seems wasteful :-(
         (output_fd, output_filename) = tempfile.mkstemp()
         #import pdb;pdb.set_trace()
         self._lib.evemu_extract(self._device, input_fd)
-        self._lib.evemu_write(self._device, output_fd)
-        return output_fd.read()
+        #self._lib.evemu_write(self._device, output_fd)
+        return os.read(output_fd, 1024)
 
 
 class EvEmuWrapper(EvEmuBase):

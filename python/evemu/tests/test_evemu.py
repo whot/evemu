@@ -104,7 +104,9 @@ class EvEmuWrapperTestCase(BaseTestCase):
 
     def test_extract(self):
         result = self.wrapper.extract(self.get_device_file())
-        print result
+        print "\nfilename: %s" % self.get_device_file()
+        print "exists? %s" % str(os.path.exists(self.get_device_file()))
+        print "result:\n%s" % result
 
 
 class EvEmuTestCase(BaseTestCase):
