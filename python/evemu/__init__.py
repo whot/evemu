@@ -1,107 +1,14 @@
 import cStringIO
 import ctypes
-from ctypes.util import find_library
 import os
 import sys
 import tempfile
 
-from evemu import const
+from evemu import base, const
 from evemu.exception import WrapperError, ExecutionError
 
 
-class _EvEmuDevice(ctypes.Structure):
-    pass
-
-
-# XXX Move base classes and other supporting classes into their own module(s)
-class EvEmuBase(object):
-    """
-    A base wrapper class for the evemu functions, accessed via ctypes.
-    """
-    def __init__(self, library=""):
-        if not library:
-            library = const.LIB
-        self._lib = ctypes.CDLL(library, use_errno=True)
-        self._libc = ctypes.CDLL(find_library("c"))
-
-    def get_c_errno(self):
-        return ctypes.get_errno()
-
-    def get_c_error(self):
-        return os.strerror(ctypes.get_errno())
-
-
-class EvEmuDevice(EvEmuBase):
-    """
-    A wrapper class for the evemu device fucntions.
-    """
-    def __init__(self, library, device):
-        super(EvEmuDevice, self).__init__(library)
-        self._device = device
-
-    @property
-    def version(self):
-        pass
-
-    @property
-    def name(self):
-        pass
-
-    @property
-    def id_bustype(self):
-        pass
-
-    @property
-    def id_vendor(self):
-        pass
-
-    @property
-    def id_product(self):
-        pass
-
-    @property
-    def id_version(self):
-        pass
-
-    def abs_minimum(self, code):
-        pass
-
-    def abs_maximum(self, code):
-        pass
-
-    def abs_fuzz(self, code):
-        pass
-
-    def abs_flat(self, code):
-        pass
-
-    def abs_resolution(self, code):
-        pass
-
-    def abs_minimum(self, code):
-        pass
-
-    def has_prop(self, code):
-        pass
-
-    def has_event(self, event_type, code):
-        pass
-
-
-def checkdevice(function):
-    """
-    This is a decorator to be used for all methods that require the
-    ._device_pointer attribute to be set (in other words, by methods whose
-    evemu_* functions take a device pointer as a parameter).
-    """
-    def wrapped(self, *args, **kwds):
-        if not self._device_pointer:
-            raise WrapperError(
-                "No device name has been previously specifed with new().")
-    return wrapped
-
-
-class EvEmuWrapper2(EvEmuBase):
+class EvEmuWrapper2(base.EvEmuBase):
 
     def __init__(self, device_name, library=""):
         super(EvEmuWrapper2, self).__init__(library)
@@ -141,7 +48,7 @@ class EvEmuWrapper2(EvEmuBase):
         return os.read(output_fd, 1024)
 
 
-class EvEmuWrapper(EvEmuBase):
+class EvEmuWrapper(base.EvEmuBase):
     """
     A wrapper class for the evemu actions.
     """
@@ -171,7 +78,6 @@ class EvEmuWrapper(EvEmuBase):
     def _as_parameter(self):
         return ctypes.byref(self._device_pointer)
 
-    @checkdevice
     def read(self, filename):
         # XXX this one's borked and needs to be re-examined
         stream = self._libc.fopen(filename)
@@ -182,7 +88,6 @@ class EvEmuWrapper(EvEmuBase):
     def create(self):
         pass
 
-    @checkdevice
     def extract(self, filename):
         input_fd = os.open(filename, os.O_RDONLY)
         self._lib.evemu_extract(self._device_pointer, input_fd)

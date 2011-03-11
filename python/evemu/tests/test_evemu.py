@@ -4,7 +4,7 @@ import tempfile
 import unittest
 
 from evemu import (
-    const, EvEmu, EvEmuBase, EvEmuDevice, EvEmuWrapper2, WrapperError)
+    base, const, device, exception, EvEmu, EvEmuWrapper2)
 
 
 class BaseTestCase(unittest.TestCase):
@@ -29,7 +29,7 @@ class BaseTestCase(unittest.TestCase):
         return os.path.join(self.data_dir, "ntrig-xt2-4-tap.event")
 
     def test_initialize(self):
-        wrapper = EvEmuBase(self.library)
+        wrapper = base.EvEmuBase(self.library)
         # Make sure that the library loads
         self.assertNotEqual(
             wrapper._lib._name.find("libutouch-evemu"), -1)
@@ -43,7 +43,7 @@ class EvEmuDeviceTestCase(BaseTestCase):
 
     def setUp(self):
         super(EvEmuDeviceTestCase, self).setUp()
-        self.device = EvEmuDevice(self.library, self.device_name)
+        self.device = device.EvEmuDevice(self.library, self.device_name)
 
     def test_initialize(self):
         self.assertTrue(self.device._device, self.device_name)
