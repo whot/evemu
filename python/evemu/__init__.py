@@ -5,17 +5,8 @@ import os
 import sys
 import tempfile
 
-
-LIB = "libutouch-evemu"
-
-
-# XXX move exceptions into their own module
-class WrapperError(Exception):
-    pass
-
-
-class ExecutionError(Exception):
-    pass
+from evemu import const
+from evemu.exception import WrapperError, ExecutionError
 
 
 class _EvEmuDevice(ctypes.Structure):
@@ -29,7 +20,7 @@ class EvEmuBase(object):
     """
     def __init__(self, library=""):
         if not library:
-            library = LIB
+            library = const.LIB
         self._lib = ctypes.CDLL(library, use_errno=True)
         self._libc = ctypes.CDLL(find_library("c"))
 
