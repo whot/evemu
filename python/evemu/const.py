@@ -1,6 +1,8 @@
 LIB = "libutouch-evemu"
 DEFAULT_LIB = "/usr/lib/libutouch-evemu.so"
 LOCAL_LIB = "../src/.libs/libutouch-evemu.so"
+UINPUT_NODE = "/dev/uinput"
+MAX_EVENT_NODE = 32
 # The following should be examined every release of evemu
 API = [
     "evemu_new",
