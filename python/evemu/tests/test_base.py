@@ -1,16 +1,14 @@
-from ctypes.util import find_library
-import os
-import tempfile
 import unittest
 
-from evemu import base, const, device, exception, script, wrapper
+from evemu import const
+from evemu.base import EvEmuBase
 from evemu.testing.base import BaseTestCase
 
 
 class EvEmuBaseTestCase(BaseTestCase):
 
     def test_initialize(self):
-        wrapper = base.EvEmuBase(self.library)
+        wrapper = EvEmuBase(self.library)
         # Make sure that the library loads
         self.assertNotEqual(
             wrapper._lib._name.find("libutouch-evemu"), -1)

@@ -1,6 +1,5 @@
 from ctypes.util import find_library
 import os
-import tempfile
 import unittest
 
 from evemu import const

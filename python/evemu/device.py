@@ -54,9 +54,6 @@ class EvEmuDevice(base.EvEmuBase):
     def abs_resolution(self, code):
         pass
 
-    def abs_minimum(self, code):
-        pass
-
     def has_prop(self, code):
         pass
 

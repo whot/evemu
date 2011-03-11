@@ -3,7 +3,7 @@ import os
 import tempfile
 
 from evemu import base
-from evemu.exception import WrapperError, ExecutionError
+from evemu.exception import ExecutionError
 
 
 class EvEmuWrapper(base.EvEmuBase):
@@ -51,7 +51,7 @@ class EvEmuWrapper(base.EvEmuBase):
         ret_code = self._lib.evemu_extract(self._device, input_fd)
         if self.get_c_errno() != 0:
             raise ExecutionError, self.get_c_error()
-        return self._lib.evemu_read(self._device, stream)
+        return self._lib.evemu_read(self._device, input_fd)
         import pdb;pdb.set_trace()
         print "return code: %s" % ret_code
         #self._lib.evemu_write(self._device, output_fd)

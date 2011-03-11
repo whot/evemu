@@ -2,6 +2,8 @@ import ctypes
 from ctypes.util import find_library
 import os
 
+from evemu import const
+
 
 class EvEmuBase(object):
     """
