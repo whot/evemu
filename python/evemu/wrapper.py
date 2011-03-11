@@ -43,6 +43,13 @@ class EvEmuWrapper(base.EvEmuBase):
         return self._lib.evemu_read(self._device, stream)
 
     def extract(self, filename):
+        """
+        This extracts device information from an input device.
+
+        This method cannot be used against pre-recorded device files. To
+        extract data from pre-recorded device files, first create a virtual
+        device, and then execute extract against that virtual input device.
+        """
         # XXX is this crackful?
         input_fd = os.open(filename, os.O_RDONLY)
         # XXX is there a better way of doing this, than creating another file
@@ -51,10 +58,7 @@ class EvEmuWrapper(base.EvEmuBase):
         ret_code = self._lib.evemu_extract(self._device, input_fd)
         if self.get_c_errno() != 0:
             raise ExecutionError, self.get_c_error()
-        return self._lib.evemu_read(self._device, input_fd)
-        import pdb;pdb.set_trace()
-        print "return code: %s" % ret_code
-        #self._lib.evemu_write(self._device, output_fd)
+        self._lib.evemu_write(self._device, output_fd)
         return os.read(output_fd, 1024)
 
     def create(self):
