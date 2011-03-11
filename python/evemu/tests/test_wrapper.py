@@ -1,7 +1,7 @@
 import unittest
 
 from evemu.wrapper import EvEmuWrapper
-from evemu.testing.base import BaseTestCase
+from evemu.testing import BaseTestCase
 
 
 class EvEmuWrapperTestCase(BaseTestCase):

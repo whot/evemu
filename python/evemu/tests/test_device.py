@@ -1,7 +1,7 @@
 import unittest
 
 from evemu.device import EvEmuDevice
-from evemu.testing.base import BaseTestCase
+from evemu.testing import BaseTestCase
 
 
 class EvEmuDeviceTestCase(BaseTestCase):
