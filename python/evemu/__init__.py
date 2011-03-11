@@ -19,8 +19,10 @@ class EvEmuBase(object):
     """
     A base wrapper class for the evemu functions, accessed via ctypes.
     """
-    def __init__(self, library):
-        self._evemu = ctypes.CDLL(library)
+    def __init__(self, library=""):
+        if not library:
+            library = LIB
+        self._lib = ctypes.CDLL(library)
         self._libc = ctypes.CDLL(find_library("c"))
 
 
@@ -94,6 +96,40 @@ def checkdevice(function):
     return wrapped
 
 
+class EvEmuWrapper2(EvEmuBase):
+
+    def __init__(self, device_name, library=""):
+        super(EvEmuWrapper2, self).__init__(library)
+        # XXX I feel like I'm not accounting for the fact that the device
+        # pointer "points" to a struct... iow, should I be using
+        # ctypes.Structure somwhere?
+        device_new = self._lib.evemu_new
+        device_new.restype = ctypes.c_void_p
+        self._device = device_new(device_name)
+
+    def __del__(self):
+        self._lib.evemu_delete(self._device)
+
+    def _as_parameter_(self):
+        return self._device
+
+    def read(self, filename):
+        # XXX this may be borked and thus may need to be re-examined
+        stream = self._libc.fopen(filename)
+        return self._lib.evemu_read(self._device, stream)
+
+    def extract(self, filename):
+        # XXX is this crackful?
+        input_fd = os.open(filename, os.O_RDONLY)
+        # XXX I'd like to use cStringIO here if possible (instead of a
+        # tmpfile...)
+        (output_fd, output_filename) = tempfile.mkstemp()
+        #import pdb;pdb.set_trace()
+        self._lib.evemu_extract(self._device, input_fd)
+        self._lib.evemu_write(self._device, output_fd)
+        return output_fd.read()
+
+
 class EvEmuWrapper(EvEmuBase):
     """
     A wrapper class for the evemu actions.
@@ -116,9 +152,13 @@ class EvEmuWrapper(EvEmuBase):
         following:
           $ cat /proc/bus/input/devices
         """
-        device_pointer = self._evemu.evemu_new(device_name)
+        device_pointer = self._lib.evemu_new(device_name)
         self._device_pointer = ctypes.pointer(ctypes.c_int(device_pointer))
         return self._device_pointer
+
+    @property
+    def _as_parameter(self):
+        return ctypes.byref(self._device_pointer)
 
     @checkdevice
     def read(self, filename):
@@ -126,9 +166,7 @@ class EvEmuWrapper(EvEmuBase):
         stream = self._libc.fopen(filename)
             #ctypes.byref(ctypes.c_char_p(filename)), 
             #ctypes.byref(ctypes.c_char_p("r")))
-        return self._evemu.evemu_new(
-            ctypes.byref(self._device_pointer),
-            stream)
+        return self._lib.evemu_new(self._device_pointer, stream)
 
     def create(self):
         pass
@@ -136,11 +174,9 @@ class EvEmuWrapper(EvEmuBase):
     @checkdevice
     def extract(self, filename):
         input_fd = os.open(filename, os.O_RDONLY)
-        self._evemu.evemu_extract(
-            ctypes.byref(self._device_pointer), input_fd)
+        self._lib.evemu_extract(self._device_pointer, input_fd)
         (output_fd, output_filename) = tempfile.mkstemp()
-        self._evemu.evemu_write(
-            ctypes.byref(self._device_pointer), output_fd)
+        self._lib.evemu_write(self._device_pointer, output_fd)
         return output_fd.read()
 
     def delete(self):

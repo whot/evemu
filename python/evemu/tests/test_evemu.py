@@ -4,7 +4,7 @@ import tempfile
 import unittest
 
 from evemu import (
-    LIB, EvEmu, EvEmuBase, EvEmuDevice, EvEmuWrapper, WrapperError)
+    LIB, EvEmu, EvEmuBase, EvEmuDevice, EvEmuWrapper2, WrapperError)
 
 
 DEFAULT_LIB = "/usr/lib/libutouch-evemu.so"
@@ -65,10 +65,10 @@ class BaseTestCase(unittest.TestCase):
         wrapper = EvEmuBase(self.library)
         # Make sure that the library loads
         self.assertNotEqual(
-            wrapper._evemu._name.find("libutouch-evemu"), -1)
+            wrapper._lib._name.find("libutouch-evemu"), -1)
         # Make sure that the expected functions are present
         for function_name in API:
-            function = getattr(wrapper._evemu, function_name)
+            function = getattr(wrapper._lib, function_name)
             self.assertTrue(function is not None)
 
 
@@ -86,43 +86,26 @@ class EvEmuWrapperTestCase(BaseTestCase):
 
     def setUp(self):
         super(EvEmuWrapperTestCase, self).setUp()
-        self.wrapper = EvEmuWrapper(self.library)
+        self.wrapper = EvEmuWrapper2(self.device_name, self.library)
 
     def test_initialize(self):
-        self.assertTrue(self.wrapper._device_pointer is None)
-
-    def test_new(self):
-        self.wrapper.new(self.device_name)
-        pointer = self.wrapper._device_pointer
-        self.assertTrue(isinstance(pointer.contents.value, int))
-
-    def test_read_no_device_pointer(self):
-        filename = tempfile.mkstemp()
-        self.assertRaises(WrapperError, self.wrapper.read, filename)
+        self.assertTrue(self.wrapper._device is not None)
 
     def test_read(self):
-        self.wrapper.new(self.device_name)
         # hrm... not sure if I should be reading from the device file or
         # preping an empty file...
-        result = self.wrapper.read(self.get_device_file())
+        #result = self.wrapper.read(self.get_device_file())
         # XXX need to do checks against the result
-
-    # XXX file this test in
-    def test_create_no_device_pointer(self):
         pass
 
     # XXX file this test in
     def test_create(self):
         pass
 
-    def test_extract_no_device_pointer(self):
-        filename = tempfile.mkstemp()
-        self.assertRaises(WrapperError, self.wrapper.extract, filename)
-
     def test_extract(self):
-        self.wrapper.new(self.device_name)
-        result = self.wrapper.read(self.get_device_file())
+        result = self.wrapper.extract(self.get_device_file())
         print result
+
 
 class EvEmuTestCase(BaseTestCase):
 
