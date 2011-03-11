@@ -11,7 +11,8 @@ class EvEmuWrapperTestCase(BaseTestCase):
         self.wrapper = EvEmuWrapper(self.device_name, self.library)
 
     def test_initialize(self):
-        self.assertTrue(self.wrapper._device is not None)
+        self.assertTrue(self.wrapper.device is not None)
+        self.assertTrue(self.wrapper.get_device() is not None)
 
     def test_read(self):
         # hrm... not sure if I should be reading from the device file or

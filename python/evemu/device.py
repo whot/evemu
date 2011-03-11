@@ -7,11 +7,11 @@ class EvEmuDevice(object):
     """
     A wrapper class for the evemu device fucntions.
     """
-    def __init__(self, device, loaded_library):
+    def __init__(self, device_name, loaded_library):
+        self._lib = loaded_library
         device_new = self._lib.evemu_new
         device_new.restype = ctypes.c_void_p
         self._device = device_new(device_name)
-        self._lib = loaded_library
 
     def __del__(self):
         self._lib.evemu_delete(self._device)

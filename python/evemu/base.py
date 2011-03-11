@@ -20,3 +20,9 @@ class EvEmuBase(object):
 
     def get_c_error(self):
         return os.strerror(ctypes.get_errno())
+
+    def get_c_lib(self):
+        return self._libc
+
+    def get_lib(self):
+        return self._lib

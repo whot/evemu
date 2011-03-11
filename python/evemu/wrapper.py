@@ -3,6 +3,7 @@ import os
 import tempfile
 
 from evemu import base
+from evemu import device
 from evemu.exception import ExecutionError
 
 
@@ -22,7 +23,7 @@ class EvEmuWrapper(base.EvEmuBase):
           $ cat /proc/bus/input/devices
         """
         super(EvEmuWrapper, self).__init__(library)
-        self.device = EvEmuDevice(device_name)
+        self.device = device.EvEmuDevice(device_name, self.get_lib())
 
     def _as_parameter_(self):
         return self.get_device()
@@ -32,10 +33,10 @@ class EvEmuWrapper(base.EvEmuBase):
 
     def read(self, filename):
         # XXX this may be borked and thus may need to be re-examined
-        stream = self._libc.fopen(filename)
+        stream = self.get_c_lib().fopen(filename)
         if self.get_c_errno() != 0:
             raise ExecutionError, self.get_c_error()
-        return self._lib.evemu_read(self.get_device(), stream)
+        return self.get_lib().evemu_read(self.get_device(), stream)
 
     def extract(self, filename):
         """
@@ -50,7 +51,7 @@ class EvEmuWrapper(base.EvEmuBase):
         # XXX is there a better way of doing this, than creating another file
         # to output to? Seems wasteful :-(
         (output_fd, output_filename) = tempfile.mkstemp()
-        ret_code = self._lib.evemu_extract(self.get_device(), input_fd)
+        ret_code = self.get_lib().evemu_extract(self.get_device(), input_fd)
         if self.get_c_errno() != 0:
             raise ExecutionError, self.get_c_error()
         self._lib.evemu_write(self.get_device(), output_fd)
