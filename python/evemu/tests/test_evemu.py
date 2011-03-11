@@ -4,7 +4,7 @@ import tempfile
 import unittest
 
 from evemu import (
-    base, const, device, exception, EvEmu, EvEmuWrapper2)
+    base, const, device, exception, EvEmu, EvEmuWrapper)
 
 
 class BaseTestCase(unittest.TestCase):
@@ -53,7 +53,7 @@ class EvEmuWrapperTestCase(BaseTestCase):
 
     def setUp(self):
         super(EvEmuWrapperTestCase, self).setUp()
-        self.wrapper = EvEmuWrapper2(self.device_name, self.library)
+        self.wrapper = EvEmuWrapper(self.device_name, self.library)
 
     def test_initialize(self):
         self.assertTrue(self.wrapper._device is not None)

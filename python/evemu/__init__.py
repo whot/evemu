@@ -8,10 +8,22 @@ from evemu import base, const
 from evemu.exception import WrapperError, ExecutionError
 
 
-class EvEmuWrapper2(base.EvEmuBase):
+class EvEmuWrapper(base.EvEmuBase):
 
     def __init__(self, device_name, library=""):
-        super(EvEmuWrapper2, self).__init__(library)
+        """
+        @device_name: wanted input device name (or NULL to leave empty)
+        
+        This method allocates a new evemu device structure and initializes
+        all fields to zero. If name is non-null and the length is sane, it is
+        copied to the device name.
+
+        The device name will be used in the device data, similarly as is
+        presented by the device data that is viewable when you do the
+        following:
+          $ cat /proc/bus/input/devices
+        """
+        super(EvEmuWrapper, self).__init__(library)
         # XXX I feel like I'm not accounting for the fact that the device
         # pointer "points" to a struct... iow, should I be using
         # ctypes.Structure somwhere?
@@ -46,44 +58,6 @@ class EvEmuWrapper2(base.EvEmuBase):
         print "return code: %s" % ret_code
         #self._lib.evemu_write(self._device, output_fd)
         return os.read(output_fd, 1024)
-
-
-class EvEmuWrapper(base.EvEmuBase):
-    """
-    A wrapper class for the evemu actions.
-    """
-    def __init__(self, library):
-        super(EvEmuWrapper, self).__init__(library)
-        self._device_pointer = None
-        self._device_fd, self._device_filename = tempfile.mkstemp()
-
-    def new(self, device_name):
-        """
-        @name: wanted input device name (or NULL to leave empty)
-        
-        This method allocates a new evemu device structure and initializes
-        all fields to zero. If name is non-null and the length is sane, it is
-        copied to the device name.
-
-        The device name will be used in the device data, similarly as is
-        presented by the device data that is viewable when you do the
-        following:
-          $ cat /proc/bus/input/devices
-        """
-        device_pointer = self._lib.evemu_new(device_name)
-        self._device_pointer = ctypes.pointer(ctypes.c_int(device_pointer))
-        return self._device_pointer
-
-    @property
-    def _as_parameter(self):
-        return ctypes.byref(self._device_pointer)
-
-    def read(self, filename):
-        # XXX this one's borked and needs to be re-examined
-        stream = self._libc.fopen(filename)
-            #ctypes.byref(ctypes.c_char_p(filename)), 
-            #ctypes.byref(ctypes.c_char_p("r")))
-        return self._lib.evemu_new(self._device_pointer, stream)
 
     def create(self):
         pass
