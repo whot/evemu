@@ -28,15 +28,19 @@ class EvEmuWrapper(base.EvEmuBase):
     def _as_parameter_(self):
         return self.get_device()
 
+    def _call(self, api_call, *parameters):
+        result = api_call(*parameters)
+        if self.get_c_errno() != 0:
+            raise ExecutionError, self.get_c_error()
+        return result
+
     def get_device(self):
         return self.device.get_raw_device()
 
     def read(self, filename):
         # XXX this may be borked and thus may need to be re-examined
-        stream = self.get_c_lib().fopen(filename)
-        if self.get_c_errno() != 0:
-            raise ExecutionError, self.get_c_error()
-        return self.get_lib().evemu_read(self.get_device(), stream)
+        stream = self._call(self.get_c_lib().fopen, filename)
+        return self._call(self.get_lib().evemu_read, self.get_device(), stream)
 
     def extract(self, filename):
         """
@@ -51,10 +55,8 @@ class EvEmuWrapper(base.EvEmuBase):
         # XXX is there a better way of doing this, than creating another file
         # to output to? Seems wasteful :-(
         (output_fd, output_filename) = tempfile.mkstemp()
-        ret_code = self.get_lib().evemu_extract(self.get_device(), input_fd)
-        if self.get_c_errno() != 0:
-            raise ExecutionError, self.get_c_error()
-        self._lib.evemu_write(self.get_device(), output_fd)
+        ret_code = self._call(
+            self.get_lib().evemu_extract, self.get_device(), input_fd)
         return os.read(output_fd, 1024)
 
     def create(self):
