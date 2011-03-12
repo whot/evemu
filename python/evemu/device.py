@@ -14,18 +14,25 @@ class EvEmuDevice(object):
         self._device = device_new(device_name)
 
     def __del__(self):
-        self._lib.evemu_delete(self._device)
+        self.get_lib().evemu_delete(self._device)
 
-    def get_raw_device(self):
+    @property
+    def _as_property_(self):
+        return self.get_deivce_fd()
+
+    def get_lib(self):
+        return self._lib
+
+    def get_device_fd(self):
         return self._device
 
     @property
     def version(self):
-        pass
+        return self.get_lib().evemu_get_version(self.get_device_fd())
 
     @property
     def name(self):
-        pass
+        return self.get_lib().evemu_get_name(self.get_device_fd())
 
     @property
     def id_bustype(self):
