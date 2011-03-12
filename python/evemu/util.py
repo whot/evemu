@@ -1,5 +1,8 @@
+import os
 import re
 import subprocess
+
+from evemu import const
 
 
 def lsinput():
@@ -30,3 +33,14 @@ def get_next_device():
     last_device = get_last_device()
     last_node_number = int(re.sub("[^0-9]", "", last_device))
     return "/dev/input/event%i" % (last_node_number + 1)
+
+
+def get_next_device2():
+    """
+    Get the next availne device node number.
+    """
+    path_template = "/dev/input/event%d"
+    for index in xrange(const.MAX_EVENT_NODE):
+        path = path_template % index
+        if not os.path.exists(path):
+            return path

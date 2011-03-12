@@ -29,12 +29,6 @@ class EvEmuWrapper(base.EvEmuBase):
     def _as_parameter_(self):
         return self.get_device()
 
-    def _call(self, api_call, *parameters):
-        result = api_call(*parameters)
-        if self.get_c_errno() != 0:
-            raise ExecutionError, self.get_c_error()
-        return result
-
     def get_device(self):
         return self.device.get_device_fd()
 

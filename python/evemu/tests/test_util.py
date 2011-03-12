@@ -26,7 +26,7 @@ class UtilTestCase(unittest.TestCase):
 
     def test_get_next_device(self):
         last_device = util.get_last_device()
-        next_device = util.get_next_device()
+        next_device = util.get_next_device2()
         self.assertIn("/dev/input/event", next_device)
         self.assertEqual(
             (int(last_device[-1]) + 1) % 10,
