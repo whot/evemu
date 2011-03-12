@@ -18,29 +18,23 @@ def get_test_module():
     return get_test_directory().replace("/", ".")
 
 
+def get_last_device_number():
+    for index in xrange(const.MAX_EVENT_NODE):
+        path = const.DEVICE_PATH_TEMPLATE % index
+        if not os.path.exists(path):
+            return index-1
+
+
 def get_last_device():
     """
     Get the last used device node number.
     """
-    output = lsinput()
-    return [x for x in output.splitlines() if '/dev/input/event' in x][-1]
+    return const.DEVICE_PATH_TEMPLATE % get_last_device_number()
 
 
 def get_next_device():
     """
     Get the next availne device node number.
     """
-    last_device = get_last_device()
-    last_node_number = int(re.sub("[^0-9]", "", last_device))
-    return "/dev/input/event%i" % (last_node_number + 1)
+    return const.DEVICE_PATH_TEMPLATE % (get_last_device_number() + 1)
 
-
-def get_next_device2():
-    """
-    Get the next availne device node number.
-    """
-    path_template = "/dev/input/event%d"
-    for index in xrange(const.MAX_EVENT_NODE):
-        path = path_template % index
-        if not os.path.exists(path):
-            return path
