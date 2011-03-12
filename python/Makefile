@@ -2,7 +2,7 @@ build: extension
 	python setup.py build
 
 check:
-	sudo python -m unittest discover -v -s evemu
+	sudo python -m evemu.testing
 
 clean:
 	sudo rm -rf build

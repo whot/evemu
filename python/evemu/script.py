@@ -1,6 +1,7 @@
 import os
 import sys
 
+
 class EvEmu(object):
     """
     This class wraps the functionality offerened by the evemu utility programs.

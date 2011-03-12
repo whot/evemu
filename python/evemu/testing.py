@@ -40,7 +40,6 @@ class CustomTestResult(unittest.TextTestResult):
         unittest.TestResult.startTest(self, test)
         if not self.showAll:
             return
-        #print "Start Test: %s" % test
         self.last_module_and_class = self.current_module_and_class
         method = test._testMethodName
         module_and_class = test.id().rsplit(method)[0][:-1]
@@ -52,8 +51,6 @@ class CustomTestResult(unittest.TextTestResult):
         self.stream.write(" ")
         self.stream.flush()
 
-    def stopTestRun(self, *test):
-        super(CustomTestResult, self).stopTestRun(*test)
 
 def runTests():
     loader = unittest.TestLoader()
