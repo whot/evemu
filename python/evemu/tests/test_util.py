@@ -20,6 +20,18 @@ class UtilTestCase(unittest.TestCase):
         result = util.get_test_module()
         self.assertEqual(result, "evemu.tests")
 
+    def test_get_last_device(self):
+        result = util.get_last_device()
+        self.assertIn("/dev/input/event", result)
+
+    def test_get_next_device(self):
+        last_device = util.get_last_device()
+        next_device = util.get_next_device()
+        self.assertIn("/dev/input/event", next_device)
+        self.assertEqual(
+            (int(last_device[-1]) + 1) % 10,
+            int(next_device[-1]))
+
 
 if __name__ == "__main__":
     unittest.main()
