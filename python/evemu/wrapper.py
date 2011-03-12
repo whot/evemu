@@ -3,6 +3,7 @@ import os
 import tempfile
 
 from evemu import base
+from evemu import const
 from evemu import device
 from evemu.exception import ExecutionError
 
@@ -35,7 +36,7 @@ class EvEmuWrapper(base.EvEmuBase):
         return result
 
     def get_device(self):
-        return self.device.get_raw_device()
+        return self.device.get_device_fd()
 
     def read(self, filename):
         # XXX this may be borked and thus may need to be re-examined
@@ -55,12 +56,15 @@ class EvEmuWrapper(base.EvEmuBase):
         # XXX is there a better way of doing this, than creating another file
         # to output to? Seems wasteful :-(
         (output_fd, output_filename) = tempfile.mkstemp()
-        ret_code = self._call(
-            self.get_lib().evemu_extract, self.get_device(), input_fd)
+        self._call(self.get_lib().evemu_extract, self.get_device(), input_fd)
         return os.read(output_fd, 1024)
 
-    def create(self):
-        pass
+    def create(self, device_file):
+        input_fd = os.open(const.UINPUT_NODE, os.O_WRONLY)
+        self._call(self.get_lib().evemu_create, self.get_device(), input_fd)
+        # XXX now destroy the device?
+        #self._call(self.get_lib().evemu_destroy, input_fd)
+        #return (virtual_input_device, virtual_input_fd)
 
     def delete(self):
         pass
