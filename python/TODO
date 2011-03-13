@@ -1,0 +1,18 @@
+Stephen's got some good examples for ctypes support here:
+ * http://bazaar.launchpad.net/~bregma/utouch-geis/python-geis/view/head:/geis.py
+
+In particular:
+ * line 289, the init for Geis, working around the issue of pointers getting
+   initialized inside a C function
+ * line 295 for garbage collection
+ * 299 and 265, for the byref trick
+
+Let's start with a simple case first:
+ * try to get extract working
+
+Actaully, that's not so simple -- after talking with Henrik, he clarified that
+extract works directly against an input device, not against files.
+
+What I need to do first are these things:
+ * create a virtual device from a recorded device file
+ * replay the events from a recorded events file
