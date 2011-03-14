@@ -15,6 +15,9 @@ clean-parent:
 clean-parent-misc:
 	cd ../; sudo rm -rf Makefile Makefile.in aclocal.m4 autom4te.cache/ \
 	config-aux/ config.h.in config.log config.status src/.deps/ src/Makefile \
-	src/Makefile.in tools/.deps/ tools/Makefile tools/Makefile.in configure
+	src/Makefile.in tools/.deps/ tools/Makefile tools/Makefile.in configure \
+	src/.libs/ src/evemu.lo src/libutouch-evemu.la tools/.libs/ \
+	tools/evemu-describe tools/evemu-device tools/evemu-echo tools/evemu-play \
+	tools/evemu-record
 
 clean-all: clean clean-parent clean-parent-misc
