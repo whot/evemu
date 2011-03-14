@@ -1,3 +1,11 @@
+BUGS
+====
+ * device nodes are created for each unit test and stick around until the last
+   unit test
+ *
+
+NOTES
+=====
 Stephen's got some good examples for ctypes support here:
  * http://bazaar.launchpad.net/~bregma/utouch-geis/python-geis/view/head:/geis.py
 
@@ -16,3 +24,13 @@ extract works directly against an input device, not against files.
 What I need to do first are these things:
  * create a virtual device from a recorded device file
  * replay the events from a recorded events file
+
+The script does this:
+ * main()
+   * take the deivce/properties file as a parameter
+   * calls evemu_device, passing a filepointer for the properties file
+ * evemu_device
+   * takes the passed file pointer
+ * identify a device file
+ * write the properties to the device file
+ * describe the device file
