@@ -17,16 +17,17 @@ class BaseTestCase(unittest.TestCase):
             else:
                 library = const.LOCAL_LIB
         self.library = library
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        self.device_name = "evm tst dvc: %s" % timestamp
-        basedir = util.get_test_directory()
-        self.data_dir = os.path.join(basedir, "data", "ntrig-xt2")
+        #timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        #self.device_name = "evm tst dvc: %s" % timestamp
+        self.device_name = "evemu-%d:%s" % (os.getpid(), self._testMethodName)
+        basedir = util.get_top_directory()
+        self.data_dir = os.path.join(basedir, "..", "..", "data")
 
     def get_device_file(self):
-        return os.path.join(self.data_dir, "ntrig-xt2.device")
+        return os.path.join(self.data_dir, "ntrig-dell-xt2.prop")
 
     def get_events_file(self):
-        return os.path.join(self.data_dir, "ntrig-xt2-4-tap.event")
+        return os.path.join(self.data_dir, "ntrig-dell-xt2.event")
 
 
 class CustomTestResult(unittest.TextTestResult):
