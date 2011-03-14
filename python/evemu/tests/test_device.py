@@ -9,7 +9,11 @@ class EvEmuDeviceTestCase(BaseTestCase):
 
     def setUp(self):
         super(EvEmuDeviceTestCase, self).setUp()
-        self.device = EvEmuDevice(self.device_name, ctypes.CDLL(self.library))
+        self.device = EvEmuDevice(self.device_name, self.library)
+        self.device.create_node(self.get_device_file())
+
+    def tearDown(self):
+        del(self.device)
 
     def test_initialize(self):
         self.assertTrue(self.device._device is not None)
@@ -22,11 +26,12 @@ class EvEmuDeviceTestCase(BaseTestCase):
         fd = self.device.get_device_fd()
         self.assertEqual(type(fd), int)
 
-    @unittest.skip("Not ready yet")
+    #@unittest.skip("Not ready yet")
     def test_version(self):
+        import pdb;pdb.set_trace()
         self.assertEqual(self.device.version, "XX")
 
-    @unittest.skip("Not ready yet")
+    #@unittest.skip("Not ready yet")
     def test_name(self):
         self.assertEqual(self.device.name, "XX")
 

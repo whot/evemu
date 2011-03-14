@@ -4,7 +4,7 @@ LOCAL_LIB = "../src/.libs/libutouch-evemu.so"
 UINPUT_NODE = "/dev/uinput"
 MAX_EVENT_NODE = 32
 DEVICE_PATH_TEMPLATE = "/dev/input/event%d"
-
+DEVICE_NAME_PATH_TEMPLATE = "/sys/class/input/event%d/device/name"
 # The following should be examined every release of evemu
 API = [
     "evemu_new",

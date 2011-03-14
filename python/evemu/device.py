@@ -1,19 +1,25 @@
 import ctypes
+import os
 
 from evemu import base
+from evemu import const
+from evemu import util
 
 
-class EvEmuDevice(object):
+class EvEmuDevice(base.EvEmuBase):
     """
     A wrapper class for the evemu device fucntions.
     """
-    def __init__(self, device_name, loaded_library):
-        self._lib = loaded_library
+    def __init__(self, device_name, library):
+        super(EvEmuDevice, self).__init__(library)
         device_new = self._lib.evemu_new
         device_new.restype = ctypes.c_void_p
         self._device = device_new(device_name)
+        self._node = ""
 
     def __del__(self):
+        if self.get_node_name() and os.path.exists(self.get_node_name()):
+            os.unlink(self.get_node_name())
         self.get_lib().evemu_delete(self._device)
 
     @property
@@ -25,6 +31,23 @@ class EvEmuDevice(object):
 
     def get_device_fd(self):
         return self._device
+
+    def get_node_name(self):
+        if not self._node:
+            self._node = util.get_next_device()
+        return self._node
+
+    def create_node(self, device_file):
+        # create the node
+        input_fd = os.open(const.UINPUT_NODE, os.O_WRONLY)
+        self._call(self.get_lib().evemu_create, self.get_device_fd(), input_fd)
+        # write the device file to the new node
+        #source_file = open(device_file)
+        #dest_file = open(self.get_node_name(), "w")
+        #dest_file.write(source_file.read())
+        #source_file.close()
+        #dest_file.close()
+        #os.close(input_fd)
 
     @property
     def version(self):
