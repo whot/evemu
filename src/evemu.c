@@ -361,24 +361,39 @@ int evemu_read_event(FILE *fp, struct input_event *ev)
 	return ret;
 }
 
-int evemu_play(FILE *fp, int fd)
+int evemu_read_event_realtime(FILE *fp, struct input_event *ev,
+			      struct timeval *evtime)
 {
-	struct input_event prev, ev;
-	long check = 0, usec;
+	unsigned long usec;
 	int ret;
 
-	memset(&prev, 0, sizeof(prev));
-	while (evemu_read_event(fp, &ev) > 0) {
-		if (!prev.time.tv_sec)
-			prev = ev;
-		usec = 1000000L * (ev.time.tv_sec - prev.time.tv_sec);
-		usec += ev.time.tv_usec - prev.time.tv_usec;
-		if (usec - check > 500) {
-			usleep(usec - check);
-			check = usec;
+	ret = evemu_read_event(fp, ev);
+	if (ret <= 0)
+		return ret;
+
+	if (evtime) {
+		if (!evtime->tv_sec)
+			*evtime = ev->time;
+		usec = 1000000L * (ev->time.tv_sec - evtime->tv_sec);
+		usec += ev->time.tv_usec - evtime->tv_usec;
+		if (usec > 500) {
+			usleep(usec);
+			*evtime = ev->time;
 		}
-		SYSCALL(ret = write(fd, &ev, sizeof(ev)));
 	}
+
+	return ret;
+}
+
+int evemu_play(FILE *fp, int fd)
+{
+	struct input_event ev;
+	struct timeval evtime;
+	int ret;
+
+	memset(&evtime, 0, sizeof(evtime));
+	while (evemu_read_event_realtime(fp, &ev, &evtime) > 0)
+		SYSCALL(ret = write(fd, &ev, sizeof(ev)));
 
 	return 0;
 }

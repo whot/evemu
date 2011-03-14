@@ -76,6 +76,8 @@ int evemu_read(struct evemu_device *dev, FILE *fp);
 
 int evemu_write_event(FILE *fp, const struct input_event *ev);
 int evemu_read_event(FILE *fp, struct input_event *ev);
+int evemu_read_event_realtime(FILE *fp, struct input_event *ev,
+			      struct timeval *evtime);
 
 int evemu_record(FILE *fp, int fd, int ms);
 int evemu_play(FILE *fp, int fd);
