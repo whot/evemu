@@ -2,6 +2,7 @@ import unittest
 
 from evemu import util
 
+
 class UtilTestCase(unittest.TestCase):
 
     def test_lsinput(self):
@@ -15,6 +16,9 @@ class UtilTestCase(unittest.TestCase):
     def test_get_test_directory(self):
         result = util.get_test_directory()
         self.assertEqual(result, "evemu/tests")
+
+    def test_get_last_device_number(self):
+        self.assertTrue(isinstance(util.get_last_device_number(), int))
 
     def test_get_test_module(self):
         result = util.get_test_module()
