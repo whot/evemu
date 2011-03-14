@@ -4,6 +4,7 @@ BUGS
    unit test
  *
 
+
 NOTES
 =====
 Stephen's got some good examples for ctypes support here:
@@ -34,3 +35,16 @@ The script does this:
  * identify a device file
  * write the properties to the device file
  * describe the device file
+
+
+ MIND-STATE DUMP
+ ===============
+
+  * currently working on debuggin why devices aren't being deleted after each
+    test (instead, they are being deleted once all tests have finished)
+
+  * tracing through the evemu-device program to identify any logic in the C
+    that's missing in the Python implementation
+
+  * the reason for the activity of the last bullet point: only the device nam,e
+    is being written to the devices, not the actual device data
