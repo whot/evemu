@@ -16,11 +16,13 @@ class EvEmuDevice(base.EvEmuBase):
         device_new.restype = ctypes.c_void_p
         self._device = device_new(device_name)
         self._node = ""
+        self._device_file_stream = None
 
     def __del__(self):
+        self.get_lib().evemu_delete(self._device)
         if self.get_node_name() and os.path.exists(self.get_node_name()):
             os.unlink(self.get_node_name())
-        self.get_lib().evemu_delete(self._device)
+        del(self._device_file_stream)
 
     @property
     def _as_property_(self):
@@ -39,11 +41,12 @@ class EvEmuDevice(base.EvEmuBase):
 
     def read(self, device_file):
         # pre-load the device structure with data from the 
-        stream = self._call(self.get_c_lib().fopen, device_file)
-        #import pdb;pdb.set_trace()
+        self._device_file_stream = self._call(
+            self.get_c_lib().fopen, device_file, "r")
         self._call(
-            self.get_lib().evemu_read, self.get_device_fd(),
-            ctypes.byref(ctypes.c_int(stream)))
+            self.get_lib().evemu_read,
+            self.get_device_fd(),
+            self._device_file_stream)
 
     def create_node(self, device_file):
         # load device data from the device_file
