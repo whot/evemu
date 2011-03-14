@@ -24,7 +24,7 @@ class EvEmuWrapper(base.EvEmuBase):
           $ cat /proc/bus/input/devices
         """
         super(EvEmuWrapper, self).__init__(library)
-        self.device = device.EvEmuDevice(device_name, self.get_lib())
+        self.device = device.EvEmuDevice(device_name, library)
 
     def _as_parameter_(self):
         return self.get_device()
@@ -54,8 +54,7 @@ class EvEmuWrapper(base.EvEmuBase):
         return os.read(output_fd, 1024)
 
     def create(self, device_file):
-        input_fd = os.open(const.UINPUT_NODE, os.O_WRONLY)
-        self._call(self.get_lib().evemu_create, self.get_device(), input_fd)
+        self.device.create_node(device_file)
         # XXX now destroy the device?
         #self._call(self.get_lib().evemu_destroy, input_fd)
         #return (virtual_input_device, virtual_input_fd)
