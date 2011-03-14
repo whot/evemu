@@ -30,11 +30,9 @@ The script does this:
  * main()
    * take the deivce/properties file as a parameter
    * calls evemu_device, passing a filepointer for the properties file
- * evemu_device
-   * takes the passed file pointer
- * identify a device file
- * write the properties to the device file
- * describe the device file
+ * evemu_device takes the passed file pointer
+ * identifies a device file
+ * writes the properties to the device file
 
 
  MIND-STATE DUMP

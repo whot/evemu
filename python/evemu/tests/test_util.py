@@ -1,9 +1,10 @@
 import unittest
 
 from evemu import util
+from evemu.testing import Non26BaseTestCase
 
 
-class UtilTestCase(unittest.TestCase):
+class UtilTestCase(Non26BaseTestCase):
 
     def test_lsinput(self):
         results = util.lsinput()

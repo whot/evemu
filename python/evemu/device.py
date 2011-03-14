@@ -37,7 +37,17 @@ class EvEmuDevice(base.EvEmuBase):
             self._node = util.get_next_device()
         return self._node
 
+    def read(self, device_file):
+        # pre-load the device structure with data from the 
+        stream = self._call(self.get_c_lib().fopen, device_file)
+        #import pdb;pdb.set_trace()
+        self._call(
+            self.get_lib().evemu_read, self.get_device_fd(),
+            ctypes.byref(ctypes.c_int(stream)))
+
     def create_node(self, device_file):
+        # load device data from the device_file
+        self.read(device_file)
         # create the node
         input_fd = os.open(const.UINPUT_NODE, os.O_WRONLY)
         self._call(self.get_lib().evemu_create, self.get_device_fd(), input_fd)

@@ -7,7 +7,15 @@ from evemu import const
 
 def lsinput():
     command_parts = ["lsinput"]
-    return subprocess.check_output(command_parts)
+    try:
+        # Python 2.7
+        output = subprocess.check_output(command_parts)
+    except AttributeError:
+        # Python 2.4, 2.5, 2.6
+        output = subprocess.Popen(
+            command_parts, stdout=subprocess.PIPE).communicate()[0]
+    return output
+
 
 def get_test_directory():
     from evemu import tests

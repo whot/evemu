@@ -8,3 +8,11 @@ class WrapperError(EvEmuError):
 
 class ExecutionError(EvEmuError):
     pass
+
+
+class TestError(EvEmuError):
+    pass
+
+
+class SkipTestError(TestError):
+    pass

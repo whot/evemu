@@ -2,7 +2,7 @@ import ctypes
 import unittest
 
 from evemu.device import EvEmuDevice
-from evemu.testing import BaseTestCase
+from evemu.testing import skip, BaseTestCase
 
 
 class EvEmuDeviceTestCase(BaseTestCase):
@@ -18,21 +18,27 @@ class EvEmuDeviceTestCase(BaseTestCase):
     def test_initialize(self):
         self.assertTrue(self.device._device is not None)
 
-    def test_get_lib(self):
+    def XXX_test_get_lib(self):
         lib = self.device.get_lib()
         self.assertTrue(lib is not None)
 
-    def test_get_device_fd(self):
+    def XXX_test_get_device_fd(self):
         fd = self.device.get_device_fd()
         self.assertEqual(type(fd), int)
 
-    #@unittest.skip("Not ready yet")
-    def test_version(self):
+    def XXX_test_read(self):
+        pass
+
+    def XXX_test_create_node(self):
+        pass
+
+    #@skip("Not ready yet")
+    def XXX_test_version(self):
         import pdb;pdb.set_trace()
         self.assertEqual(self.device.version, "XX")
 
-    #@unittest.skip("Not ready yet")
-    def test_name(self):
+    #@skip("Not ready yet")
+    def XXX_test_name(self):
         self.assertEqual(self.device.name, "XX")
 
 
