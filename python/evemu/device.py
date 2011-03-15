@@ -24,6 +24,7 @@ class EvEmuDevice(base.EvEmuBase):
             self._new()
         except exception.EvEmuError:
             self.delete()
+            # re-raise the exception with a message
 
     def __del__(self):
         self.delete()
@@ -101,6 +102,7 @@ class EvEmuDevice(base.EvEmuBase):
                 self.get_c_lib().fopen, device_file, "r")
         except exception.EvEmuError:
             self.delete()
+            # re-raise the exception with a message
         self._call(
             self.get_lib().evemu_read,
             self.get_device_pointer(),
@@ -115,6 +117,7 @@ class EvEmuDevice(base.EvEmuBase):
             self._uinput_fd = os.open(const.UINPUT_NODE, os.O_WRONLY)
         except exception.EvEmuError:
             self.delete()
+            # re-raise the exception with a message
         # populate the new node with data from the device pointer
         try:
             #import pdb;pdb.set_trace()
@@ -129,6 +132,7 @@ class EvEmuDevice(base.EvEmuBase):
         except exception.EvEmuError, e:
             #import pdb;pdb.set_trace()
             self.close()
+            # re-raise the exception with a message
 
     @property
     def version(self):
