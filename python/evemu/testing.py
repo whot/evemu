@@ -44,18 +44,11 @@ class Non26BaseTestCase(unittest.TestCase):
                                                   safe_repr(container))
             self.fail(_formatMessage(msg, standardMsg))
 
-    # XXX debugging
-    def setUp(self):
-        super(Non26BaseTestCase, self).setUp()
-        print util.get_all_device_numbers()
-
 
 class BaseTestCase(unittest.TestCase):
 
     def setUp(self):
         super(BaseTestCase, self).setUp()
-        # XXX debugging
-        print "\nsetUp: ", util.get_all_device_numbers()
         library = find_library(const.LIB)
         if not library:
             if os.path.exists(const.DEFAULT_LIB):
@@ -68,11 +61,6 @@ class BaseTestCase(unittest.TestCase):
         #self.device_name = "evemu-%d:%s" % (os.getpid(), self._testMethodName)
         basedir = util.get_top_directory()
         self.data_dir = os.path.join(basedir, "..", "..", "data")
-
-    # XXX debugging
-    def tearDown(self):
-        super(BaseTestCase, self).tearDown()
-        print "tearDown: ", util.get_all_device_numbers(), "\n"
 
     def get_device_file(self):
         return os.path.join(self.data_dir, "ntrig-dell-xt2.prop")

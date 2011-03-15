@@ -1,7 +1,5 @@
 BUGS
 ====
- * device nodes are created for each unit test and stick around until the last
-   unit test
  *
 
 
