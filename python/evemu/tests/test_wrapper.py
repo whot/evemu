@@ -11,6 +11,11 @@ class EvEmuWrapperTestCase(BaseTestCase):
         super(EvEmuWrapperTestCase, self).setUp()
         self.wrapper = EvEmuWrapper(self.library)
 
+    def tearDown(self):
+        if self.wrapper.device:
+            self.wrapper.device.destroy()
+        super(EvEmuWrapperTestCase, self).tearDown()
+
     def test_initialize(self):
         self.assertTrue(self.wrapper.device is not None)
         self.assertTrue(self.wrapper.get_device() is not None)
@@ -19,20 +24,19 @@ class EvEmuWrapperTestCase(BaseTestCase):
         pass
 
     def test_create(self):
-        result = self.wrapper.create(self.get_device_file())
-        device_list = util.lsinput()
-        device_list2 = util.get_all_device_names()
-        self.assertTrue("N-Trig-MultiTouch Virtual Device" in device_list)
+        self.wrapper.create(self.get_device_file())
+        device_list = util.get_all_device_names()
+        self.assertTrue("N-Trig-MultiTouch-Virtual-Device" in device_list)
 
     @skip("Not ready yet")
     def test_read(self):
-        # hrm... not sure if I should be reading from the device file or
-        # preping an empty file...
+        # XXX finish unit test
         result = self.wrapper.read(self.get_device_file())
         # XXX need to do checks against the result
 
     @skip("Not ready yet")
     def test_extract(self):
+        # XXX finish unit test
         result = self.wrapper.extract(self.get_device_file())
         print "\nfilename: %s" % self.get_device_file()
         import os

@@ -74,7 +74,6 @@ class BaseTestCase(unittest.TestCase):
         super(BaseTestCase, self).tearDown()
         print "tearDown: ", util.get_all_device_numbers(), "\n"
 
-
     def get_device_file(self):
         return os.path.join(self.data_dir, "ntrig-dell-xt2.prop")
 

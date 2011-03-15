@@ -13,12 +13,15 @@ class EvEmuWrapper(base.EvEmuBase):
     def __init__(self, library=""):
         """
         This method allocates a new evemu device structure and initializes
-        all fields to zero. If name is non-null and the length is sane, it is
-        copied to the device name.
+        all fields to zero.
         """
         super(EvEmuWrapper, self).__init__(library)
         self.device = device.EvEmuDevice(library)
 
+    def __del__(self):
+        del(self.device)
+
+    @property
     def _as_parameter_(self):
         return self.get_device()
 
@@ -26,7 +29,7 @@ class EvEmuWrapper(base.EvEmuBase):
         return self.device.get_device_pointer()
 
     def read(self, filename):
-        # XXX this may be borked and thus may need to be re-examined
+        # XXX this may be borked -- re-examine!
         stream = self._call(self.get_c_lib().fopen, filename)
         return self._call(self.get_lib().evemu_read, self.get_device(), stream)
 
@@ -47,8 +50,7 @@ class EvEmuWrapper(base.EvEmuBase):
         return os.read(output_fd, 1024)
 
     def create(self, device_file):
-        if not self.device:
-            self.device.create_node(device_file)
+        self.device.create_node(device_file)
 
     def delete(self):
         """
@@ -58,22 +60,14 @@ class EvEmuWrapper(base.EvEmuBase):
         See the docstring for EvEmuDevice.delete for more info.
         """
         self.device.delete()
-        self.device = None
 
     def destroy(self):
         """
         Deletes the /dev/device/eventXX device that was created.
 
-        This is done when:
-         * successfully setup up the eventXX device, after all the work is done
-
-        Note that when uncsuccessfully calling evemu_create, just the close
-        operation is performed, nothing else.
-
         See the docstring for EvEmuDevice.destroy for more info.
         """
         self.device.destroy()
-        self.device = None
 
     def write_event(self):
         pass

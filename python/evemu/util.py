@@ -5,7 +5,7 @@ import subprocess
 from evemu import const
 
 
-def lsinput():
+def lsinput_raw():
     command_parts = ["lsinput"]
     try:
         # Python 2.7
@@ -15,6 +15,27 @@ def lsinput():
         output = subprocess.Popen(
             command_parts, stdout=subprocess.PIPE).communicate()[0]
     return output
+
+
+def lsinput():
+    devices = []
+    data = {}
+    for line in lsinput_raw().splitlines():
+        line = line.strip()
+        if line.startswith("/dev/input"):
+            if data:
+                devices.append(data)
+            data = {}
+            data["device"] = line
+        else:
+            key = line[:7].strip()
+            value = line[10:].strip()
+            if key == "name":
+                # trim the quotes
+                value = value[1:-1]
+            if key:
+                data[key] = value
+    return devices
 
 
 def get_top_directory():
@@ -46,7 +67,8 @@ def get_all_device_names():
         filename = const.DEVICE_NAME_PATH_TEMPLATE % device_number
         if os.path.exists(filename):
             file_handle = open(filename)
-            names.append({"name": file_handle.read(), "id": device_number})
+            #names.append({"name": file_handle.read(), "id": device_number})
+            names.append(file_handle.read().strip())
             file_handle.close()
     return names
 

@@ -76,6 +76,7 @@ class EvEmuDevice(base.EvEmuBase):
         """
         if self.get_device_pointer():
             self._call(self.get_lib().evemu_delete, self.get_device_pointer())
+        self._device_pointer = None
 
     def destroy(self):
         """
@@ -99,6 +100,7 @@ class EvEmuDevice(base.EvEmuBase):
         """
         if self._uinput_fd:
             os.close(self._uinput_fd)
+        self._uinput_fd = None
 
     def _read(self, device_file):
         self._device_file_stream = self._call(

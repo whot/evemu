@@ -6,13 +6,22 @@ from evemu.testing import Non26BaseTestCase
 
 class CommandsTestCase(Non26BaseTestCase):
 
-    def test_lsinput(self):
-        results = util.lsinput()
+    def test_lsinput_raw(self):
+        results = util.lsinput_raw()
         self.assertIn("/dev/input/event", results)
         self.assertIn("bustype", results)
         self.assertIn("name", results)
         self.assertIn("product", results)
         self.assertIn("version", results)
+
+    def test_lsinput(self):
+        # let's just check the first one
+        results = util.lsinput()[0]
+        self.assertEqual(results.get("device"), "/dev/input/event0")
+        self.assertTrue(results.get("bustype") is not None) 
+        self.assertTrue(results.get("name") is not None) 
+        self.assertTrue(results.get("product") is not None) 
+        self.assertTrue(results.get("version") is not None) 
 
 
 class DirectoriesTestCase(Non26BaseTestCase):

@@ -111,7 +111,7 @@ class EvEmuDeviceTestCase(BaseTestCase):
 
     def test_name(self):
         self.create_testing_device()
-        import pdb;pdb.set_trace()
+        #import pdb;pdb.set_trace()
         self.assertEqual(self.device.name, "XX")
 
 
