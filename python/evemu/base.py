@@ -3,6 +3,7 @@ from ctypes.util import find_library
 import os
 
 from evemu import const
+from evemu import exception
 
 
 class EvEmuBase(object):
@@ -18,7 +19,7 @@ class EvEmuBase(object):
     def _call(self, api_call, *parameters):
         result = api_call(*parameters)
         if self.get_c_errno() != 0:
-            raise ExecutionError, self.get_c_error()
+            raise exception.ExecutionError, self.get_c_error()
         return result
 
     def get_c_errno(self):
