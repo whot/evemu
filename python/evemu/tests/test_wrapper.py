@@ -15,18 +15,22 @@ class EvEmuWrapperTestCase(BaseTestCase):
         self.assertTrue(self.wrapper.device is not None)
         self.assertTrue(self.wrapper.get_device() is not None)
 
+    def test_create_already_created(self):
+        pass
+
+    def test_create(self):
+        result = self.wrapper.create(self.get_device_file())
+        device_list = util.lsinput()
+        device_list2 = util.get_all_device_names()
+        import pdb;pdb.set_trace()
+        self.assertTrue("N-Trig-MultiTouch Virtual Device" in device_list)
+
     @skip("Not ready yet")
     def test_read(self):
         # hrm... not sure if I should be reading from the device file or
         # preping an empty file...
         result = self.wrapper.read(self.get_device_file())
         # XXX need to do checks against the result
-
-    @skip("Problem with Python2.6")
-    def test_create(self):
-        result = self.wrapper.create(self.get_device_file())
-        device_list = util.lsinput()
-        self.assertTrue(self.device_name in device_list)
 
     @skip("Not ready yet")
     def test_extract(self):

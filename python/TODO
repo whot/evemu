@@ -35,14 +35,26 @@ The script does this:
  * writes the properties to the device file
 
 
- MIND-STATE DUMP
- ===============
+TODO
+====
+ * passing a string in evemu_new is a vestage of some old C code
+   - since it's no longer used, let's not expose it in Python
+   - remove all references to deivce name
+   - pass a null strig to the c lib under the covers
+ * rename device_fd to device_pointer
+ * EvEmuWrapper creates a device in __init__
+   - the create() method should check to see if there's a device already
+     created, and then abort if so... creating one only if it's necessary
 
-  * currently working on debuggin why devices aren't being deleted after each
-    test (instead, they are being deleted once all tests have finished)
 
-  * tracing through the evemu-device program to identify any logic in the C
-    that's missing in the Python implementation
+MIND-STATE DUMP
+===============
 
-  * the reason for the activity of the last bullet point: only the device nam,e
-    is being written to the devices, not the actual device data
+ * currently working on debugging why devices aren't being deleted after each
+   test (instead, they are being deleted once all tests have finished)
+
+ * tracing through the evemu-device program to identify any logic in the C
+   that's missing in the Python implementation
+
+ * the reason for the activity of the last bullet point: only the device name
+   is being written to the devices, not the actual device data

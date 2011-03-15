@@ -17,12 +17,14 @@ class EvEmuDevice(base.EvEmuBase):
         self._device = device_new(device_name)
         self._node = ""
         self._device_file_stream = None
+        self._uinput_fd = None
 
     def __del__(self):
         self.get_lib().evemu_delete(self._device)
+        del(self._device_file_stream)
+        os.close(self._uinput_fd)
         if self.get_node_name() and os.path.exists(self.get_node_name()):
             os.unlink(self.get_node_name())
-        del(self._device_file_stream)
 
     @property
     def _as_property_(self):
@@ -52,15 +54,9 @@ class EvEmuDevice(base.EvEmuBase):
         # load device data from the device_file
         self.read(device_file)
         # create the node
-        input_fd = os.open(const.UINPUT_NODE, os.O_WRONLY)
-        self._call(self.get_lib().evemu_create, self.get_device_fd(), input_fd)
-        # write the device file to the new node
-        #source_file = open(device_file)
-        #dest_file = open(self.get_node_name(), "w")
-        #dest_file.write(source_file.read())
-        #source_file.close()
-        #dest_file.close()
-        #os.close(input_fd)
+        self._input_fd = os.open(const.UINPUT_NODE, os.O_WRONLY)
+        self._call(
+            self.get_lib().evemu_create, self.get_device_fd(), self._input_fd)
 
     @property
     def version(self):
