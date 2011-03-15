@@ -47,16 +47,38 @@ class EvEmuWrapper(base.EvEmuBase):
         return os.read(output_fd, 1024)
 
     def create(self, device_file):
-        self.device.create_node(device_file)
+        if not self.device:
+            self.device.create_node(device_file)
         # XXX now destroy the device?
         #self._call(self.get_lib().evemu_destroy, input_fd)
         #return (virtual_input_device, virtual_input_fd)
 
     def delete(self):
-        pass
+        """
+        Frees up the memory associated with the pointer (and deletes the
+        pointer).
+
+        This is done when:
+         * uncessessfully attempting to create a new device data structure
+         * unsuccessfully attempting to read the device description file
+         * unsuccessfully attempting to open the UINPUT_NODE for writing
+
+        Note that when uncsuccessfully calling evemu_create, just the close
+        operation is performed, nothing else.
+        """
+        self.device = None
 
     def destroy(self):
-        pass
+        """
+        Deletes the /dev/device/eventXX device that was created.
+
+        This is done when:
+         * successfully setup up the eventXX device, after all the work is done
+
+        Note that when uncsuccessfully calling evemu_create, just the close
+        operation is performed, nothing else.
+        """
+        self.device = None
 
     def write_event(self):
         pass

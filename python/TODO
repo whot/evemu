@@ -37,7 +37,6 @@ The script does this:
 
 TODO
 ====
- * rename device_fd to device_pointer
  * EvEmuWrapper creates a device in __init__
    - the create() method should check to see if there's a device already
      created, and then abort if so... creating one only if it's necessary
