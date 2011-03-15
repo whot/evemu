@@ -1,6 +1,7 @@
 import ctypes
 import unittest
 
+from evemu import util
 from evemu.device import EvEmuDevice
 from evemu.testing import skip, BaseTestCase
 
@@ -9,12 +10,26 @@ class EvEmuDeviceTestCase(BaseTestCase):
 
     def setUp(self):
         super(EvEmuDeviceTestCase, self).setUp()
+        self.device = None
+
+    def create_testing_device(self):
+        """
+        This is a conveneince test function for tests that need a device. Have
+        this method be called in each test (as opposed to once in the setUp
+        method) also allows for use to check device counts before and after
+        device creation.
+        """
         self.device = EvEmuDevice(self.library)
         self.device.create_node(self.get_device_file())
 
     def tearDown(self):
-        del(self.device)
+        print "preparing to tear down..."
+        if self.device:
+            # XXX this is where the bomb happens...
+            self.device.destroy()
+        print "preparing to upcall tearDown..."
         super(EvEmuDeviceTestCase, self).tearDown()
+        print "finished tear-down."
 
     def test_new(self):
         pass
@@ -37,7 +52,10 @@ class EvEmuDeviceTestCase(BaseTestCase):
         pass
 
     def test_create_node(self):
-        pass
+        device_count_before = len(util.get_all_device_numbers())
+        self.create_testing_device()
+        device_count_after = len(util.get_all_device_numbers())
+        self.assertEqual(device_count_before + 1, device_count_after)
 
     @skip("Not ready yet")
     def test_version(self):

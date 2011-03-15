@@ -24,7 +24,7 @@ class EvEmuDevice(base.EvEmuBase):
             self._new()
         except exception.EvEmuError:
             self.delete()
-            # re-raise the exception with a message
+            # XXX re-raise the exception with a message
 
     def __del__(self):
         self.delete()
@@ -35,7 +35,7 @@ class EvEmuDevice(base.EvEmuBase):
             os.unlink(self.get_node_name())
 
     def _new(self):
-        device_new = self._lib.evemu_new
+        device_new = self.get_lib().evemu_new
         device_new.restype = ctypes.c_void_p
         # The C API expects a device name to be passed, however, it doesn't do
         # anything with it, so we're not going to provide it as an option in
@@ -102,7 +102,7 @@ class EvEmuDevice(base.EvEmuBase):
                 self.get_c_lib().fopen, device_file, "r")
         except exception.EvEmuError:
             self.delete()
-            # re-raise the exception with a message
+            # XXX re-raise the exception with a message
         self._call(
             self.get_lib().evemu_read,
             self.get_device_pointer(),
@@ -117,22 +117,16 @@ class EvEmuDevice(base.EvEmuBase):
             self._uinput_fd = os.open(const.UINPUT_NODE, os.O_WRONLY)
         except exception.EvEmuError:
             self.delete()
-            # re-raise the exception with a message
+            # XXX re-raise the exception with a message
         # populate the new node with data from the device pointer
         try:
-            #import pdb;pdb.set_trace()
             self._call(
                 self.get_lib().evemu_create,
                 self.get_device_pointer(),
                 self._uinput_fd)
-                # XXX debugging: the attempt below causes a serious memory
-                # error... and dump to stdout/stderr when running the tests
-                # from the command line
-                #ctypes.byref(ctypes.c_long(self._uinput_fd)))
         except exception.EvEmuError, e:
-            #import pdb;pdb.set_trace()
             self.close()
-            # re-raise the exception with a message
+            # XXX re-raise the exception with a message
 
     @property
     def version(self):
