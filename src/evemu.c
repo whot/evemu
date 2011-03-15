@@ -72,16 +72,6 @@ static void copy_bits(unsigned char *mask, const unsigned long *bits, int bytes)
 	}
 }
 
-/**
- * evemu_new() - allocate a new evemu device
- * @name: wanted input device name (or NULL to leave empty)
- *
- * This function allocates a new evemu device structure and
- * initializes all fields to zero. If name is non-null and the length
- * is sane, it is copied to the device name.
- *
- * Returns NULL in case of memory failure.
- */
 struct evemu_device *evemu_new(const char *name)
 {
 	struct evemu_device *dev = calloc(1, sizeof(struct evemu_device));
@@ -94,12 +84,6 @@ struct evemu_device *evemu_new(const char *name)
 	return dev;
 }
 
-/**
- * evemu_delete() - free and allocated evemu device
- * @dev: the device to free
- *
- * The device pointer is invalidated by this call.
- */
 void evemu_delete(struct evemu_device *dev)
 {
 	free(dev);
