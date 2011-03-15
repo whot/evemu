@@ -111,8 +111,23 @@ class EvEmuDeviceTestCase(BaseTestCase):
 
     def test_name(self):
         self.create_testing_device()
-        import pdb;pdb.set_trace()
-        self.assertEqual(self.device.name, "XX")
+        self.assertEqual(self.device.name, "N-Trig-MultiTouch-Virtual-Device")
+
+    def test_id_bustype(self):
+        self.create_testing_device()
+        self.assertEqual(self.device.id_bustype, 3)
+
+    def test_id_vendor(self):
+        self.create_testing_device()
+        self.assertEqual(self.device.id_vendor, "0x1b96")
+
+    def test_id_product(self):
+        self.create_testing_device()
+        self.assertEqual(self.device.id_product, None)
+
+    def test_id_version(self):
+        self.create_testing_device()
+        self.assertEqual(self.device.id_version, None)
 
 
 if __name__ == "__main__":

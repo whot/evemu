@@ -37,7 +37,7 @@ The script does this:
 
 TODO
 ====
- * 
+ * find out where bustype id -> bus name is (e.g., 3 -> BUS_USB)
 
 MIND-STATE DUMP
 ===============

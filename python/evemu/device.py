@@ -148,22 +148,26 @@ class EvEmuDevice(base.EvEmuBase):
     @property
     def version(self):
         return self._call(
-            self.get_lib().evemu_get_version,
+            self.get_lib().evemu_get_version, 
             self.get_device_pointer())
 
     @property
     def name(self):
-        return self._call(
-            self.get_lib().evemu_get_name,
-            self.get_device_pointer())
+        func = self.get_lib().evemu_get_name
+        func.restype = ctypes.c_char_p
+        return self._call(func, self.get_device_pointer())
 
     @property
     def id_bustype(self):
-        pass
+        return self._call(
+            self.get_lib().evemu_get_id_bustype, 
+            self.get_device_pointer())
 
     @property
     def id_vendor(self):
-        pass
+        return hex(self._call(
+            self.get_lib().evemu_get_id_vendor, 
+            self.get_device_pointer()))
 
     @property
     def id_product(self):
