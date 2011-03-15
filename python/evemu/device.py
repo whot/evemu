@@ -33,8 +33,8 @@ class EvEmuDevice(base.EvEmuBase):
     def __del__(self):
         self.delete()
         self._device_file_stream = None
-        self.close()
         self.destroy()
+        self.close()
         if self.get_node_name() and os.path.exists(self.get_node_name()):
             os.unlink(self.get_node_name())
 
