@@ -22,7 +22,6 @@ class EvEmuWrapperTestCase(BaseTestCase):
         result = self.wrapper.create(self.get_device_file())
         device_list = util.lsinput()
         device_list2 = util.get_all_device_names()
-        import pdb;pdb.set_trace()
         self.assertTrue("N-Trig-MultiTouch Virtual Device" in device_list)
 
     @skip("Not ready yet")

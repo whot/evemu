@@ -38,7 +38,6 @@ class DevicesTestCase(Non26BaseTestCase):
 
     def test_get_all_device_names(self):
         result = util.get_all_device_names()
-        print result
         self.assertTrue(result != [])
 
     def test_get_last_device_number(self):
