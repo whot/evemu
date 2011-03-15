@@ -26,17 +26,9 @@ class EvEmuDeviceTestCase(BaseTestCase):
         self.device.create_node(self.get_device_file())
 
     def tearDown(self):
-        print "preparing to tear down..."
         if self.device:
-            # XXX this is where the bomb happens...
             self.device.destroy()
-            pass
-        print "preparing to upcall tearDown..."
         super(EvEmuDeviceTestCase, self).tearDown()
-        print "finished tear-down."
-
-    def test_new(self):
-        pass
 
     def test_initialize_error_new(self):
         class FakeDevice(EvEmuDevice):
@@ -69,10 +61,10 @@ class EvEmuDeviceTestCase(BaseTestCase):
         self.assertRaises(
             exception.EvEmuError, self.device.read, self.get_device_file())
 
+    # XXX finish unit test
     def test_read(self):
         pass
 
-    # XXX the following test is causing a double free memory error
     def test_create_node_error_uinput(self):
         class FakeDevice(EvEmuDevice):
             def _open_uinput(self, *args, **kwds):
@@ -83,21 +75,29 @@ class EvEmuDeviceTestCase(BaseTestCase):
                 pass
             def delete(self):
                 pass
-            def destory(self):
-                pass
-            def close(self):
-                pass
         device = FakeDevice(self.library)
         self.assertRaises(
-            ValueError,
-            #exception.EvEmuError, 
+            exception.EvEmuError, 
             device.create_node, 
             self.get_device_file())
 
     def test_create_node_error_create(self):
         class FakeDevice(EvEmuDevice):
-            def _read(self, *args, **kwds):
+            def _create(self, *args, **kwds):
                 raise exception.EvEmuError("Error calling lib in _create")
+            def _open_uinput(self, *args, **kwds):
+                pass
+            def _new(self):
+                pass
+            def read(self, *args):
+                pass
+            def close(self):
+                pass
+        device = FakeDevice(self.library)
+        self.assertRaises(
+            exception.EvEmuError, 
+            device.create_node, 
+            self.get_device_file())
 
     def test_create_node(self):
         device_count_before = len(util.get_all_device_numbers())
@@ -105,12 +105,13 @@ class EvEmuDeviceTestCase(BaseTestCase):
         device_count_after = len(util.get_all_device_numbers())
         self.assertEqual(device_count_before + 1, device_count_after)
 
-    @skip("Not ready yet")
     def test_version(self):
+        self.create_testing_device()
         self.assertEqual(self.device.version, "XX")
 
-    @skip("Not ready yet")
     def test_name(self):
+        self.create_testing_device()
+        import pdb;pdb.set_trace()
         self.assertEqual(self.device.name, "XX")
 
 
