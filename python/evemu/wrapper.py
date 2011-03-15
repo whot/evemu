@@ -23,7 +23,7 @@ class EvEmuWrapper(base.EvEmuBase):
         return self.get_device()
 
     def get_device(self):
-        return self.device.get_device_fd()
+        return self.device.get_device_pointer()
 
     def read(self, filename):
         # XXX this may be borked and thus may need to be re-examined

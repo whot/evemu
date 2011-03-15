@@ -16,15 +16,15 @@ class EvEmuDeviceTestCase(BaseTestCase):
         del(self.device)
 
     def test_initialize(self):
-        self.assertTrue(self.device._device is not None)
+        self.assertTrue(self.device._device_pointer is not None)
 
     def XXX_test_get_lib(self):
         lib = self.device.get_lib()
         self.assertTrue(lib is not None)
 
-    def XXX_test_get_device_fd(self):
-        fd = self.device.get_device_fd()
-        self.assertEqual(type(fd), int)
+    def XXX_test_get_device_pointer(self):
+        pointer = self.device.get_device_pointer()
+        self.assertEqual(type(pointer), int)
 
     def XXX_test_read(self):
         pass

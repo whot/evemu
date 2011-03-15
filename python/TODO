@@ -37,10 +37,6 @@ The script does this:
 
 TODO
 ====
- * passing a string in evemu_new is a vestage of some old C code
-   - since it's no longer used, let's not expose it in Python
-   - remove all references to deivce name
-   - pass a null strig to the c lib under the covers
  * rename device_fd to device_pointer
  * EvEmuWrapper creates a device in __init__
    - the create() method should check to see if there's a device already
