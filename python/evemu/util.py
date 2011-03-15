@@ -36,17 +36,18 @@ def get_all_device_numbers():
     for index in xrange(const.MAX_EVENT_NODE):
         path = const.DEVICE_PATH_TEMPLATE % index
         if os.path.exists(path):
-            continue
-        numbers.append(index)
+            numbers.append(index)
     return numbers
 
 
 def get_all_device_names():
     names = []
     for device_number in get_all_device_numbers():
-        file_handle = open(const.DEVICE_NAME_PATH_TEMPLATE % device_number)
-        names.append({"name": file_handle.read(), "id": device_number})
-        file_handle.close()
+        filename = const.DEVICE_NAME_PATH_TEMPLATE % device_number
+        if os.path.exists(filename):
+            file_handle = open(filename)
+            names.append({"name": file_handle.read(), "id": device_number})
+            file_handle.close()
     return names
 
 
