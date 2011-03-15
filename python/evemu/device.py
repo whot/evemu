@@ -149,14 +149,12 @@ class EvEmuDevice(base.EvEmuBase):
     def version(self):
         return self._call(
             self.get_lib().evemu_get_version,
-            self.get_device_pointer(),
             self.get_device_pointer())
 
     @property
     def name(self):
         return self._call(
             self.get_lib().evemu_get_name,
-            self.get_device_pointer(),
             self.get_device_pointer())
 
     @property
