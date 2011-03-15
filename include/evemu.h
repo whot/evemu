@@ -55,6 +55,7 @@ void evemu_delete(struct evemu_device *dev);
 unsigned int evemu_get_version(const struct evemu_device *dev);
 
 const char *evemu_get_name(const struct evemu_device *dev);
+void evemu_set_name(struct evemu_device *dev, const char *name);
 
 unsigned int evemu_get_id_bustype(const struct evemu_device *dev);
 unsigned int evemu_get_id_vendor(const struct evemu_device *dev);

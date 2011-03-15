@@ -86,9 +86,10 @@ struct evemu_device *evemu_new(const char *name)
 {
 	struct evemu_device *dev = calloc(1, sizeof(struct evemu_device));
 
-	dev->version = EVEMU_VERSION;
-	if (name && strlen(name) < sizeof(dev->name))
-		strcpy(dev->name, name);
+	if (dev) {
+		dev->version = EVEMU_VERSION;
+		evemu_set_name(dev, name);
+	}
 
 	return dev;
 }
@@ -112,6 +113,12 @@ unsigned int evemu_get_version(const struct evemu_device *dev)
 const char *evemu_get_name(const struct evemu_device *dev)
 {
 	return dev->name;
+}
+
+void evemu_set_name(struct evemu_device *dev, const char *name)
+{
+	if (name && strlen(name) < sizeof(dev->name))
+		strcpy(dev->name, name);
 }
 
 unsigned int evemu_get_id_bustype(const struct evemu_device *dev)
