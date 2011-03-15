@@ -42,9 +42,8 @@ class EvEmuDevice(base.EvEmuBase):
         self._device_pointer = device_new("")
 
     @property
-    def _as_property_(self):
-        #return self.get_deivce_pointer()
-        return self._deivce_pointer
+    def _as_parameter_(self):
+        return self.get_deivce_pointer()
 
     def get_lib(self):
         return self._lib
@@ -108,13 +107,15 @@ class EvEmuDevice(base.EvEmuBase):
             self._device_file_stream)
 
     def create_node(self, device_file):
-        # load device data from the virtual device description file
+        # load device data from the virtual device description file into the
+        # data structure referenced by the device pointer
         self.read(device_file)
         # create the node
         try:
             self._uinput_fd = os.open(const.UINPUT_NODE, os.O_WRONLY)
         except exception.EvEmuError:
             self.delete()
+        # populate the new node with data from the device pointer
         try:
             #import pdb;pdb.set_trace()
             self._call(
