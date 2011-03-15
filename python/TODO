@@ -37,10 +37,7 @@ The script does this:
 
 TODO
 ====
- * EvEmuWrapper creates a device in __init__
-   - the create() method should check to see if there's a device already
-     created, and then abort if so... creating one only if it's necessary
-
+ * 
 
 MIND-STATE DUMP
 ===============
