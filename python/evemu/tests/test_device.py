@@ -14,31 +14,38 @@ class EvEmuDeviceTestCase(BaseTestCase):
 
     def tearDown(self):
         del(self.device)
+        super(EvEmuDeviceTestCase, self).tearDown()
+
+    def test_new(self):
+        pass
+
+    def test_initialize_error_new(self):
+        pass
 
     def test_initialize(self):
         self.assertTrue(self.device._device_pointer is not None)
 
-    def XXX_test_get_lib(self):
+    def test_get_lib(self):
         lib = self.device.get_lib()
         self.assertTrue(lib is not None)
 
-    def XXX_test_get_device_pointer(self):
+    def test_get_device_pointer(self):
         pointer = self.device.get_device_pointer()
         self.assertEqual(type(pointer), int)
 
-    def XXX_test_read(self):
+    def test_read(self):
         pass
 
-    def XXX_test_create_node(self):
+    def test_create_node(self):
         pass
 
-    #@skip("Not ready yet")
-    def XXX_test_version(self):
+    @skip("Not ready yet")
+    def test_version(self):
         import pdb;pdb.set_trace()
         self.assertEqual(self.device.version, "XX")
 
-    #@skip("Not ready yet")
-    def XXX_test_name(self):
+    @skip("Not ready yet")
+    def test_name(self):
         self.assertEqual(self.device.name, "XX")
 
 

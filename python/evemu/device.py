@@ -3,6 +3,7 @@ import os
 
 from evemu import base
 from evemu import const
+from evemu import exception
 from evemu import util
 
 
@@ -12,27 +13,38 @@ class EvEmuDevice(base.EvEmuBase):
     """
     def __init__(self, library):
         super(EvEmuDevice, self).__init__(library)
+        # the path to the node that will be the virtual device
+        self._node = ""
+        # the stream produced by fopen (used to open the virtual device
+        # description file)
+        self._device_file_stream = None
+        # the file descriptor used by ioctl to create the virtual device
+        self._uinput_fd = None
+        try:
+            self._new()
+        except exception.EvEmuError:
+            self.delete()
+
+    def __del__(self):
+        self.delete()
+        self._device_file_stream = None
+        self.close()
+        self.destroy()
+        if self.get_node_name() and os.path.exists(self.get_node_name()):
+            os.unlink(self.get_node_name())
+
+    def _new(self):
         device_new = self._lib.evemu_new
         device_new.restype = ctypes.c_void_p
         # The C API expects a device name to be passed, however, it doesn't do
         # anything with it, so we're not going to provide it as an option in
         # the Python API.
         self._device_pointer = device_new("")
-        self._node = ""
-        self._device_file_stream = None
-        self._uinput_fd = None
-
-    def __del__(self):
-        self.get_lib().evemu_delete(self._device_pointer)
-        del(self._device_file_stream)
-        if self._uinput_fd:
-            os.close(self._uinput_fd)
-        if self.get_node_name() and os.path.exists(self.get_node_name()):
-            os.unlink(self.get_node_name())
 
     @property
     def _as_property_(self):
-        return self.get_deivce_fd()
+        #return self.get_deivce_pointer()
+        return self._deivce_pointer
 
     def get_lib(self):
         return self._lib
@@ -45,22 +57,77 @@ class EvEmuDevice(base.EvEmuBase):
             self._node = util.get_next_device()
         return self._node
 
+    def delete(self):
+        """
+        Frees up the memory associated with the pointer (and deletes the
+        pointer).
+
+        This is done when:
+         * uncessessfully attempting to create a new device data structure
+         * unsuccessfully attempting to read the device description file
+         * unsuccessfully attempting to open the UINPUT_NODE for writing
+
+        Note that when uncsuccessfully calling evemu_create, just the close
+        operation is performed, nothing else.
+        """
+        self._call(self.get_lib().evemu_delete, self.get_device_pointer())
+
+    def destroy(self):
+        """
+        Deletes the /dev/device/eventXX device that was created.
+
+        This is done when:
+         * successfully setup up the eventXX device, after all the work is done
+
+        Note that when uncsuccessfully calling evemu_create, just the close
+        operation is performed, nothing else.
+        """
+        self._call(self.get_lib().evemu_delete, self._uinput_fd)
+
+    def close(self):
+        """
+        Closes any open fds.
+
+        This is done when:
+         * unsuccessfully calling evemu_create
+        """
+        if self._uinput_fd:
+            os.close(self._uinput_fd)
+
     def read(self, device_file):
-        # pre-load the device structure with data from the 
-        self._device_file_stream = self._call(
-            self.get_c_lib().fopen, device_file, "r")
+        # pre-load the device structure with data from the virtual device
+        # description file
+        try:
+            self._device_file_stream = self._call(
+                self.get_c_lib().fopen, device_file, "r")
+        except exception.EvEmuError:
+            self.delete()
         self._call(
             self.get_lib().evemu_read,
             self.get_device_pointer(),
             self._device_file_stream)
 
     def create_node(self, device_file):
-        # load device data from the device_file
+        # load device data from the virtual device description file
         self.read(device_file)
         # create the node
-        self._input_fd = os.open(const.UINPUT_NODE, os.O_WRONLY)
-        self._call(
-            self.get_lib().evemu_create, self.get_device_pointer(), self._input_fd)
+        try:
+            self._uinput_fd = os.open(const.UINPUT_NODE, os.O_WRONLY)
+        except exception.EvEmuError:
+            self.delete()
+        try:
+            #import pdb;pdb.set_trace()
+            self._call(
+                self.get_lib().evemu_create,
+                self.get_device_pointer(),
+                self._uinput_fd)
+                # XXX debugging: the attempt below causes a serious memory
+                # error... and dump to stdout/stderr when running the tests
+                # from the command line
+                #ctypes.byref(ctypes.c_long(self._uinput_fd)))
+        except exception.EvEmuError, e:
+            #import pdb;pdb.set_trace()
+            self.close()
 
     @property
     def version(self):
