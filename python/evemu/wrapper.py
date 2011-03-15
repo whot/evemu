@@ -10,21 +10,14 @@ from evemu.exception import ExecutionError
 
 class EvEmuWrapper(base.EvEmuBase):
 
-    def __init__(self, device_name, library=""):
+    def __init__(self, library=""):
         """
-        @device_name: wanted input device name (or NULL to leave empty)
-
         This method allocates a new evemu device structure and initializes
         all fields to zero. If name is non-null and the length is sane, it is
         copied to the device name.
-
-        The device name will be used in the device data, similarly as is
-        presented by the device data that is viewable when you do the
-        following:
-          $ cat /proc/bus/input/devices
         """
         super(EvEmuWrapper, self).__init__(library)
-        self.device = device.EvEmuDevice(device_name, library)
+        self.device = device.EvEmuDevice(library)
 
     def _as_parameter_(self):
         return self.get_device()

@@ -57,7 +57,7 @@ class BaseTestCase(unittest.TestCase):
         self.library = library
         #timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         #self.device_name = "evm tst dvc: %s" % timestamp
-        self.device_name = "evemu-%d:%s" % (os.getpid(), self._testMethodName)
+        #self.device_name = "evemu-%d:%s" % (os.getpid(), self._testMethodName)
         basedir = util.get_top_directory()
         self.data_dir = os.path.join(basedir, "..", "..", "data")
 

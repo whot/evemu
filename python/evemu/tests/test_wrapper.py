@@ -9,7 +9,7 @@ class EvEmuWrapperTestCase(BaseTestCase):
 
     def setUp(self):
         super(EvEmuWrapperTestCase, self).setUp()
-        self.wrapper = EvEmuWrapper(self.device_name, self.library)
+        self.wrapper = EvEmuWrapper(self.library)
 
     def test_initialize(self):
         self.assertTrue(self.wrapper.device is not None)

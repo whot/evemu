@@ -10,11 +10,14 @@ class EvEmuDevice(base.EvEmuBase):
     """
     A wrapper class for the evemu device fucntions.
     """
-    def __init__(self, device_name, library):
+    def __init__(self, library):
         super(EvEmuDevice, self).__init__(library)
         device_new = self._lib.evemu_new
         device_new.restype = ctypes.c_void_p
-        self._device = device_new(device_name)
+        # The C API expects a device name to be passed, however, it doesn't do
+        # anything with it, so we're not going to provide it as an option in
+        # the Python API.
+        self._device = device_new("")
         self._node = ""
         self._device_file_stream = None
         self._uinput_fd = None
@@ -22,7 +25,8 @@ class EvEmuDevice(base.EvEmuBase):
     def __del__(self):
         self.get_lib().evemu_delete(self._device)
         del(self._device_file_stream)
-        os.close(self._uinput_fd)
+        if self._uinput_fd:
+            os.close(self._uinput_fd)
         if self.get_node_name() and os.path.exists(self.get_node_name()):
             os.unlink(self.get_node_name())
 

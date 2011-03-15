@@ -9,7 +9,7 @@ class EvEmuDeviceTestCase(BaseTestCase):
 
     def setUp(self):
         super(EvEmuDeviceTestCase, self).setUp()
-        self.device = EvEmuDevice(self.device_name, self.library)
+        self.device = EvEmuDevice(self.library)
         self.device.create_node(self.get_device_file())
 
     def tearDown(self):
