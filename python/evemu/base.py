@@ -19,7 +19,8 @@ class EvEmuBase(object):
     def _call(self, api_call, *parameters):
         result = api_call(*parameters)
         if self.get_c_errno() != 0:
-            raise exception.ExecutionError, self.get_c_error()
+            raise exception.ExecutionError, "%s: %s" % (
+                api_call.__name__, self.get_c_error())
         return result
 
     def get_c_errno(self):

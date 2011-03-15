@@ -29,7 +29,7 @@ class EvEmuDeviceTestCase(BaseTestCase):
         print "preparing to tear down..."
         if self.device:
             # XXX this is where the bomb happens...
-            #self.device.destroy()
+            self.device.destroy()
             pass
         print "preparing to upcall tearDown..."
         super(EvEmuDeviceTestCase, self).tearDown()

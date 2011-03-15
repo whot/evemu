@@ -88,7 +88,7 @@ class EvEmuDevice(base.EvEmuBase):
         operation is performed, nothing else.
         """
         if self._uinput_fd:
-            self._call(self.get_lib().evemu_delete, self._uinput_fd)
+            self._call(self.get_lib().evemu_destroy, self._uinput_fd)
 
     def close(self):
         """
