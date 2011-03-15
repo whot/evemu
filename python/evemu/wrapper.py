@@ -66,6 +66,7 @@ class EvEmuWrapper(base.EvEmuBase):
         Note that when uncsuccessfully calling evemu_create, just the close
         operation is performed, nothing else.
         """
+        self.device.delete()
         self.device = None
 
     def destroy(self):
@@ -78,6 +79,7 @@ class EvEmuWrapper(base.EvEmuBase):
         Note that when uncsuccessfully calling evemu_create, just the close
         operation is performed, nothing else.
         """
+        self.device.destroy()
         self.device = None
 
     def write_event(self):
