@@ -14,5 +14,5 @@ class TestError(EvEmuError):
     pass
 
 
-class SkipTestError(TestError):
+class SkipTest(Exception):
     pass

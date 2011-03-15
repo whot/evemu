@@ -18,13 +18,17 @@ class EvEmuDevice(base.EvEmuBase):
         # the stream produced by fopen (used to open the virtual device
         # description file)
         self._device_file_stream = None
+        # the python variable that holds the reference to the C pointer for the
+        # device data structure; ctypes handles the byref internals via the
+        # _as_parameter_ method magic
+        self._device_pointer = None
         # the file descriptor used by ioctl to create the virtual device
         self._uinput_fd = None
         try:
             self._new()
-        except exception.EvEmuError:
+        except exception.EvEmuError, error:
             self.delete()
-            # XXX re-raise the exception with a message
+            raise error
 
     def __del__(self):
         self.delete()
@@ -70,7 +74,8 @@ class EvEmuDevice(base.EvEmuBase):
         Note that when uncsuccessfully calling evemu_create, just the close
         operation is performed, nothing else.
         """
-        self._call(self.get_lib().evemu_delete, self.get_device_pointer())
+        if self.get_device_pointer():
+            self._call(self.get_lib().evemu_delete, self.get_device_pointer())
 
     def destroy(self):
         """
@@ -82,11 +87,12 @@ class EvEmuDevice(base.EvEmuBase):
         Note that when uncsuccessfully calling evemu_create, just the close
         operation is performed, nothing else.
         """
-        self._call(self.get_lib().evemu_delete, self._uinput_fd)
+        if self._uinput_fd:
+            self._call(self.get_lib().evemu_delete, self._uinput_fd)
 
     def close(self):
         """
-        Closes any open fds.
+        Closes the uinput device.
 
         This is done when:
          * unsuccessfully calling evemu_create
@@ -94,19 +100,31 @@ class EvEmuDevice(base.EvEmuBase):
         if self._uinput_fd:
             os.close(self._uinput_fd)
 
-    def read(self, device_file):
-        # pre-load the device structure with data from the virtual device
-        # description file
-        try:
-            self._device_file_stream = self._call(
-                self.get_c_lib().fopen, device_file, "r")
-        except exception.EvEmuError:
-            self.delete()
-            # XXX re-raise the exception with a message
+    def _read(self, device_file):
+        self._device_file_stream = self._call(
+            self.get_c_lib().fopen, device_file, "r")
         self._call(
             self.get_lib().evemu_read,
             self.get_device_pointer(),
             self._device_file_stream)
+
+    def read(self, device_file):
+        # pre-load the device structure with data from the virtual device
+        # description file
+        try:
+            self._read(device_file)
+        except exception.EvEmuError, error:
+            self.delete()
+            raise error
+
+    def _open_uinput(self):
+            self._uinput_fd = os.open(const.UINPUT_NODE, os.O_WRONLY)
+
+    def _create(self):
+        self._call(
+            self.get_lib().evemu_create,
+            self.get_device_pointer(),
+            self._uinput_fd)
 
     def create_node(self, device_file):
         # load device data from the virtual device description file into the
@@ -114,19 +132,16 @@ class EvEmuDevice(base.EvEmuBase):
         self.read(device_file)
         # create the node
         try:
-            self._uinput_fd = os.open(const.UINPUT_NODE, os.O_WRONLY)
-        except exception.EvEmuError:
+            self._open_uinput()
+        except exception.EvEmuError, error:
             self.delete()
-            # XXX re-raise the exception with a message
+            raise error
         # populate the new node with data from the device pointer
         try:
-            self._call(
-                self.get_lib().evemu_create,
-                self.get_device_pointer(),
-                self._uinput_fd)
-        except exception.EvEmuError, e:
+            self._create()
+        except exception.EvEmuError, error:
             self.close()
-            # XXX re-raise the exception with a message
+            raise error
 
     @property
     def version(self):

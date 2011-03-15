@@ -21,7 +21,7 @@ def skip(message):
         def _skip(message):
             def decorator(test_item):
                 def skip_wrapper(*args, **kwds):
-                    raise exception.SkipTestError(message)
+                    raise exception.SkipTest(message)
                 return skip_wrapper
             return decorator
         return _skip(message)
