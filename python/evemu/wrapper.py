@@ -28,10 +28,12 @@ class EvEmuWrapper(base.EvEmuBase):
     def get_device(self):
         return self.device.get_device_pointer()
 
-    def read(self, filename):
-        # XXX this may be borked -- re-examine!
-        stream = self._call(self.get_c_lib().fopen, filename)
-        return self._call(self.get_lib().evemu_read, self.get_device(), stream)
+    def read(self, device_file):
+        """
+        Load data from the virtual device description file into the device
+        object.
+        """
+        self.device.read(device_file)
 
     def extract(self, filename):
         """
@@ -52,6 +54,7 @@ class EvEmuWrapper(base.EvEmuBase):
     def create(self, device_file):
         self.device.create_node(device_file)
 
+    # XXX maybe this isn't needed at this level of abstraction...
     def delete(self):
         """
         Frees up the memory associated with the pointer (and deletes the
@@ -61,6 +64,7 @@ class EvEmuWrapper(base.EvEmuBase):
         """
         self.device.delete()
 
+    # XXX maybe this isn't needed at this level of abstraction...
     def destroy(self):
         """
         Deletes the /dev/device/eventXX device that was created.
@@ -69,10 +73,7 @@ class EvEmuWrapper(base.EvEmuBase):
         """
         self.device.destroy()
 
-    def write_event(self):
-        pass
-
-    def read_event(self):
+    def describe(self):
         pass
 
     def play(self):

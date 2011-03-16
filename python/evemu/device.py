@@ -111,8 +111,10 @@ class EvEmuDevice(base.EvEmuBase):
             self._device_file_stream)
 
     def read(self, device_file):
-        # pre-load the device structure with data from the virtual device
-        # description file
+        """
+        Pre-load the device structure with data from the virtual device
+        description file.
+        """
         try:
             self._read(device_file)
         except exception.EvEmuError, error:
@@ -144,6 +146,18 @@ class EvEmuDevice(base.EvEmuBase):
         except exception.EvEmuError, error:
             self.close()
             raise error
+
+    def write(self, filename):
+        """
+        Whatever data has been stored in the struct will get written to the
+        passed file.
+        """
+
+    def extract(self, device_node):
+        """
+        A linux input device node is opened and read, storing all the retrieved
+        data in the device data structure.
+        """
 
     @property
     def version(self):

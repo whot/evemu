@@ -54,7 +54,19 @@ oubiwann: thanks!
 
 TODO
 ====
+
  * find out where bustype id -> bus name is (e.g., 3 -> BUS_USB)
+
+ * implement device write
+
+ * implement device extract
+
+ * implement events record
+
+ * emplements events play
+
+ * implement a wrapper for the event stuff
+
 
 MIND-STATE DUMP
 ===============
