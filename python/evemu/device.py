@@ -171,29 +171,65 @@ class EvEmuDevice(base.EvEmuBase):
 
     @property
     def id_product(self):
-        pass
+        return self._call(
+            self.get_lib().evemu_get_id_product, 
+            self.get_device_pointer())
 
     @property
     def id_version(self):
-        pass
+        return self._call(
+            self.get_lib().evemu_get_id_version, 
+            self.get_device_pointer())
 
-    def abs_minimum(self, code):
-        pass
+    """
+    In the following methods, 'event_type' and 'event_code' take their meanings
+    from the input event system in linux (the input_event struct devined in
+    linux/input.h).
 
-    def abs_maximum(self, code):
-        pass
+    @event_type:  one of the EV_* constants
 
-    def abs_fuzz(self, code):
-        pass
+    @event_code: a code related to the event type
+    """
 
-    def abs_flat(self, code):
-        pass
+    def get_abs_minimum(self, event_code):
+        return self._call(
+            self.get_lib().evemu_get_abs_minimum, 
+            self.get_device_pointer(),
+            event_code)
 
-    def abs_resolution(self, code):
-        pass
+    def get_abs_maximum(self, event_code):
+        return self._call(
+            self.get_lib().evemu_get_abs_maximum, 
+            self.get_device_pointer(),
+            event_code)
 
-    def has_prop(self, code):
-        pass
+    def get_abs_fuzz(self, event_code):
+        return self._call(
+            self.get_lib().evemu_get_abs_fuzz, 
+            self.get_device_pointer(),
+            event_code)
 
-    def has_event(self, event_type, code):
-        pass
+    def get_abs_flat(self, event_code):
+        return self._call(
+            self.get_lib().evemu_get_abs_flat, 
+            self.get_device_pointer(),
+            event_code)
+
+    def get_abs_resolution(self, event_code):
+        return self._call(
+            self.get_lib().evemu_get_abs_resolution, 
+            self.get_device_pointer(),
+            event_code)
+
+    def has_prop(self, event_code):
+        return self._call(
+            self.get_lib().evemu_has_prop, 
+            self.get_device_pointer(),
+            event_code)
+
+    def has_event(self, event_type, event_code):
+        return self._call(
+            self.get_lib().evemu_has_event, 
+            self.get_device_pointer(),
+            event_type,
+            event_code)

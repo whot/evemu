@@ -107,7 +107,7 @@ class EvEmuDeviceTestCase(BaseTestCase):
 
     def test_version(self):
         self.create_testing_device()
-        self.assertEqual(self.device.version, "XX")
+        self.assertEqual(self.device.version, 0)
 
     def test_name(self):
         self.create_testing_device()
@@ -123,11 +123,47 @@ class EvEmuDeviceTestCase(BaseTestCase):
 
     def test_id_product(self):
         self.create_testing_device()
-        self.assertEqual(self.device.id_product, None)
+        self.assertEqual(self.device.id_product, 1)
 
     def test_id_version(self):
         self.create_testing_device()
-        self.assertEqual(self.device.id_version, None)
+        self.assertEqual(self.device.id_version, 272)
+
+    def test_get_abs_minimum(self):
+        self.create_testing_device()
+        for event_code in xrange(10):
+            self.assertEqual(self.device.get_abs_minimum(event_code), 0)
+
+    def test_get_abs_maximum(self):
+        self.create_testing_device()
+        event_code = 0
+        self.assertEqual(self.device.get_abs_maximum(event_code), 9600)
+
+    def test_get_abs_fuzz(self):
+        self.create_testing_device()
+        event_code = 0
+        self.assertEqual(self.device.get_abs_fuzz(event_code), 75)
+
+    def test_get_abs_flat(self):
+        self.create_testing_device()
+        event_code = 0
+        self.assertEqual(self.device.get_abs_flat(event_code), 0)
+
+    def test_get_abs_resolution(self):
+        self.create_testing_device()
+        event_code = 0
+        self.assertEqual(self.device.get_abs_resolution(event_code), 0)
+
+    def test_has_prop(self):
+        self.create_testing_device()
+        event_code = 0
+        self.assertEqual(self.device.has_prop(event_code), 0)
+
+    def test_has_event(self):
+        self.create_testing_device()
+        event_type = 0
+        event_code = 0
+        self.assertEqual(self.device.has_event(event_type, event_code), 1)
 
 
 if __name__ == "__main__":

@@ -35,6 +35,8 @@ def lsinput():
                 value = value[1:-1]
             if key:
                 data[key] = value
+    if data:
+        devices.append(data)
     return devices
 
 

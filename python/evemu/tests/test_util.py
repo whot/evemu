@@ -16,12 +16,12 @@ class CommandsTestCase(Non26BaseTestCase):
 
     def test_lsinput(self):
         # let's just check the first one
-        results = util.lsinput()[0]
-        self.assertEqual(results.get("device"), "/dev/input/event0")
-        self.assertTrue(results.get("bustype") is not None) 
-        self.assertTrue(results.get("name") is not None) 
-        self.assertTrue(results.get("product") is not None) 
-        self.assertTrue(results.get("version") is not None) 
+        result = util.lsinput()[0]
+        self.assertEqual(result.get("device"), "/dev/input/event0")
+        self.assertTrue(result.get("bustype") is not None) 
+        self.assertTrue(result.get("name") is not None) 
+        self.assertTrue(result.get("product") is not None) 
+        self.assertTrue(result.get("version") is not None) 
 
 
 class DirectoriesTestCase(Non26BaseTestCase):

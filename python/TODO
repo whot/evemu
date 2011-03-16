@@ -32,6 +32,25 @@ The script does this:
  * identifies a device file
  * writes the properties to the device file
 
+Notes about the device function sigs in Henrik's code:
+
+oubiwann: cnd: henrik defined a bunch of evemu functions that operate on a pointer to the device
+cnd: ok?
+oubiwann: besides the pointer reference, these functions also take parameters
+oubiwann: one of them being simply "code"
+cnd: heh
+cnd: I have a feeling "code" has the meaning given in the evdev protocol
+oubiwann: in this context (parsing the device structure) can you think of what the "code" parameter might be?
+cnd: i.e. ABS_X or REL_X or BTN_A
+cnd: the evdev protocol has types, codes, and values
+cnd: type is ABS, or REL, or KEY, etc.
+oubiwann: yeah, type is also a param in some of these
+cnd: code is a specific "variable" in each type group
+oubiwann: got it
+oubiwann: yeah, that makes sense
+cnd: so REL_X defines relative motion in the X direction
+oubiwann: thanks!
+
 
 TODO
 ====

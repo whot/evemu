@@ -14,6 +14,20 @@ from evemu import exception
 from evemu import util
 
 
+"""
+XXX There's a lot of stuff that's been crammed in here now, and it's probably
+time to think about putting it out into separate modules. For instance:
+ * test-case-specific code
+ * result-rendering code
+ * test-runner code
+
+What's more, talking with Chase and Henrik today (2011-03-15), they'd like to
+see unit tests that mocked the uinput device and didn't require root access to
+run, like the current tests do. The base code for that would likely go in
+another module.
+"""
+
+
 def skip(message):
     try:
         return unittest.skip(message)
