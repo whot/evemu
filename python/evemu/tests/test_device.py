@@ -9,22 +9,6 @@ from evemu.testing import testcase
 
 class EvEmuDeviceTestCase(testcase.BaseTestCase):
 
-    def setUp(self):
-        super(EvEmuDeviceTestCase, self).setUp()
-        self.device = None
-
-    def create_testing_device(self, device_class=None):
-        """
-        This is a conveneince test function for tests that need a device. Have
-        this method be called in each test (as opposed to once in the setUp
-        method) also allows for use to check device counts before and after
-        device creation.
-        """
-        if not device_class:
-            device_class = EvEmuDevice
-        self.device = device_class(self.library)
-        self.device.create_node(self.get_device_file())
-
     def tearDown(self):
         if self.device:
             self.device.destroy()

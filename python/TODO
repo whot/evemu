@@ -63,7 +63,8 @@ The script does this:
 
 Notes about the device function sigs in Henrik's code:
 
-oubiwann: cnd: henrik defined a bunch of evemu functions that operate on a pointer to the device
+oubiwann: cnd: henrik defined a bunch of evemu functions that operate on a
+          pointer to the device
 cnd: ok?
 oubiwann: besides the pointer reference, these functions also take parameters
 oubiwann: one of them being simply "code"
@@ -81,7 +82,7 @@ oubiwann: yeah, that makes sense
 cnd: so REL_X defines relative motion in the X direction
 oubiwann: thanks!
 
-Notes about the parameters passed in the device data functions:
+More notes about the parameters passed in the device data functions:
 
 <oubiwann> rydberg: what are the valid values for the "code" and "type"
            parameters in the evemu_* device data functions?
