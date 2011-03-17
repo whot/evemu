@@ -1,0 +1,65 @@
+from ctypes.util import find_library
+import os
+import unittest
+
+from evemu import const
+from evemu import exception
+from evemu import util
+
+
+def skip(message):
+    try:
+        return unittest.skip(message)
+    except AttributeError:
+        def _skip(message):
+            def decorator(test_item):
+                def skip_wrapper(*args, **kwds):
+                    raise exception.SkipTest(message)
+                return skip_wrapper
+            return decorator
+        return _skip(message)
+
+
+class Non26BaseTestCase(unittest.TestCase):
+    """
+    This is to provide methods that aren't in 2.6 and below, but are in 2.7 and
+    above.
+    """
+    def __init__(self, *args, **kwds):
+        super(Non26BaseTestCase, self).__init__(*args, **kwds)
+        if not hasattr(unittest.TestCase, "assertIn"):
+            self.assertIn = self._assertIn26
+
+    def _assertIn26(self, member, container, msg=None):
+        """Just like self.assertTrue(a in b), but with a nicer default message."""
+        if member not in container:
+            standardMsg = '%s not found in %s' % (repr(member),
+                                                  repr(container))
+            self.fail(msg or standardMsg)
+
+
+class BaseTestCase(unittest.TestCase):
+
+    def setUp(self):
+        super(BaseTestCase, self).setUp()
+        library = find_library(const.LIB)
+        if not library:
+            if os.path.exists(const.DEFAULT_LIB):
+                library = const.DEFAULT_LIB
+            else:
+                library = const.LOCAL_LIB
+        self.library = library
+        #timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        #self.device_name = "evm tst dvc: %s" % timestamp
+        #self.device_name = "evemu-%d:%s" % (os.getpid(), self._testMethodName)
+        basedir = util.get_top_directory()
+        self.data_dir = os.path.join(basedir, "..", "..", "data")
+
+    def get_device_file(self):
+        return os.path.join(self.data_dir, "ntrig-dell-xt2.prop")
+
+    def get_events_file(self):
+        return os.path.join(self.data_dir, "ntrig-dell-xt2.event")
+
+
+

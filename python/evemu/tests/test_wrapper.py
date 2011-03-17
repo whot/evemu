@@ -1,11 +1,11 @@
 import unittest
 
 from evemu import util
-from evemu.testing import skip, BaseTestCase
+from evemu.testing import testcase
 from evemu.wrapper import EvEmuWrapper
 
 
-class EvEmuWrapperTestCase(BaseTestCase):
+class EvEmuWrapperTestCase(testcase.BaseTestCase):
 
     def setUp(self):
         super(EvEmuWrapperTestCase, self).setUp()
@@ -28,13 +28,13 @@ class EvEmuWrapperTestCase(BaseTestCase):
         device_list = util.get_all_device_names()
         self.assertTrue("N-Trig-MultiTouch-Virtual-Device" in device_list)
 
-    @skip("Not ready yet")
+    @testcase.skip("Not ready yet")
     def test_read(self):
         # XXX finish unit test
         result = self.wrapper.read(self.get_device_file())
         # XXX need to do checks against the result
 
-    @skip("Not ready yet")
+    @testcase.skip("Not ready yet")
     def test_extract(self):
         # XXX finish unit test
         result = self.wrapper.extract(self.get_device_file())

@@ -1,10 +1,10 @@
 import unittest
 
 from evemu.script import EvEmu
-from evemu.testing import BaseTestCase
+from evemu.testing import testcase
 
 
-class EvEmuTestCase(BaseTestCase):
+class EvEmuTestCase(testcase.BaseTestCase):
 
     def setUp(self):
         super(EvEmuTestCase, self).setUp()

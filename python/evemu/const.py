@@ -117,5 +117,6 @@ ABS_MT_TOOL_TYPE = 0x37  # Type of touching device
 ABS_MT_BLOB_ID = 0x38  # Group a set of packets as a blob
 ABS_MT_TRACKING_ID = 0x39  # Unique ID of initiated contact
 ABS_MT_PRESSURE = 0x3a  # Pressure on contact area
+ABS_MT_DISTANCE = 0x3b # Contact hover distance
 ABS_MAX = 0x3f
 ABS_CNT = ABS_MAX+1

@@ -4,10 +4,10 @@ import unittest
 from evemu import exception
 from evemu import util
 from evemu.device import EvEmuDevice
-from evemu.testing import skip, BaseTestCase
+from evemu.testing import testcase
 
 
-class EvEmuDeviceTestCase(BaseTestCase):
+class EvEmuDeviceTestCase(testcase.BaseTestCase):
 
     def setUp(self):
         super(EvEmuDeviceTestCase, self).setUp()

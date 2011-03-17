@@ -2,10 +2,10 @@ import unittest
 
 from evemu import const
 from evemu.base import EvEmuBase
-from evemu.testing import BaseTestCase
+from evemu.testing import testcase
 
 
-class EvEmuBaseTestCase(BaseTestCase):
+class EvEmuBaseTestCase(testcase.BaseTestCase):
 
     def test_initialize(self):
         wrapper = EvEmuBase(self.library)

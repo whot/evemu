@@ -1,10 +1,10 @@
 import unittest
 
 from evemu import util
-from evemu.testing import Non26BaseTestCase
+from evemu.testing import testcase
 
 
-class CommandsTestCase(Non26BaseTestCase):
+class CommandsTestCase(testcase.Non26BaseTestCase):
 
     def test_lsinput_raw(self):
         results = util.lsinput_raw()
@@ -24,7 +24,7 @@ class CommandsTestCase(Non26BaseTestCase):
         self.assertTrue(result.get("version") is not None) 
 
 
-class DirectoriesTestCase(Non26BaseTestCase):
+class DirectoriesTestCase(testcase.Non26BaseTestCase):
 
     def test_get_top_directory(self):
         result = util.get_top_directory()
@@ -39,7 +39,7 @@ class DirectoriesTestCase(Non26BaseTestCase):
         self.assertEqual(result, "evemu.tests")
 
 
-class DevicesTestCase(Non26BaseTestCase):
+class DevicesTestCase(testcase.Non26BaseTestCase):
 
     def test_get_all_device_numbers(self):
         result = util.get_all_device_numbers()
