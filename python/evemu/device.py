@@ -10,6 +10,25 @@ from evemu import util
 class EvEmuDevice(base.EvEmuBase):
     """
     A wrapper class for the evemu device fucntions.
+
+    For the methods with the @property decorator, as well as the the get_* and
+    has_* methods, the following notes apply:
+
+    The medhod parameters 'event_type' and 'event_code' take their meanings
+    from the input event system in linux (the input_event struct defined in
+    linux/input.h).
+
+    Ordinarily, to know a code, one must first know the type. However, in our
+    case, we mostly just case about multi-touch. Since MT data only uses
+    EV_ABS, it is understood that methods without a type are implicitly
+    expecting a context of EV_ABS.
+
+    As such, for those methods, the valid codes are the ABS_* values listed in
+    the evemu.const module.
+
+    @event_type:  one of the EV_* constants
+
+    @event_code: a code related to the event type
     """
     def __init__(self, library):
         super(EvEmuDevice, self).__init__(library)
@@ -195,16 +214,6 @@ class EvEmuDevice(base.EvEmuBase):
             self.get_lib().evemu_get_id_version, 
             self.get_device_pointer())
 
-    """
-    In the following methods, 'event_type' and 'event_code' take their meanings
-    from the input event system in linux (the input_event struct devined in
-    linux/input.h).
-
-    @event_type:  one of the EV_* constants
-
-    @event_code: a code related to the event type
-    """
-
     def get_abs_minimum(self, event_code):
         return self._call(
             self.get_lib().evemu_get_abs_minimum, 
@@ -242,6 +251,17 @@ class EvEmuDevice(base.EvEmuBase):
             event_code)
 
     def has_event(self, event_type, event_code):
+        """
+        This method's 'even_type' parameter is expected to mostly take the
+        value for EV_ABS (i.e., 0x03), but may on occasion EV_KEY (i.e., 0x01).
+        If the former, then the even_code parameter will take the same values
+        as the methods above (ABS_*). However, if the latter, then the legal
+        values will be BTN_*.
+
+        The reason for including the button data, is that buttons are sometimes
+        used to simulate gestures for a higher number of touches than are
+        possible with just 2-touch hardware.
+        """
         return self._call(
             self.get_lib().evemu_has_event, 
             self.get_device_pointer(),

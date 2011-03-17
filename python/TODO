@@ -69,7 +69,8 @@ oubiwann: besides the pointer reference, these functions also take parameters
 oubiwann: one of them being simply "code"
 cnd: heh
 cnd: I have a feeling "code" has the meaning given in the evdev protocol
-oubiwann: in this context (parsing the device structure) can you think of what the "code" parameter might be?
+oubiwann: in this context (parsing the device structure) can you think of what
+          the "code" parameter might be?
 cnd: i.e. ABS_X or REL_X or BTN_A
 cnd: the evdev protocol has types, codes, and values
 cnd: type is ABS, or REL, or KEY, etc.
@@ -82,36 +83,52 @@ oubiwann: thanks!
 
 Notes about the parameters passed in the device data functions:
 
-<oubiwann> rydberg: what are the valid values for the "code" and "type" parameters in the evemu_* device data functions?
+<oubiwann> rydberg: what are the valid values for the "code" and "type"
+           parameters in the evemu_* device data functions?
 <rydberg> did you see the latest bzr branch with header documentation? :-)
 * oubiwann merges from trunk...
-<rydberg> if we are talking about evemu_has_event, for instance, then type is one of EV_ABS, EV_REL, EV_KEY etc
-<rydberg> and code is a valid code for the type - for example, type = EV_ABS, code = ABS_MT_POSITION_X
+<rydberg> if we are talking about evemu_has_event, for instance, then type is
+          one of EV_ABS, EV_REL, EV_KEY etc
+<rydberg> and code is a valid code for the type - for example, type = EV_ABS,
+          code = ABS_MT_POSITION_X
 <oubiwann> rydberg: first question about this: 
-<oubiwann> 1) by "etc." do you mean all the EV_* constants defined for the linux input events?
+<oubiwann> 1) by "etc." do you mean all the EV_* constants defined for the
+           linux input events?
 <rydberg> yep
-<oubiwann> rydberg: the list I collected last night and added to the const file starts at line 38 here: http://bazaar.launchpad.net/~oubiwann/utouch-evemu/731678-python-wrapper/view/head:/python/evemu/const.py
+<oubiwann> rydberg: the list I collected last night and added to the const file
+           starts at line 38 here:
+           http://bazaar.launchpad.net/~oubiwann/utouch-evemu/731678-python-wrapper/view/head:/python/evemu/const.py
 <oubiwann> is that a complete list?
 <rydberg> looks like it, yes
 <oubiwann> okay, cool
-<oubiwann> the second question I have is this: type seems to indicate which values are "legal" for code
-<oubiwann> however, most of those functions don't have a type parameter; only the code parameter
+<oubiwann> the second question I have is this: type seems to indicate which
+           values are "legal" for code
+<oubiwann> however, most of those functions don't have a type parameter; only
+           the code parameter
 <oubiwann> so how do I know which code values are valid?
-<rydberg> yes, those are restricted to EV_ABS only, which are the codes containing the MT protocol
+<rydberg> yes, those are restricted to EV_ABS only, which are the codes
+           containing the MT protocol
 <oubiwann> got it
-<oubiwann> rydberg: so, starting at line 81 in that same file, I've listed the ABS_* values
+<oubiwann> rydberg: so, starting at line 81 in that same file, I've listed the
+           ABS_* values
 <oubiwann> do those look more or less complete?
 <rydberg> up to kernel 2.6.37 it seems
 <oubiwann> okay
 <rydberg> #define ABS_MT_DISTANCE  0x3b /* Contact hover distance */
 * oubiwann adds that one
-<oubiwann> rydberg: third question: if EV_ABS is all that we care about for most of the functions (the ones without a type), this implies that there are non-mt events that could be queried for in evemu_has_event
+<oubiwann> rydberg: third question: if EV_ABS is all that we care about for
+           most of the functions (the ones without a type), this implies that
+           there are non-mt events that could be queried for in
+           evemu_has_event
 <oubiwann> since it takes a type parameter
 <oubiwann> is that the case?
 <oubiwann> if so, what events might we be concerned with?
-<rydberg> evemu is a representation of the kernel device, and as such, can be used to emulate keyboards, mouse, joysticks, accelerometers, etc
-<rydberg> so even though we do this for MT in particular, there is no restriction to how evemu can be used
-<oubiwann> rydberg: okay, so for our purposes the value passed for "type" in evemu_has_event will almost always be EV_ABS, right?
+<rydberg> evemu is a representation of the kernel device, and as such, can be
+           used to emulate keyboards, mouse, joysticks, accelerometers, etc
+<rydberg> so even though we do this for MT in particular, there is no
+           restriction to how evemu can be used
+<oubiwann> rydberg: okay, so for our purposes the value passed for "type" in
+           evemu_has_event will almost always be EV_ABS, right?
 <rydberg> or EV_KEY
 <rydberg> for buttons
 <oubiwann> rydberg: with possible legal values of BTN_*?
@@ -123,7 +140,8 @@ Notes about the parameters passed in the device data functions:
 <oubiwann> is this like two taps being used as a button click or something?
 <rydberg> a trackpad with its buttons
 * gustavold (~gustavold@galena.ime.usp.br) has joined #ubuntu-touch
-<oubiwann> ah, I didn't realize that trackpad buttons were being used in MT data
+<oubiwann> ah, I didn't realize that trackpad buttons were being used in MT
+           data
 <oubiwann> rydberg: okay, thanks man!
 <oubiwann> I'm going to update the python docs with all this information
 <rydberg> they arent really, but they are part of the kernel device
