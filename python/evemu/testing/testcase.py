@@ -49,9 +49,6 @@ class BaseTestCase(unittest.TestCase):
             else:
                 library = const.LOCAL_LIB
         self.library = library
-        #timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        #self.device_name = "evm tst dvc: %s" % timestamp
-        #self.device_name = "evemu-%d:%s" % (os.getpid(), self._testMethodName)
         basedir = util.get_top_directory()
         self.data_dir = os.path.join(basedir, "..", "..", "data")
         self.device = None

@@ -1,6 +1,7 @@
 import ctypes
 import unittest
 
+from evemu import const
 from evemu import exception
 from evemu import util
 from evemu.device import EvEmuDevice
@@ -89,6 +90,12 @@ class EvEmuDeviceTestCase(testcase.BaseTestCase):
         device_count_after = len(util.get_all_device_numbers())
         self.assertEqual(device_count_before + 1, device_count_after)
 
+
+class EvEmuDevicePropertyTestCase(testcase.BaseTestCase):
+
+    def get_ev_abs_codes(self):
+        return const.absolute_axes.values()
+
     def test_version(self):
         self.create_testing_device()
         self.assertEqual(self.device.version, 0)
@@ -113,41 +120,94 @@ class EvEmuDeviceTestCase(testcase.BaseTestCase):
         self.create_testing_device()
         self.assertEqual(self.device.id_version, 272)
 
+
+class EvEmuDeviceGetterTestCase(testcase.BaseTestCase):
+
     def test_get_abs_minimum(self):
         self.create_testing_device()
-        for event_code in xrange(10):
-            self.assertEqual(self.device.get_abs_minimum(event_code), 0)
+        expected = [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            ]
+        results = [self.device.get_abs_minimum(x) 
+                   for x in const.absolute_axes.values()]
+        self.assertEqual(results, expected)
 
     def test_get_abs_maximum(self):
         self.create_testing_device()
-        event_code = 0
-        self.assertEqual(self.device.get_abs_maximum(event_code), 9600)
+        expected = [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9600, 7200, 0, 0, 0, 0,
+            7200, 1, 7200, 0, 9600, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9600,
+            0, 0,
+            ]
+        # Skipping the entry for ABS_CNT; some times it's 0, sometimes a very
+        # large negative number.
+        results = [self.device.get_abs_maximum(x) 
+                   for x in const.absolute_axes.values()]
+        self.assertEqual(results[:-1], expected[:-1])
 
     def test_get_abs_fuzz(self):
         self.create_testing_device()
-        event_code = 0
-        self.assertEqual(self.device.get_abs_fuzz(event_code), 75)
+        expected = [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 75, 78, 0, 0, 0, 0, 150,
+            0, 78, 0, 75, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 200, 0, 0, 
+            ]
+        results = [self.device.get_abs_fuzz(x) 
+                   for x in const.absolute_axes.values()]
+        self.assertEqual(results, expected)
 
     def test_get_abs_flat(self):
         self.create_testing_device()
-        event_code = 0
-        self.assertEqual(self.device.get_abs_flat(event_code), 0)
+        expected = [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            ]
+        results = [self.device.get_abs_flat(x) 
+                   for x in const.absolute_axes.values()]
+        self.assertEqual(results, expected)
 
     def test_get_abs_resolution(self):
         self.create_testing_device()
-        event_code = 0
-        self.assertEqual(self.device.get_abs_resolution(event_code), 0)
+        expected = [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            ]
+        results = [self.device.get_abs_resolution(x) 
+                   for x in const.absolute_axes.values()]
+        self.assertEqual(results, expected)
 
     def test_has_prop(self):
         self.create_testing_device()
-        event_code = 0
-        self.assertEqual(self.device.has_prop(event_code), 0)
+        expected = [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            ]
+        results = [self.device.has_prop(x) 
+                   for x in const.absolute_axes.values()]
+        self.assertEqual(results, expected)
 
-    def test_has_event(self):
+    def test_has_event_ev_abs(self):
         self.create_testing_device()
-        event_type = 0
-        event_code = 0
-        self.assertEqual(self.device.has_event(event_type, event_code), 1)
+        expected = [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1,
+            1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+            ]
+        results = [self.device.has_event(const.event_types["EV_ABS"], x) 
+                   for x in const.absolute_axes.values()]
+        self.assertEqual(results, expected)
+
+    def test_has_event_ev_key(self):
+        self.create_testing_device()
+        expected = [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            ]
+        results = [self.device.has_event(const.event_types["EV_KEY"], x) 
+                   for x in const.buttons.values()]
+        self.assertEqual(results, expected)
 
 
 if __name__ == "__main__":

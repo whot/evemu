@@ -178,6 +178,7 @@ class EvEmuDevice(base.EvEmuBase):
         data in the device data structure.
         """
 
+    # Property methods
     @property
     def version(self):
         return self._call(
@@ -214,11 +215,12 @@ class EvEmuDevice(base.EvEmuBase):
             self.get_lib().evemu_get_id_version, 
             self.get_device_pointer())
 
+    # Getter methods
     def get_abs_minimum(self, event_code):
         return self._call(
             self.get_lib().evemu_get_abs_minimum, 
             self.get_device_pointer(),
-            event_code)
+            int(event_code))
 
     def get_abs_maximum(self, event_code):
         return self._call(
