@@ -1,4 +1,5 @@
 import ctypes
+import tempfile
 import unittest
 
 from evemu import const
@@ -89,6 +90,15 @@ class EvEmuDeviceTestCase(testcase.BaseTestCase):
         self.create_testing_device()
         device_count_after = len(util.get_all_device_numbers())
         self.assertEqual(device_count_before + 1, device_count_after)
+
+    def test_write(self):
+        self.create_testing_device()
+        (output_fd, filename) = tempfile.mkstemp()
+        self.device.write(filename)
+        import pdb;pdb.set_trace()
+        os.close(output_fd)
+        data = open(filename).read()
+        self.assertEqual(data, "XX")
 
 
 class EvEmuDevicePropertyTestCase(testcase.BaseTestCase):

@@ -171,6 +171,15 @@ class EvEmuDevice(base.EvEmuBase):
         Whatever data has been stored in the struct will get written to the
         passed file.
         """
+        import sys
+        output_fd = os.open(filename, os.O_WRONLY)
+        import pdb;pdb.set_trace()
+        self._call(
+            self.get_lib().evemu_write, 
+            self.get_device_pointer(),
+            sys.stdout.fileno())
+            #output_fd)
+        os.close(output_fd)
 
     def extract(self, device_node):
         """
