@@ -72,33 +72,18 @@ static void copy_bits(unsigned char *mask, const unsigned long *bits, int bytes)
 	}
 }
 
-/**
- * evemu_new() - allocate a new evemu device
- * @name: wanted input device name (or NULL to leave empty)
- *
- * This function allocates a new evemu device structure and
- * initializes all fields to zero. If name is non-null and the length
- * is sane, it is copied to the device name.
- *
- * Returns NULL in case of memory failure.
- */
 struct evemu_device *evemu_new(const char *name)
 {
 	struct evemu_device *dev = calloc(1, sizeof(struct evemu_device));
 
-	dev->version = EVEMU_VERSION;
-	if (name && strlen(name) < sizeof(dev->name))
-		strcpy(dev->name, name);
+	if (dev) {
+		dev->version = EVEMU_VERSION;
+		evemu_set_name(dev, name);
+	}
 
 	return dev;
 }
 
-/**
- * evemu_delete() - free and allocated evemu device
- * @dev: the device to free
- *
- * The device pointer is invalidated by this call.
- */
 void evemu_delete(struct evemu_device *dev)
 {
 	free(dev);
@@ -112,6 +97,12 @@ unsigned int evemu_get_version(const struct evemu_device *dev)
 const char *evemu_get_name(const struct evemu_device *dev)
 {
 	return dev->name;
+}
+
+void evemu_set_name(struct evemu_device *dev, const char *name)
+{
+	if (name && strlen(name) < sizeof(dev->name))
+		strcpy(dev->name, name);
 }
 
 unsigned int evemu_get_id_bustype(const struct evemu_device *dev)
@@ -361,24 +352,39 @@ int evemu_read_event(FILE *fp, struct input_event *ev)
 	return ret;
 }
 
-int evemu_play(FILE *fp, int fd)
+int evemu_read_event_realtime(FILE *fp, struct input_event *ev,
+			      struct timeval *evtime)
 {
-	struct input_event prev, ev;
-	long check = 0, usec;
+	unsigned long usec;
 	int ret;
 
-	memset(&prev, 0, sizeof(prev));
-	while (evemu_read_event(fp, &ev) > 0) {
-		if (!prev.time.tv_sec)
-			prev = ev;
-		usec = 1000000L * (ev.time.tv_sec - prev.time.tv_sec);
-		usec += ev.time.tv_usec - prev.time.tv_usec;
-		if (usec - check > 500) {
-			usleep(usec - check);
-			check = usec;
+	ret = evemu_read_event(fp, ev);
+	if (ret <= 0)
+		return ret;
+
+	if (evtime) {
+		if (!evtime->tv_sec)
+			*evtime = ev->time;
+		usec = 1000000L * (ev->time.tv_sec - evtime->tv_sec);
+		usec += ev->time.tv_usec - evtime->tv_usec;
+		if (usec > 500) {
+			usleep(usec);
+			*evtime = ev->time;
 		}
-		SYSCALL(ret = write(fd, &ev, sizeof(ev)));
 	}
+
+	return ret;
+}
+
+int evemu_play(FILE *fp, int fd)
+{
+	struct input_event ev;
+	struct timeval evtime;
+	int ret;
+
+	memset(&evtime, 0, sizeof(evtime));
+	while (evemu_read_event_realtime(fp, &ev, &evtime) > 0)
+		SYSCALL(ret = write(fd, &ev, sizeof(ev)));
 
 	return 0;
 }
