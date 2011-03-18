@@ -95,7 +95,6 @@ class EvEmuDeviceTestCase(testcase.BaseTestCase):
         self.create_testing_device()
         (output_fd, filename) = tempfile.mkstemp()
         self.device.write(filename)
-        import pdb;pdb.set_trace()
         os.close(output_fd)
         data = open(filename).read()
         self.assertEqual(data, "XX")
@@ -120,7 +119,7 @@ class EvEmuDevicePropertyTestCase(testcase.BaseTestCase):
 
     def test_id_vendor(self):
         self.create_testing_device()
-        self.assertEqual(self.device.id_vendor, "0x1b96")
+        self.assertEqual(hex(self.device.id_vendor), "0x1b96")
 
     def test_id_product(self):
         self.create_testing_device()

@@ -208,9 +208,9 @@ class EvEmuDevice(base.EvEmuBase):
 
     @property
     def id_vendor(self):
-        return hex(self._call(
+        return self._call(
             self.get_lib().evemu_get_id_vendor, 
-            self.get_device_pointer()))
+            self.get_device_pointer())
 
     @property
     def id_product(self):
