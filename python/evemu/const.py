@@ -3,6 +3,7 @@ DEFAULT_LIB = "/usr/lib/libutouch-evemu.so"
 LOCAL_LIB = "../src/.libs/libutouch-evemu.so"
 UINPUT_NODE = "/dev/uinput"
 MAX_EVENT_NODE = 32
+UINPUT_MAX_NAME_SIZE = 80 # defined in linux/uinput.h
 DEVICE_PATH_TEMPLATE = "/dev/input/event%d"
 DEVICE_NAME_PATH_TEMPLATE = "/sys/class/input/event%d/device/name"
 # The following should be examined every release of evemu
@@ -18,7 +19,9 @@ API = [
     "evemu_play",
     "evemu_create",
     "evemu_destroy",
-    # Device functions
+    # Device settrs
+    "evemu_set_name",
+    # Device gettrs
     "evemu_get_version",
     "evemu_get_name",
     "evemu_get_id_bustype",
@@ -30,6 +33,7 @@ API = [
     "evemu_get_abs_fuzz",
     "evemu_get_abs_flat",
     "evemu_get_abs_resolution",
+    # Device hasers
     "evemu_has_prop",
     "evemu_has_event",
     ]

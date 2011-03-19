@@ -65,6 +65,10 @@ class EvEmuDevice(base.EvEmuBase):
         # the Python API.
         self._device_pointer = device_new("")
 
+    def _get_device_struct(self):
+        pointer = self.get_device_pointer()
+        import pdb;pdb.set_trace()
+
     @property
     def _as_parameter_(self):
         return self.get_deivce_pointer()
@@ -121,21 +125,21 @@ class EvEmuDevice(base.EvEmuBase):
             os.close(self._uinput_fd)
         self._uinput_fd = None
 
-    def _read(self, device_file):
+    def _read(self, filename):
         self._device_file_stream = self._call(
-            self.get_c_lib().fopen, device_file, "r")
+            self.get_c_lib().fopen, filename, "r")
         self._call(
             self.get_lib().evemu_read,
             self.get_device_pointer(),
             self._device_file_stream)
 
-    def read(self, device_file):
+    def read(self, filename):
         """
         Pre-load the device structure with data from the virtual device
         description file.
         """
         try:
-            self._read(device_file)
+            self._read(filename)
         except exception.EvEmuError, error:
             self.delete()
             raise error
@@ -166,20 +170,25 @@ class EvEmuDevice(base.EvEmuBase):
             self.close()
             raise error
 
+    def _write(self, filename):
+        self._device_file_stream = self._call(
+            self.get_c_lib().fopen, filename, "w+")
+        #import pdb;pdb.set_trace()
+        self._call(
+            self.get_lib().evemu_write, 
+            self.get_device_pointer(),
+            self._device_file_stream)
+
     def write(self, filename):
         """
         Whatever data has been stored in the struct will get written to the
         passed file.
         """
-        import sys
-        output_fd = os.open(filename, os.O_WRONLY)
-        import pdb;pdb.set_trace()
-        self._call(
-            self.get_lib().evemu_write, 
-            self.get_device_pointer(),
-            sys.stdout.fileno())
-            #output_fd)
-        os.close(output_fd)
+        try:
+            self._write(filename)
+        except exception.EvEmuError, error:
+            self.delete()
+            raise error
 
     def extract(self, device_node):
         """

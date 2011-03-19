@@ -92,10 +92,13 @@ class EvEmuDeviceTestCase(testcase.BaseTestCase):
         self.assertEqual(device_count_before + 1, device_count_after)
 
     def test_write(self):
+        import os
         self.create_testing_device()
         (output_fd, filename) = tempfile.mkstemp()
         self.device.write(filename)
+        import pdb;pdb.set_trace()
         os.close(output_fd)
+        import pdb;pdb.set_trace()
         data = open(filename).read()
         self.assertEqual(data, "XX")
 
