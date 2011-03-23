@@ -52,8 +52,7 @@ struct evemu_device {
     char name[UINPUT_MAX_NAME_SIZE];            // string, max size
     struct input_id id;                         // struct input_id from linux/uinput.h
     unsigned char prop[EVPLAY_NBYTES];          //
-    unsigned char mask[EV_CNT][EVPLAY_NBYTES];  // doubly indexed array...
-    first index is what type, second field is a bitmask (
+    unsigned char mask[EV_CNT][EVPLAY_NBYTES];  // doubly indexed array...  first index is what type, second field is a bitmask
     int pbytes                                  //
     int mbytes[EV_CNT];                         // array of integers
     struct input_absinfo abs[ABS_CNT];          // array structures

@@ -14,5 +14,9 @@ class TestError(EvEmuError):
     pass
 
 
+class NullFileHandleError(EvEmuError):
+    pass
+
+
 class SkipTest(Exception):
     pass

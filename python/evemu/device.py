@@ -51,7 +51,13 @@ class EvEmuDevice(base.EvEmuBase):
 
     def __del__(self):
         self.delete()
-        self._device_file_stream = None
+        try:
+            self.close_device_file_stream()
+            self.set_device_file_stream(None)
+        except exception.NullFileHandleError, error:
+            # If there's no filehandle, there's nothing we can do, so move
+            # along, folks... nothing to see here!
+            pass
         self.destroy()
         self.close()
         if self.get_node_name() and os.path.exists(self.get_node_name()):
@@ -78,6 +84,28 @@ class EvEmuDevice(base.EvEmuBase):
 
     def get_device_pointer(self):
         return self._device_pointer
+
+    def get_device_file_stream(self):
+        return self._device_file_stream
+
+    def set_device_file_stream(self, stream):
+        self._device_file_stream = stream
+
+    def _close_device_file_stream(self):
+        if self.get_device_pointer() is None:
+            raise exception.NullFileHandleError(
+                "Cannot close an undefined file pointer!")
+        self._call(
+            self.get_c_lib().fclose,
+            self.get_device_file_stream())
+
+    def close_device_file_stream(self):
+        try:
+            self._close_device_file_stream()
+            pass
+        except exception.EvEmuError, error:
+            self.delete()
+            raise error
 
     def get_node_name(self):
         if not self._node:
@@ -126,12 +154,13 @@ class EvEmuDevice(base.EvEmuBase):
         self._uinput_fd = None
 
     def _read(self, filename):
-        self._device_file_stream = self._call(
+        file_pointer = self._call(
             self.get_c_lib().fopen, filename, "r")
+        self.set_device_file_stream(file_pointer)
         self._call(
             self.get_lib().evemu_read,
             self.get_device_pointer(),
-            self._device_file_stream)
+            self.get_device_file_stream())
 
     def read(self, filename):
         """
@@ -171,13 +200,15 @@ class EvEmuDevice(base.EvEmuBase):
             raise error
 
     def _write(self, filename):
-        self._device_file_stream = self._call(
+        file_pointer = self._call(
             self.get_c_lib().fopen, filename, "w+")
+        self.set_device_file_stream(file_pointer)
         #import pdb;pdb.set_trace()
         self._call(
             self.get_lib().evemu_write, 
             self.get_device_pointer(),
-            self._device_file_stream)
+            self.get_device_file_stream())
+        self.close_device_file_stream()
 
     def write(self, filename):
         """

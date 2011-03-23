@@ -1,4 +1,5 @@
 import ctypes
+import os
 import tempfile
 import unittest
 
@@ -31,6 +32,24 @@ class EvEmuDeviceTestCase(testcase.BaseTestCase):
         self.create_testing_device()
         lib = self.device.get_lib()
         self.assertTrue(lib is not None)
+
+    def test_get_device_file_stream(self):
+        self.create_testing_device()
+        self.device._device_file_stream = 1234
+        self.assertEqual(self.device.get_device_file_stream(), 1234)
+
+    def test_set_device_file_stream(self):
+        self.create_testing_device()
+        self.device.set_device_file_stream(1234)
+        self.assertEqual(self.device._device_file_stream, 1234)
+
+    @testcase.skip("Test not implemented")
+    def test_close_device_file_stream_error_close(self):
+        pass
+
+    @testcase.skip("Test not implemented")
+    def test_close_device_file_stream(self):
+        pass
 
     def test_get_device_pointer(self):
         self.create_testing_device()
@@ -92,15 +111,17 @@ class EvEmuDeviceTestCase(testcase.BaseTestCase):
         self.assertEqual(device_count_before + 1, device_count_after)
 
     def test_write(self):
-        import os
+        # prep a temp file to hold the written data
         self.create_testing_device()
         (output_fd, filename) = tempfile.mkstemp()
         self.device.write(filename)
-        import pdb;pdb.set_trace()
         os.close(output_fd)
-        import pdb;pdb.set_trace()
-        data = open(filename).read()
-        self.assertEqual(data, "XX")
+        # now test the data to make sure the write happened correctly
+        file_object = open(filename)
+        data = file_object.read()
+        self.assertEqual(len(data), 840)
+        expected = "N: N-Trig-MultiTouch-Virtual-Device\n"
+        self.assertTrue(data.startswith(expected))
 
 
 class EvEmuDevicePropertyTestCase(testcase.BaseTestCase):
