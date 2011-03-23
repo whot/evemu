@@ -119,10 +119,20 @@ class EvEmuDeviceTestCase(testcase.BaseTestCase):
         # now test the data to make sure the write happened correctly
         file_object = open(filename)
         data = file_object.read()
+        file_object.close()
+        # correct length
         self.assertEqual(len(data), 840)
+        # value looks as expected
         expected = "N: N-Trig-MultiTouch-Virtual-Device\n"
         self.assertTrue(data.startswith(expected))
+        # files are identicatl
+        file_object = open(self.get_device_file())
+        expected_data = file_object.read()
+        file_object.close()
+        self.assertEqual(data, expected_data)
 
+    def test_extract(self):
+        pass
 
 class EvEmuDevicePropertyTestCase(testcase.BaseTestCase):
 

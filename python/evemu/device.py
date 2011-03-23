@@ -203,9 +203,8 @@ class EvEmuDevice(base.EvEmuBase):
         file_pointer = self._call(
             self.get_c_lib().fopen, filename, "w+")
         self.set_device_file_stream(file_pointer)
-        #import pdb;pdb.set_trace()
         self._call(
-            self.get_lib().evemu_write, 
+            self.get_lib().evemu_write,
             self.get_device_pointer(),
             self.get_device_file_stream())
         self.close_device_file_stream()
@@ -231,7 +230,7 @@ class EvEmuDevice(base.EvEmuBase):
     @property
     def version(self):
         return self._call(
-            self.get_lib().evemu_get_version, 
+            self.get_lib().evemu_get_version,
             self.get_device_pointer())
 
     @property
@@ -243,61 +242,61 @@ class EvEmuDevice(base.EvEmuBase):
     @property
     def id_bustype(self):
         return self._call(
-            self.get_lib().evemu_get_id_bustype, 
+            self.get_lib().evemu_get_id_bustype,
             self.get_device_pointer())
 
     @property
     def id_vendor(self):
         return self._call(
-            self.get_lib().evemu_get_id_vendor, 
+            self.get_lib().evemu_get_id_vendor,
             self.get_device_pointer())
 
     @property
     def id_product(self):
         return self._call(
-            self.get_lib().evemu_get_id_product, 
+            self.get_lib().evemu_get_id_product,
             self.get_device_pointer())
 
     @property
     def id_version(self):
         return self._call(
-            self.get_lib().evemu_get_id_version, 
+            self.get_lib().evemu_get_id_version,
             self.get_device_pointer())
 
     # Getter methods
     def get_abs_minimum(self, event_code):
         return self._call(
-            self.get_lib().evemu_get_abs_minimum, 
+            self.get_lib().evemu_get_abs_minimum,
             self.get_device_pointer(),
             int(event_code))
 
     def get_abs_maximum(self, event_code):
         return self._call(
-            self.get_lib().evemu_get_abs_maximum, 
+            self.get_lib().evemu_get_abs_maximum,
             self.get_device_pointer(),
             event_code)
 
     def get_abs_fuzz(self, event_code):
         return self._call(
-            self.get_lib().evemu_get_abs_fuzz, 
+            self.get_lib().evemu_get_abs_fuzz,
             self.get_device_pointer(),
             event_code)
 
     def get_abs_flat(self, event_code):
         return self._call(
-            self.get_lib().evemu_get_abs_flat, 
+            self.get_lib().evemu_get_abs_flat,
             self.get_device_pointer(),
             event_code)
 
     def get_abs_resolution(self, event_code):
         return self._call(
-            self.get_lib().evemu_get_abs_resolution, 
+            self.get_lib().evemu_get_abs_resolution,
             self.get_device_pointer(),
             event_code)
 
     def has_prop(self, event_code):
         return self._call(
-            self.get_lib().evemu_has_prop, 
+            self.get_lib().evemu_has_prop,
             self.get_device_pointer(),
             event_code)
 
@@ -314,7 +313,7 @@ class EvEmuDevice(base.EvEmuBase):
         possible with just 2-touch hardware.
         """
         return self._call(
-            self.get_lib().evemu_has_event, 
+            self.get_lib().evemu_has_event,
             self.get_device_pointer(),
             event_type,
             event_code)
