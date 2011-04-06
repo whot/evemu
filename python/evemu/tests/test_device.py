@@ -132,7 +132,33 @@ class EvEmuDeviceTestCase(testcase.BaseTestCase):
         self.assertEqual(data, expected_data)
 
     def test_extract(self):
-        pass
+        # first, we need a device set up that we can extract info from
+        # prep a temp file to hold the written data
+        (output_fd, filename) = tempfile.mkstemp()
+        # get the device node for the virtual device created as part of the
+        # test 
+        self.create_testing_device()
+        node = self.device.get_node_name()
+        # extract the device info from the node, saving it to the device data
+        # structure
+        #import pdb;pdb.set_trace()
+        self.device.extract(node)
+        # write the device data structure contents to a file and compare with
+        # the device .prop file that was used to create the virtual device to
+        # begin with; they should be identical
+        device = device_class(self.library)
+        device.write(filename)
+        os.close(output_fd)
+        # then, now test the data to make sure the write happened correctly
+        file_object = open(filename)
+        data = file_object.read()
+        file_object.close()
+        # do the checks
+        file_object = open(self.get_device_file())
+        expected_data = file_object.read()
+        file_object.close()
+        self.assertEqual(data, expected_data)
+
 
 class EvEmuDevicePropertyTestCase(testcase.BaseTestCase):
 

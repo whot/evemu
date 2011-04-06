@@ -79,7 +79,7 @@ def get_last_device_number():
     """
     Get the last used device node number.
     """
-    return get_all_device_numbers()[0]
+    return get_all_device_numbers()[-1]
 
 
 def get_last_device():

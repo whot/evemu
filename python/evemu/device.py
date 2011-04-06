@@ -60,8 +60,11 @@ class EvEmuDevice(base.EvEmuBase):
             pass
         self.destroy()
         self.close()
-        if self.get_node_name() and os.path.exists(self.get_node_name()):
-            os.unlink(self.get_node_name())
+        #if self.get_node_name():
+        #    print self.get_node_name()
+        #    if os.path.exists(self.get_node_name()):
+        #        print "unlinking %s ..." % self.get_node_name()
+        #        os.unlink(self.get_node_name())
 
     def _new(self):
         device_new = self.get_lib().evemu_new
@@ -107,9 +110,10 @@ class EvEmuDevice(base.EvEmuBase):
             self.delete()
             raise error
 
+    def set_node_name(self, node_name):
+        self._node = node_name
+
     def get_node_name(self):
-        if not self._node:
-            self._node = util.get_next_device()
         return self._node
 
     def delete(self):
@@ -195,6 +199,7 @@ class EvEmuDevice(base.EvEmuBase):
         # populate the new node with data from the device pointer
         try:
             self._create()
+            self.set_node_name(util.get_last_device())
         except exception.EvEmuError, error:
             self.close()
             raise error
@@ -220,11 +225,25 @@ class EvEmuDevice(base.EvEmuBase):
             self.delete()
             raise error
 
+    def _extract(self, device_node):
+        file_descriptor = os.open(device_node, os.O_RDONLY)
+        import pdb;pdb.set_trace()
+        self._call(
+            self.get_lib().evemu_extract,
+            self.get_device_pointer(),
+            file_descriptor)
+        os.close(file_descriptor)
+
     def extract(self, device_node):
         """
         A linux input device node is opened and read, storing all the retrieved
         data in the device data structure.
         """
+        try:
+            self._extract(device_node)
+        except exception.EvEmuError, error:
+            #self.delete()
+            raise error
 
     # Property methods
     @property
