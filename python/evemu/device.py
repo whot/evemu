@@ -206,6 +206,8 @@ class EvEmuDevice(base.EvEmuBase):
             raise error
 
     def _write(self, filename):
+        # XXX what about writing to stdout? let's do that later; open a bug for
+        # supporting writing to stdout...
         file_pointer = self._call(
             self.get_c_lib().fopen, filename, "w+")
         self.set_device_file_stream(file_pointer)
@@ -228,7 +230,6 @@ class EvEmuDevice(base.EvEmuBase):
 
     def _extract(self, device_node):
         file_descriptor = os.open(device_node, os.O_RDONLY)
-        #import pdb;pdb.set_trace()
         self._call(
             self.get_lib().evemu_extract,
             self.get_device_pointer(),
@@ -245,6 +246,18 @@ class EvEmuDevice(base.EvEmuBase):
         except exception.EvEmuError, error:
             self.delete()
             raise error
+
+    def _record(self, device_node):
+        pass
+
+    def record(self, device_node):
+        pass
+
+    def _play(self, device_node, events_file):
+        pass
+
+    def play(self, device_node, events_file):
+        pass
 
     # Property methods
     @property
@@ -314,6 +327,7 @@ class EvEmuDevice(base.EvEmuBase):
             self.get_device_pointer(),
             event_code)
 
+    # Haser methods ;-)
     def has_prop(self, event_code):
         return self._call(
             self.get_lib().evemu_has_prop,

@@ -9,7 +9,10 @@ from evemu.exception import ExecutionError
 
 
 class EvEmuWrapper(base.EvEmuBase):
-
+    """
+    This class wraps the functionality offered by several of the evemu command
+    line tools.
+    """
     def __init__(self, library=""):
         """
         This method allocates a new evemu device structure and initializes
@@ -27,29 +30,6 @@ class EvEmuWrapper(base.EvEmuBase):
 
     def get_device(self):
         return self.device.get_device_pointer()
-
-    def read(self, device_file):
-        """
-        Load data from the virtual device description file into the device
-        object.
-        """
-        self.device.read(device_file)
-
-    def extract(self, filename):
-        """
-        This extracts device information from an input device.
-
-        This method cannot be used against pre-recorded device files. To
-        extract data from pre-recorded device files, first create a virtual
-        device, and then execute extract against that virtual input device.
-        """
-        # XXX is this crackful?
-        input_fd = os.open(filename, os.O_RDONLY)
-        # XXX is there a better way of doing this, than creating another file
-        # to output to? Seems wasteful :-(
-        (output_fd, output_filename) = tempfile.mkstemp()
-        self._call(self.get_lib().evemu_extract, self.get_device(), input_fd)
-        return os.read(output_fd, 1024)
 
     def create(self, device_file):
         self.device.create_node(device_file)
@@ -73,8 +53,11 @@ class EvEmuWrapper(base.EvEmuBase):
         """
         self.device.destroy()
 
-    def describe(self):
-        pass
+    def describe(self, device_path, output_file):
+        """
+        """
+        self.device.extract(device_path)
+        self.device.write(output_file)
 
     def play(self):
         pass

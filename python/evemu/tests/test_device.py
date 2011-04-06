@@ -168,17 +168,23 @@ class EvEmuDeviceTestCase(testcase.BaseTestCase):
         file_object = open(self.get_device_file())
         expected_data = file_object.read()
         file_object.close()
-        # check the lines that we know should always be the same
+        # the evemu_extract library function doesn't generate a P:
+        # (properties) line on kernels older than 2.6.38, so this test only
+        # compares the lines that will be the same across supported kernels.
         self.assertEqual(
             data.splitlines()[0:1],
             expected_data.splitlines()[0:1])
         self.assertEqual(
             data.splitlines()[-28:-1],
             expected_data.splitlines()[-28:-1])
-        # XXX the evemu_extract library function doesn't generate a P:
-        # (properties) line one some machines, as such, the next assert will
-        # sometimes fail.
-        #self.assertEqual(data, expected_data)
+
+    @testcase.skip("Implementation not complete.")
+    def test_record(self):
+        pass
+
+    @testcase.skip("Implementation not complete.")
+    def test_play(self):
+        pass
 
 
 class EvEmuDevicePropertyTestCase(testcase.BaseTestCase):
