@@ -60,6 +60,7 @@ class EvEmuDevice(base.EvEmuBase):
             pass
         self.destroy()
         self.close()
+        # XXX is this code necessary? if so, it might need to be fixed...
         #if self.get_node_name():
         #    print self.get_node_name()
         #    if os.path.exists(self.get_node_name()):
@@ -227,7 +228,7 @@ class EvEmuDevice(base.EvEmuBase):
 
     def _extract(self, device_node):
         file_descriptor = os.open(device_node, os.O_RDONLY)
-        import pdb;pdb.set_trace()
+        #import pdb;pdb.set_trace()
         self._call(
             self.get_lib().evemu_extract,
             self.get_device_pointer(),
@@ -242,7 +243,7 @@ class EvEmuDevice(base.EvEmuBase):
         try:
             self._extract(device_node)
         except exception.EvEmuError, error:
-            #self.delete()
+            self.delete()
             raise error
 
     # Property methods
