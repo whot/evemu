@@ -110,9 +110,21 @@ unsigned int evemu_get_id_bustype(const struct evemu_device *dev)
 	return dev->id.bustype;
 }
 
+void evemu_set_id_bustype(struct evemu_device *dev,
+			  unsigned int bustype)
+{
+	dev->id.bustype = bustype;
+}
+
 unsigned int evemu_get_id_vendor(const struct evemu_device *dev)
 {
 	return dev->id.vendor;
+}
+
+void evemu_set_id_vendor(struct evemu_device *dev,
+			 unsigned int vendor)
+{
+	dev->id.vendor = vendor;
 }
 
 unsigned int evemu_get_id_product(const struct evemu_device *dev)
@@ -120,9 +132,21 @@ unsigned int evemu_get_id_product(const struct evemu_device *dev)
 	return dev->id.product;
 }
 
+void evemu_set_id_product(struct evemu_device *dev,
+			  unsigned int product)
+{
+	dev->id.product = product;
+}
+
 unsigned int evemu_get_id_version(const struct evemu_device *dev)
 {
 	return dev->id.version;
+}
+
+void evemu_set_id_version(struct evemu_device *dev,
+			  unsigned int version)
+{
+	dev->id.version = version;
 }
 
 int evemu_get_abs_minimum(const struct evemu_device *dev, int code)
@@ -130,9 +154,19 @@ int evemu_get_abs_minimum(const struct evemu_device *dev, int code)
 	return dev->abs[code].minimum;
 }
 
+void evemu_set_abs_minimum(struct evemu_device *dev, int code, int min)
+{
+	dev->abs[code].minimum = min;
+}
+
 int evemu_get_abs_maximum(const struct evemu_device *dev, int code)
 {
 	return dev->abs[code].maximum;
+}
+
+void evemu_set_abs_maximum(struct evemu_device *dev, int code, int max)
+{
+	dev->abs[code].maximum = max;
 }
 
 int evemu_get_abs_fuzz(const struct evemu_device *dev, int code)
@@ -140,14 +174,29 @@ int evemu_get_abs_fuzz(const struct evemu_device *dev, int code)
 	return dev->abs[code].fuzz;
 }
 
+void evemu_set_abs_fuzz(struct evemu_device *dev, int code, int fuzz)
+{
+	dev->abs[code].fuzz = fuzz;
+}
+
 int evemu_get_abs_flat(const struct evemu_device *dev, int code)
 {
 	return dev->abs[code].flat;
 }
 
+void evemu_set_abs_flat(struct evemu_device *dev, int code, int flat)
+{
+	dev->abs[code].flat = flat;
+}
+
 int evemu_get_abs_resolution(const struct evemu_device *dev, int code)
 {
 	return dev->abs[code].resolution;
+}
+
+void evemu_set_abs_resolution(struct evemu_device *dev, int code, int res)
+{
+	dev->abs[code].resolution = res;
 }
 
 int evemu_has_prop(const struct evemu_device *dev, int code)
