@@ -454,6 +454,12 @@ static int set_mask(const struct evemu_device *dev, int type, int fd)
 	for (i = 0; i < bits; i++) {
 		if (!evemu_has_event(dev, type, i))
 			continue;
+
+		/* kernel doesn't like those */
+		if (type == EV_ABS &&
+			dev->abs[i].maximum == 0 && dev->abs[i].minimum == 0)
+			continue;
+
 		ret = set_event_bit(fd, type, i);
 		if (ret < 0)
 			return ret;
