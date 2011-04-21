@@ -352,9 +352,6 @@ int evemu_read_event_realtime(FILE *fp, struct input_event *ev,
  * Contiuously reads events from the kernel device and writes them to
  * the file. The function terminates after ms milliseconds of
  * inactivity.
- * to this function. This function reads a kernel event from the file,
- * and performs the microsleep necessary to deliver the event with the
- * same timings as originally received.
  *
  * Returns zero if successful, negative error otherwise.
  */
