@@ -219,9 +219,6 @@ int evemu_extract(struct evemu_device *dev, int fd)
 	SYSCALL(rc = ioctl(fd, EVIOCGNAME(sizeof(dev->name)), dev->name));
 	if (rc < 0)
 		return rc;
-	for (i = 0; i < sizeof(dev->name); i++)
-		if (isspace(dev->name[i]))
-			dev->name[i] = '-';
 
 	SYSCALL(rc = ioctl(fd, EVIOCGID, &dev->id));
 	if (rc < 0)
@@ -339,7 +336,8 @@ int evemu_read(struct evemu_device *dev, FILE *fp)
 
 	memset(dev, 0, sizeof(*dev));
 
-	ret = fscanf(fp, "N: %s\n", dev->name);
+	/* limited by UINPUT_MAX_NAME_SIZE */
+	ret = fscanf(fp, "N: %79[^\n]\n", dev->name);
 	if (ret <= 0)
 		return ret;
 
