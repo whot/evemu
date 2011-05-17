@@ -40,8 +40,8 @@
  *
  ****************************************************************************/
 
-#ifndef _EVEMU_H
-#define _EVEMU_H
+#ifndef EVEMU_H
+#define EVEMU_H
 
 #include <stdio.h>
 #include <errno.h>
