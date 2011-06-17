@@ -1,0 +1,42 @@
+UTOUCH_EVEMU_1.0 {
+  global:
+    evemu_create;
+    evemu_delete;
+    evemu_destroy;
+    evemu_extract;
+    evemu_get_abs_flat;
+    evemu_get_abs_fuzz;
+    evemu_get_abs_maximum;
+    evemu_get_abs_minimum;
+    evemu_get_abs_resolution;
+    evemu_get_id_bustype;
+    evemu_get_id_product;
+    evemu_get_id_vendor;
+    evemu_get_id_version;
+    evemu_get_name;
+    evemu_get_version;
+    evemu_has_event;
+    evemu_has_prop;
+    evemu_new;
+    evemu_play;
+    evemu_read;
+    evemu_read_event;
+    evemu_read_event_realtime;
+    evemu_record;
+    evemu_set_abs_flat;
+    evemu_set_abs_fuzz;
+    evemu_set_abs_maximum;
+    evemu_set_abs_minimum;
+    evemu_set_abs_resolution;
+    evemu_set_id_bustype;
+    evemu_set_id_product;
+    evemu_set_id_vendor;
+    evemu_set_id_version;
+    evemu_set_name;
+    evemu_write;
+    evemu_write_event;
+
+  local:
+    *;
+};
+
