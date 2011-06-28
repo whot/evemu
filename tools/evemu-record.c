@@ -51,8 +51,9 @@
 int main(int argc, char *argv[])
 {
 	int fd;
+	FILE *out;
 	if (argc < 2) {
-		fprintf(stderr, "Usage: %s <device>\n", argv[0]);
+		fprintf(stderr, "Usage: %s <device> [output file]\n", argv[0]);
 		return -1;
 	}
 	fd = open(argv[1], O_RDONLY | O_NONBLOCK);
@@ -60,9 +61,21 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "error: could not open device\n");
 		return -1;
 	}
-	if (evemu_record(stdout, fd, WAIT_MS)) {
+
+	if (argc < 3)
+		out = stdout;
+	else {
+		out = fopen(argv[2], "w");
+		if (!out) {
+			fprintf(stderr, "error: could not open output file");
+		}
+	}
+
+	if (evemu_record(out, fd, WAIT_MS)) {
 		fprintf(stderr, "error: could not describe device\n");
 	}
 	close(fd);
+	if (argc > 2)
+		fclose(out);
 	return 0;
 }
