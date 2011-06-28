@@ -53,9 +53,9 @@ FILE *output;
 
 static void handler (int sig)
 {
-        fflush(output);
-        if (output != stdout)
-                fclose(output);
+	fflush(output);
+	if (output != stdout)
+		fclose(output);
 }
 
 int main(int argc, char *argv[])
