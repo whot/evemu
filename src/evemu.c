@@ -379,6 +379,7 @@ int evemu_record(FILE *fp, int fd, int ms)
 			return ret;
 		if (ret == sizeof(ev))
 			evemu_write_event(fp, &ev);
+			fflush(fp);
 	}
 
 	return 0;

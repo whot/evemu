@@ -45,14 +45,24 @@
 #include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
 
 #define WAIT_MS 10000
+
+FILE *output;
+
+static void handler (int sig)
+{
+	fflush(output);
+	if (output != stdout)
+		fclose(output);
+}
 
 int main(int argc, char *argv[])
 {
 	int fd;
 	if (argc < 2) {
-		fprintf(stderr, "Usage: %s <device>\n", argv[0]);
+		fprintf(stderr, "Usage: %s <device> [output file]\n", argv[0]);
 		return -1;
 	}
 	fd = open(argv[1], O_RDONLY | O_NONBLOCK);
@@ -60,9 +70,34 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "error: could not open device\n");
 		return -1;
 	}
-	if (evemu_record(stdout, fd, WAIT_MS)) {
+
+	struct sigaction act;
+	memset (&act, '\0', sizeof(act));
+	act.sa_handler = &handler;
+
+	if (sigaction(SIGTERM, &act, NULL) < 0) {
+		fprintf (stderr, "Could not attach TERM signal handler.\n");
+		return 1;
+	}
+	if (sigaction(SIGINT, &act, NULL) < 0) {
+		fprintf (stderr, "Could not attach INT signal handler.\n");
+		return 1;
+	}
+
+	if (argc < 3)
+		output = stdout;
+	else {
+		output = fopen(argv[2], "w");
+		if (!output) {
+			fprintf(stderr, "error: could not open output file");
+		}
+	}
+
+	if (evemu_record(output, fd, WAIT_MS)) {
 		fprintf(stderr, "error: could not describe device\n");
 	}
 	close(fd);
+	if (output != stdout)
+		fclose(output);
 	return 0;
 }
