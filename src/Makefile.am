@@ -4,6 +4,7 @@ lib_LTLIBRARIES = libutouch-evemu.la
 
 libutouch_evemu_la_LDFLAGS = \
 	-version-info @LIB_VERSION@ \
+	-D_GNU_SOURCE=1 \
 	-Wl,-z,defs -Wl,--as-needed \
 	-Wl,--version-script=$(version_script)
 

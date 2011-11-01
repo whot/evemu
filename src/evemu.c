@@ -40,6 +40,7 @@
  *
  ****************************************************************************/
 
+#define _GNU_SOURCE
 #include "evemu-impl.h"
 #include <stdlib.h>
 #include <string.h>
@@ -277,8 +278,13 @@ static void write_abs(FILE *fp, int index, const struct input_absinfo *abs)
 int evemu_write(const struct evemu_device *dev, FILE *fp)
 {
 	int i;
+	char devname[sizeof(dev->name)+1];
 
-	fprintf(fp, "N: %s\n", dev->name);
+	/* devname is the same as dev->name, but guaranteed to be NUL-terminated. */
+	memset(devname, 0, sizeof(devname));
+	strncpy(dev->name, devname, sizeof(dev->name));
+
+	fprintf(fp, "N: %s\n", devname);
 
 	fprintf(fp, "I: %04x %04x %04x %04x\n",
 		dev->id.bustype, dev->id.vendor,
@@ -333,13 +339,19 @@ int evemu_read(struct evemu_device *dev, FILE *fp)
 {
 	unsigned bustype, vendor, product, version;
 	int ret;
+	char *devname = NULL;
 
 	memset(dev, 0, sizeof(*dev));
 
-	/* limited by UINPUT_MAX_NAME_SIZE */
-	ret = fscanf(fp, "N: %79[^\n]\n", dev->name);
-	if (ret <= 0)
+	ret = fscanf(fp, "N: %as\n", &devname);
+	if (ret <= 0) {
+		if (devname != NULL)
+			free(devname);
 		return ret;
+	}
+	strncpy(dev->name, devname, sizeof(dev->name));
+	dev->name[sizeof(dev->name)-1] = '\0';
+	free(devname);
 
 	ret = fscanf(fp, "I: %04x %04x %04x %04x\n",
 		     &bustype, &vendor, &product, &version);
