@@ -282,7 +282,7 @@ int evemu_write(const struct evemu_device *dev, FILE *fp)
 
 	/* devname is the same as dev->name, but guaranteed to be NUL-terminated. */
 	memset(devname, 0, sizeof(devname));
-	strncpy(dev->name, devname, sizeof(dev->name));
+	strncpy(devname, dev->name, sizeof(dev->name));
 
 	fprintf(fp, "N: %s\n", devname);
 
