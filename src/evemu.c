@@ -216,7 +216,7 @@ int evemu_extract(struct evemu_device *dev, int fd)
 
 	memset(dev, 0, sizeof(*dev));
 
-	SYSCALL(rc = ioctl(fd, EVIOCGNAME(sizeof(dev->name)), dev->name));
+	SYSCALL(rc = ioctl(fd, EVIOCGNAME(sizeof(dev->name)-1), dev->name));
 	if (rc < 0)
 		return rc;
 
@@ -277,13 +277,8 @@ static void write_abs(FILE *fp, int index, const struct input_absinfo *abs)
 int evemu_write(const struct evemu_device *dev, FILE *fp)
 {
 	int i;
-	char devname[sizeof(dev->name)+1];
 
-	/* devname is the same as dev->name, but guaranteed to be NUL-terminated. */
-	memset(devname, 0, sizeof(devname));
-	strncpy(devname, dev->name, sizeof(dev->name));
-
-	fprintf(fp, "N: %s\n", devname);
+	fprintf(fp, "N: %s\n", dev->name);
 
 	fprintf(fp, "I: %04x %04x %04x %04x\n",
 		dev->id.bustype, dev->id.vendor,
@@ -342,7 +337,7 @@ int evemu_read(struct evemu_device *dev, FILE *fp)
 
 	memset(dev, 0, sizeof(*dev));
 
-	ret = fscanf(fp, "N: %as\n", &devname);
+	ret = fscanf(fp, "N: %ms\n", &devname);
 	if (ret <= 0) {
 		if (devname != NULL)
 			free(devname);
