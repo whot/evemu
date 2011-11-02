@@ -4,15 +4,15 @@ lib_LTLIBRARIES = libutouch-evemu.la
 
 libutouch_evemu_la_LDFLAGS = \
 	-version-info @LIB_VERSION@ \
-	-D_GNU_SOURCE=1 \
 	-Wl,-z,defs -Wl,--as-needed \
 	-Wl,--version-script=$(version_script)
+
+libutouch_evemu_la_CFLAGS = \
+	-Wno-format
 
 libutouch_evemu_la_SOURCES = \
 	evemu-impl.h \
 	evemu.c
-
-AM_CFLAGS = $(CWARNFLAGS)
 
 INCLUDES = -I$(top_srcdir)/include/
 

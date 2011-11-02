@@ -40,7 +40,6 @@
  *
  ****************************************************************************/
 
-#define _GNU_SOURCE
 #include "evemu-impl.h"
 #include <stdlib.h>
 #include <string.h>
@@ -317,7 +316,7 @@ static void read_prop(struct evemu_device *dev, FILE *fp)
 static void read_mask(struct evemu_device *dev, FILE *fp)
 {
 	unsigned int mask[8];
-	int index, i;
+	unsigned int index, i;
 	while (fscanf(fp, "B: %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
 		      &index, mask + 0, mask + 1, mask + 2, mask + 3,
 		      mask + 4, mask + 5, mask + 6, mask + 7) > 0) {
@@ -329,7 +328,7 @@ static void read_mask(struct evemu_device *dev, FILE *fp)
 static void read_abs(struct evemu_device *dev, FILE *fp)
 {
 	struct input_absinfo abs;
-	int index;
+	unsigned int index;
 	while (fscanf(fp, "A: %02x %d %d %d %d\n", &index,
 		      &abs.minimum, &abs.maximum, &abs.fuzz, &abs.flat) > 0)
 		dev->abs[index] = abs;

@@ -33,6 +33,9 @@ if test "x$XMLTO" = "x" || test "x$ASCIIDOC" = "x"; then
 	AC_MSG_WARN([xmlto or asciidoc not found - cannot create man pages without it])
 fi
 
+AC_SUBST(AM_CFLAGS,
+         "-Wall -Wextra -pedantic -Werror -std=gnu99 -D_GNU_SOURCE=1")
+
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile
