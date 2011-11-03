@@ -216,7 +216,7 @@ int evemu_extract(struct evemu_device *dev, int fd)
 
 	memset(dev, 0, sizeof(*dev));
 
-	SYSCALL(rc = ioctl(fd, EVIOCGNAME(sizeof(dev->name)), dev->name));
+	SYSCALL(rc = ioctl(fd, EVIOCGNAME(sizeof(dev->name)-1), dev->name));
 	if (rc < 0)
 		return rc;
 
@@ -311,7 +311,7 @@ static void read_prop(struct evemu_device *dev, FILE *fp)
 static void read_mask(struct evemu_device *dev, FILE *fp)
 {
 	unsigned int mask[8];
-	int index, i;
+	unsigned int index, i;
 	while (fscanf(fp, "B: %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
 		      &index, mask + 0, mask + 1, mask + 2, mask + 3,
 		      mask + 4, mask + 5, mask + 6, mask + 7) > 0) {
@@ -323,7 +323,7 @@ static void read_mask(struct evemu_device *dev, FILE *fp)
 static void read_abs(struct evemu_device *dev, FILE *fp)
 {
 	struct input_absinfo abs;
-	int index;
+	unsigned int index;
 	while (fscanf(fp, "A: %02x %d %d %d %d\n", &index,
 		      &abs.minimum, &abs.maximum, &abs.fuzz, &abs.flat) > 0)
 		dev->abs[index] = abs;
@@ -333,13 +333,19 @@ int evemu_read(struct evemu_device *dev, FILE *fp)
 {
 	unsigned bustype, vendor, product, version;
 	int ret;
+	char *devname = NULL;
 
 	memset(dev, 0, sizeof(*dev));
 
-	/* limited by UINPUT_MAX_NAME_SIZE */
-	ret = fscanf(fp, "N: %79[^\n]\n", dev->name);
-	if (ret <= 0)
+	ret = fscanf(fp, "N: %ms\n", &devname);
+	if (ret <= 0) {
+		if (devname != NULL)
+			free(devname);
 		return ret;
+	}
+	strncpy(dev->name, devname, sizeof(dev->name));
+	dev->name[sizeof(dev->name)-1] = '\0';
+	free(devname);
 
 	ret = fscanf(fp, "I: %04x %04x %04x %04x\n",
 		     &bustype, &vendor, &product, &version);

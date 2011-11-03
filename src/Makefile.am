@@ -7,11 +7,12 @@ libutouch_evemu_la_LDFLAGS = \
 	-Wl,-z,defs -Wl,--as-needed \
 	-Wl,--version-script=$(version_script)
 
+libutouch_evemu_la_CFLAGS = \
+	-Wno-format
+
 libutouch_evemu_la_SOURCES = \
 	evemu-impl.h \
 	evemu.c
-
-AM_CFLAGS = $(CWARNFLAGS)
 
 INCLUDES = -I$(top_srcdir)/include/
 

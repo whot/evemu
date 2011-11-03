@@ -51,7 +51,7 @@
 
 FILE *output;
 
-static void handler (int sig)
+static void handler (int sig __attribute__((unused)))
 {
 	fflush(output);
 	if (output != stdout)
