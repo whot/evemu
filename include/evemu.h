@@ -40,8 +40,8 @@
  *
  ****************************************************************************/
 
-#ifndef _EVEMU_H
-#define _EVEMU_H
+#ifndef EVEMU_H
+#define EVEMU_H
 
 #include <stdio.h>
 #include <errno.h>
@@ -106,12 +106,28 @@ void evemu_set_name(struct evemu_device *dev, const char *name);
 unsigned int evemu_get_id_bustype(const struct evemu_device *dev);
 
 /**
+ * evemu_set_id_bustype() - set kernel bustype
+ *
+ * @dev: the device in use
+ * @bustype: the bustype value to set.
+ */
+void evemu_set_id_bustype(struct evemu_device *dev, unsigned int bustype);
+
+/**
  * evemu_get_id_vendor() - get kernel device vendor id
  * @dev: the device in use
  *
  * Returns the kernel vendor id used by the device.
  */
 unsigned int evemu_get_id_vendor(const struct evemu_device *dev);
+
+/**
+ * evemu_set_id_vendor() - set kernel device vendor id
+ *
+ * @dev: the device in use
+ * @vendor: the vendor id value to set.
+ */
+void evemu_set_id_vendor(struct evemu_device *dev, unsigned int vendor);
 
 /**
  * evemu_get_id_product() - get kernel device product id
@@ -122,12 +138,28 @@ unsigned int evemu_get_id_vendor(const struct evemu_device *dev);
 unsigned int evemu_get_id_product(const struct evemu_device *dev);
 
 /**
+ * evemu_set_id_product() - set kernel device product id
+ *
+ * @dev: the device in use
+ * @product: the product id value to set.
+ */
+void evemu_set_id_product(struct evemu_device *dev, unsigned int product);
+
+/**
  * evemu_get_id_version() - get kernel device id version
  * @dev: the device in use
  *
  * Returns the kernel device id used by the device.
  */
 unsigned int evemu_get_id_version(const struct evemu_device *dev);
+
+/**
+ * evemu_set_id_version() - set kernel device id version
+ *
+ * @dev: the device in use
+ * @version: the version value to set.
+ */
+void evemu_set_id_version(struct evemu_device *dev, unsigned int version);
 
 /**
  * evemu_get_abs_minimum() - get kernel minimum value of event type
@@ -139,6 +171,15 @@ unsigned int evemu_get_id_version(const struct evemu_device *dev);
 int evemu_get_abs_minimum(const struct evemu_device *dev, int code);
 
 /**
+ * evemu_set_abs_minimum() - set kernel minimum value of event type
+ *
+ * @dev: the device in use
+ * @code: the event type code to set
+ * @min: the minimum value to set
+ */
+void evemu_set_abs_minimum(struct evemu_device *dev, int code, int min);
+
+/**
  * evemu_get_abs_maximum() - get kernel maximum value of event type
  * @dev: the device in use
  * @code: the event type code to query
@@ -148,6 +189,15 @@ int evemu_get_abs_minimum(const struct evemu_device *dev, int code);
 int evemu_get_abs_maximum(const struct evemu_device *dev, int code);
 
 /**
+ * evemu_set_abs_maximum() - set kernel maximum value of event type
+ *
+ * @dev: the device in use
+ * @code: the event type code to set
+ * @max: the maximum value to set
+ */
+void evemu_set_abs_maximum(struct evemu_device *dev, int code, int max);
+
+/**
  * evemu_get_abs_maximum() - get kernel filter fuzz of event type
  * @dev: the device in use
  * @code: the event type code to query
@@ -155,6 +205,15 @@ int evemu_get_abs_maximum(const struct evemu_device *dev, int code);
  * Returns the filter fuzz of the specified event type.
  */
 int evemu_get_abs_fuzz(const struct evemu_device *dev, int code);
+
+/**
+ * evemu_set_abs_fuzz() - set kernel filter fuzz of event type
+ *
+ * @dev: the device in use
+ * @code: the event type code to set
+ * @fuzz: the fuzz value to set
+ */
+void evemu_set_abs_fuzz(struct evemu_device *dev, int code, int fuzz);
 
 /**
  * evemu_get_abs_maximum() - get kernel flat value of event type
@@ -167,6 +226,15 @@ int evemu_get_abs_fuzz(const struct evemu_device *dev, int code);
 int evemu_get_abs_flat(const struct evemu_device *dev, int code);
 
 /**
+ * evemu_set_abs_flat() - set kernel filter flat of event type
+ *
+ * @dev: the device in use
+ * @code: the event type code to set
+ * @flat: the flat value to set
+ */
+void evemu_set_abs_flat(struct evemu_device *dev, int code, int flat);
+
+/**
  * evemu_get_abs_resolution() - get kernel resolution of event type
  * @dev: the device in use
  * @code: the event type code to query
@@ -176,6 +244,17 @@ int evemu_get_abs_flat(const struct evemu_device *dev, int code);
  * where appropriate.
  */
 int evemu_get_abs_resolution(const struct evemu_device *dev, int code);
+
+/**
+ * evemu_set_abs_resolution() - set kernel resolution of event type
+ * @dev: the device in use
+ * @code: the event type code to set
+ * @res: the resolution value to set.
+ *
+ * Resolution is specified in units per millimeter (units/mm), or units per
+ * radian where appropriate.
+ */
+void evemu_set_abs_resolution(struct evemu_device *dev, int code, int res);
 
 /**
  * evemu_has_prop() - check if device has a certain property
@@ -273,9 +352,6 @@ int evemu_read_event_realtime(FILE *fp, struct input_event *ev,
  * Contiuously reads events from the kernel device and writes them to
  * the file. The function terminates after ms milliseconds of
  * inactivity.
- * to this function. This function reads a kernel event from the file,
- * and performs the microsleep necessary to deliver the event with the
- * same timings as originally received.
  *
  * Returns zero if successful, negative error otherwise.
  */

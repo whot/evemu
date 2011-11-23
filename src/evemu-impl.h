@@ -15,8 +15,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _EVEMU_IMPL_H
-#define _EVEMU_IMPL_H
+#ifndef EVEMU_IMPL_H
+#define EVEMU_IMPL_H
 
 #include <evemu.h>
 #include <linux/uinput.h>

@@ -110,9 +110,21 @@ unsigned int evemu_get_id_bustype(const struct evemu_device *dev)
 	return dev->id.bustype;
 }
 
+void evemu_set_id_bustype(struct evemu_device *dev,
+			  unsigned int bustype)
+{
+	dev->id.bustype = bustype;
+}
+
 unsigned int evemu_get_id_vendor(const struct evemu_device *dev)
 {
 	return dev->id.vendor;
+}
+
+void evemu_set_id_vendor(struct evemu_device *dev,
+			 unsigned int vendor)
+{
+	dev->id.vendor = vendor;
 }
 
 unsigned int evemu_get_id_product(const struct evemu_device *dev)
@@ -120,9 +132,21 @@ unsigned int evemu_get_id_product(const struct evemu_device *dev)
 	return dev->id.product;
 }
 
+void evemu_set_id_product(struct evemu_device *dev,
+			  unsigned int product)
+{
+	dev->id.product = product;
+}
+
 unsigned int evemu_get_id_version(const struct evemu_device *dev)
 {
 	return dev->id.version;
+}
+
+void evemu_set_id_version(struct evemu_device *dev,
+			  unsigned int version)
+{
+	dev->id.version = version;
 }
 
 int evemu_get_abs_minimum(const struct evemu_device *dev, int code)
@@ -130,9 +154,19 @@ int evemu_get_abs_minimum(const struct evemu_device *dev, int code)
 	return dev->abs[code].minimum;
 }
 
+void evemu_set_abs_minimum(struct evemu_device *dev, int code, int min)
+{
+	dev->abs[code].minimum = min;
+}
+
 int evemu_get_abs_maximum(const struct evemu_device *dev, int code)
 {
 	return dev->abs[code].maximum;
+}
+
+void evemu_set_abs_maximum(struct evemu_device *dev, int code, int max)
+{
+	dev->abs[code].maximum = max;
 }
 
 int evemu_get_abs_fuzz(const struct evemu_device *dev, int code)
@@ -140,14 +174,29 @@ int evemu_get_abs_fuzz(const struct evemu_device *dev, int code)
 	return dev->abs[code].fuzz;
 }
 
+void evemu_set_abs_fuzz(struct evemu_device *dev, int code, int fuzz)
+{
+	dev->abs[code].fuzz = fuzz;
+}
+
 int evemu_get_abs_flat(const struct evemu_device *dev, int code)
 {
 	return dev->abs[code].flat;
 }
 
+void evemu_set_abs_flat(struct evemu_device *dev, int code, int flat)
+{
+	dev->abs[code].flat = flat;
+}
+
 int evemu_get_abs_resolution(const struct evemu_device *dev, int code)
 {
 	return dev->abs[code].resolution;
+}
+
+void evemu_set_abs_resolution(struct evemu_device *dev, int code, int res)
+{
+	dev->abs[code].resolution = res;
 }
 
 int evemu_has_prop(const struct evemu_device *dev, int code)
@@ -167,12 +216,9 @@ int evemu_extract(struct evemu_device *dev, int fd)
 
 	memset(dev, 0, sizeof(*dev));
 
-	SYSCALL(rc = ioctl(fd, EVIOCGNAME(sizeof(dev->name)), dev->name));
+	SYSCALL(rc = ioctl(fd, EVIOCGNAME(sizeof(dev->name)-1), dev->name));
 	if (rc < 0)
 		return rc;
-	for (i = 0; i < sizeof(dev->name); i++)
-		if (isspace(dev->name[i]))
-			dev->name[i] = '-';
 
 	SYSCALL(rc = ioctl(fd, EVIOCGID, &dev->id));
 	if (rc < 0)
@@ -265,7 +311,7 @@ static void read_prop(struct evemu_device *dev, FILE *fp)
 static void read_mask(struct evemu_device *dev, FILE *fp)
 {
 	unsigned int mask[8];
-	int index, i;
+	unsigned int index, i;
 	while (fscanf(fp, "B: %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
 		      &index, mask + 0, mask + 1, mask + 2, mask + 3,
 		      mask + 4, mask + 5, mask + 6, mask + 7) > 0) {
@@ -277,7 +323,7 @@ static void read_mask(struct evemu_device *dev, FILE *fp)
 static void read_abs(struct evemu_device *dev, FILE *fp)
 {
 	struct input_absinfo abs;
-	int index;
+	unsigned int index;
 	while (fscanf(fp, "A: %02x %d %d %d %d\n", &index,
 		      &abs.minimum, &abs.maximum, &abs.fuzz, &abs.flat) > 0)
 		dev->abs[index] = abs;
@@ -287,12 +333,19 @@ int evemu_read(struct evemu_device *dev, FILE *fp)
 {
 	unsigned bustype, vendor, product, version;
 	int ret;
+	char *devname = NULL;
 
 	memset(dev, 0, sizeof(*dev));
 
-	ret = fscanf(fp, "N: %s\n", dev->name);
-	if (ret <= 0)
+	ret = fscanf(fp, "N: %ms\n", &devname);
+	if (ret <= 0) {
+		if (devname != NULL)
+			free(devname);
 		return ret;
+	}
+	strncpy(dev->name, devname, sizeof(dev->name));
+	dev->name[sizeof(dev->name)-1] = '\0';
+	free(devname);
 
 	ret = fscanf(fp, "I: %04x %04x %04x %04x\n",
 		     &bustype, &vendor, &product, &version);
@@ -332,6 +385,7 @@ int evemu_record(FILE *fp, int fd, int ms)
 			return ret;
 		if (ret == sizeof(ev))
 			evemu_write_event(fp, &ev);
+			fflush(fp);
 	}
 
 	return 0;
@@ -454,6 +508,12 @@ static int set_mask(const struct evemu_device *dev, int type, int fd)
 	for (i = 0; i < bits; i++) {
 		if (!evemu_has_event(dev, type, i))
 			continue;
+
+		/* kernel doesn't like those */
+		if (type == EV_ABS &&
+			dev->abs[i].maximum == 0 && dev->abs[i].minimum == 0)
+			continue;
+
 		ret = set_event_bit(fd, type, i);
 		if (ret < 0)
 			return ret;

@@ -126,7 +126,8 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "error: could not open file\n");
 		return -1;
 	}
-	if ((ret = evemu_device(fp))) {
+	ret = evemu_device(fp);
+	if (ret <= 0) {
 		fprintf(stderr, "error: could not create device: %d\n", ret);
 		return -1;
 	}

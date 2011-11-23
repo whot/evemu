@@ -7,3 +7,4 @@ Name: utouch-evemu
 Description: Kernel device emulation
 Version: @PACKAGE_VERSION@
 Libs: -L${libdir} -lutouch-evemu
+Cflags: -I${includedir}
