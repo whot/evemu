@@ -159,7 +159,7 @@ class EvEmuDevice(base.EvEmuBase):
         self._uinput_fd = None
 
     def _read(self, filename):
-        file_pointer = self._call(
+        file_pointer = self._call0(
             self.get_c_lib().fopen, filename, "r")
         self.set_device_file_stream(file_pointer)
         self._call(
@@ -208,7 +208,7 @@ class EvEmuDevice(base.EvEmuBase):
     def _write(self, filename):
         # XXX what about writing to stdout? let's do that later; open a bug for
         # supporting writing to stdout...
-        file_pointer = self._call(
+        file_pointer = self._call0(
             self.get_c_lib().fopen, filename, "w+")
         self.set_device_file_stream(file_pointer)
         self._call(

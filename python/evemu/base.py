@@ -16,9 +16,16 @@ class EvEmuBase(object):
         self._lib = ctypes.CDLL(library, use_errno=True)
         self._libc = ctypes.CDLL(find_library("c"), use_errno=True)
 
+    def _call0(self, api_call, *parameters):
+        result = api_call(*parameters)
+        if result == 0 and self.get_c_errno() != 0:
+            raise exception.ExecutionError, "%s: %s" % (
+                api_call.__name__, self.get_c_error())
+        return result
+
     def _call(self, api_call, *parameters):
         result = api_call(*parameters)
-        if result <= 0 and self.get_c_errno() != 0:
+        if result < 0 and self.get_c_errno() != 0:
             raise exception.ExecutionError, "%s: %s" % (
                 api_call.__name__, self.get_c_error())
         return result
