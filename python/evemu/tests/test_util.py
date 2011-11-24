@@ -24,21 +24,6 @@ class CommandsTestCase(testcase.Non26BaseTestCase):
         self.assertTrue(result.get("version") is not None) 
 
 
-class DirectoriesTestCase(testcase.Non26BaseTestCase):
-
-    def test_get_top_directory(self):
-        result = util.get_top_directory()
-        self.assertEqual(result, "evemu")
-
-    def test_get_test_directory(self):
-        result = util.get_test_directory()
-        self.assertEqual(result, "evemu/tests")
-
-    def test_get_test_module(self):
-        result = util.get_test_module()
-        self.assertEqual(result, "evemu.tests")
-
-
 class DevicesTestCase(testcase.Non26BaseTestCase):
 
     def test_get_all_device_numbers(self):
