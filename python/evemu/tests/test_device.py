@@ -12,11 +12,6 @@ from evemu.testing import testcase
 
 class EvEmuDeviceTestCase(testcase.BaseTestCase):
 
-    def tearDown(self):
-        if self.device:
-            self.device.destroy()
-        super(EvEmuDeviceTestCase, self).tearDown()
-
     def test_initialize_error_new(self):
         class FakeDevice(EvEmuDevice):
             def _new(self):

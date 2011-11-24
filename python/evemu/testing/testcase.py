@@ -53,6 +53,11 @@ class BaseTestCase(unittest.TestCase):
         self.data_dir = os.path.join(basedir, "..", "..", "data")
         self.device = None
 
+    def tearDown(self):
+       if self.device:
+            self.device.destroy()
+       super(BaseTestCase, self).tearDown()
+
     def get_device_file(self):
         return os.path.join(self.data_dir, "ntrig-dell-xt2.prop")
 
