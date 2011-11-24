@@ -9,6 +9,8 @@ INCLUDES = $(top_srcdir)/include/
 INSTALL:
 	$(INSTALL_CMD)
 
+EXTRA_DIST = data
+
 ChangeLog:
 	@if test -d ".bzr"; then \
 	    cmd=bzr; \
