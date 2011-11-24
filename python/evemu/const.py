@@ -1,4 +1,4 @@
-LIB = "libutouch-evemu"
+LIB = "utouch-evemu"
 DEFAULT_LIB = "/usr/lib/libutouch-evemu.so"
 LOCAL_LIB = "../src/.libs/libutouch-evemu.so"
 UINPUT_NODE = "/dev/uinput"

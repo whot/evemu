@@ -1,4 +1,4 @@
-SUBDIRS = src tools
+SUBDIRS = src tools python
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = utouch-evemu.pc

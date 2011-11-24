@@ -22,6 +22,7 @@ AC_PROG_LIBTOOL
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_INSTALL
+AM_PATH_PYTHON([2.6])
 
 # man page generation
 AC_ARG_VAR([XMLTO], [Path to xmlto command])
@@ -39,6 +40,7 @@ AC_SUBST(AM_CFLAGS,
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile
+                 python/Makefile
                  tools/Makefile
                  utouch-evemu.pc])
 AC_OUTPUT
