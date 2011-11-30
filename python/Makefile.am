@@ -34,4 +34,4 @@ evemu-test-runner: evemu-test-runner.in Makefile
 
 BUILT_SOURCES = evemu-test-runner
 EXTRA_DIST =  evemu-test-runner.in $(wildcard evemu/test*)
-CLEAN_FILES = $(BUILD_SOURCES)
+CLEANFILES = $(BUILT_SOURCES)

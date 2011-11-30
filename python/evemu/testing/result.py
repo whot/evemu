@@ -6,7 +6,14 @@ except ImportError:
     # Python 2.4, 2.5, 2.6
     from unittest import _TextTestResult as TextTestResult
 
-from evemu import util
+
+def get_test_directory():
+    from evemu import tests
+    return tests.__path__[0]
+
+
+def get_test_module():
+    return get_test_directory().replace("/", ".")
 
 
 class CustomTestResult(TextTestResult):
@@ -31,7 +38,7 @@ class CustomTestResult(TextTestResult):
         this_class = module_and_class.split(".")[-1]
         self.current_class = this_class
         if self.last_module != self.current_module:
-            heading = "\n%s.%s" % (util.get_test_module(), this_module)
+            heading = "\n%s.%s" % (get_test_module(), this_module)
             self.stream.writeln(heading)
         if self.last_class != self.current_class:
             self.stream.writeln("    %s" % this_class)

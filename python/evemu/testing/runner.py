@@ -1,8 +1,12 @@
 import os
 import unittest
 
-from evemu import util
 from evemu.testing import result
+
+
+def get_test_directory():
+    from evemu import tests
+    return tests.__path__[0]
 
 
 class CustomTestRunner(unittest.TextTestRunner):
@@ -51,7 +55,7 @@ def get_runner():
 
 def run_tests():
     loader = unittest.TestLoader()
-    suite = get_suite(loader, util.get_test_directory())
+    suite = get_suite(loader, get_test_directory())
     get_runner().run(suite)
 
 

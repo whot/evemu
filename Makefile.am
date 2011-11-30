@@ -22,3 +22,5 @@ ChangeLog:
 	$${cmd} log > ChangeLog;
 
 dist-hook: ChangeLog INSTALL
+
+DISTCLEANFILES = ChangeLog

@@ -4,7 +4,11 @@ import unittest
 
 from evemu import const
 from evemu import exception
-from evemu import util
+
+
+def get_top_directory():
+    import evemu
+    return evemu.__path__[0]
 
 
 def skip(message):
@@ -49,7 +53,7 @@ class BaseTestCase(unittest.TestCase):
             else:
                 library = const.LOCAL_LIB
         self.library = library
-        basedir = util.get_top_directory()
+        basedir = get_top_directory()
         self.data_dir = os.path.join(basedir, "..", "..", "data")
         self.device = None
 
@@ -64,15 +68,3 @@ class BaseTestCase(unittest.TestCase):
     def get_events_file(self):
         return os.path.join(self.data_dir, "ntrig-dell-xt2.event")
 
-    def create_testing_device(self, device_class=None):
-        """
-        This is a conveneince test function for tests that need a device. Have
-        this method be called in each test (as opposed to once in the setUp
-        method) also allows for use to check device counts before and after
-        device creation.
-        """
-        from evemu.device import EvEmuDevice
-        if not device_class:
-            device_class = EvEmuDevice
-        self.device = device_class(self.library)
-        self.device.create_node(self.get_device_file())
