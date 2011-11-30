@@ -168,6 +168,9 @@ class Device(object):
 
     @property
     def version(self):
+        """
+        Gets the version of the evemu library used to create the Device.
+        """
         return self._evemu._call(self._evemu.get_lib().evemu_get_version,
                                  self._evemu_device)
 
@@ -189,21 +192,33 @@ class Device(object):
 
     @property
     def id_bustype(self):
+        """
+        Identifies the kernel device bustype.
+        """
         return self._evemu._call(self._evemu.get_lib().evemu_get_id_bustype,
                                  self._evemu_device)
 
     @property
     def id_vendor(self):
+        """
+        Identifies the kernel device vendor.
+        """
         return self._evemu._call(self._evemu.get_lib().evemu_get_id_vendor,
                                  self._evemu_device)
 
     @property
     def id_product(self):
+        """
+        Identifies the kernel device product.
+        """
         return self._evemu._call(self._evemu.get_lib().evemu_get_id_product,
                                  self._evemu_device)
 
     @property
     def id_version(self):
+        """
+        Identifies the kernel device version.
+        """
         return self._evemu._call(self._evemu.get_lib().evemu_get_id_version,
                                  self._evemu_device)
 
