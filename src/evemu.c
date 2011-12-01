@@ -337,7 +337,7 @@ int evemu_read(struct evemu_device *dev, FILE *fp)
 
 	memset(dev, 0, sizeof(*dev));
 
-	ret = fscanf(fp, "N: %ms\n", &devname);
+	ret = fscanf(fp, "N: %m[^\n]\n", &devname);
 	if (ret <= 0) {
 		if (devname != NULL)
 			free(devname);

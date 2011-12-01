@@ -1,4 +1,4 @@
-SUBDIRS = src tools
+SUBDIRS = src tools python
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = utouch-evemu.pc
@@ -8,6 +8,8 @@ INCLUDES = $(top_srcdir)/include/
 .PHONY: ChangeLog INSTALL
 INSTALL:
 	$(INSTALL_CMD)
+
+EXTRA_DIST = data
 
 ChangeLog:
 	@if test -d ".bzr"; then \
@@ -20,3 +22,5 @@ ChangeLog:
 	$${cmd} log > ChangeLog;
 
 dist-hook: ChangeLog INSTALL
+
+DISTCLEANFILES = ChangeLog

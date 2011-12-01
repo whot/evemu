@@ -11,6 +11,7 @@ ChangeLog
 config-aux
 config.*
 configure
+evemu-test-runner
 libtool
 stamp-*
 tools/evemu-describe
