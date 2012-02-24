@@ -47,6 +47,10 @@
 #include <errno.h>
 #include <linux/input.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define EVEMU_VERSION		0x00010000
 
 /**
@@ -388,5 +392,9 @@ int evemu_create(const struct evemu_device *dev, int fd);
  * Destroys all devices created using this file descriptor.
  */
 void evemu_destroy(int fd);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
