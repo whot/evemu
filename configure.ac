@@ -11,7 +11,7 @@ AC_CONFIG_AUX_DIR([config-aux])
 # Initialize Automake
 AM_INIT_AUTOMAKE([foreign dist-bzip2])
 AM_SILENT_RULES([yes])
-AM_MAINTAINER_MODE
+AM_MAINTAINER_MODE([enable])
 
 LIB_VERSION=1:0:0
 AC_SUBST([LIB_VERSION])
@@ -21,6 +21,7 @@ AC_PROG_LIBTOOL
 
 # Checks for programs.
 AC_PROG_CC
+AC_PROG_CXX
 AC_PROG_INSTALL
 AM_PATH_PYTHON([2.6])
 
@@ -42,5 +43,6 @@ AC_CONFIG_FILES([Makefile
                  src/Makefile
                  python/Makefile
                  tools/Makefile
+                 test/Makefile
                  utouch-evemu.pc])
 AC_OUTPUT
