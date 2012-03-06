@@ -1,4 +1,4 @@
-TESTS = test_c_compile test_cxx_compile
+TESTS = test-c-compile test-cxx-compile
 
 check_PROGRAMS = $(TESTS)
 
