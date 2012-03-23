@@ -40,42 +40,154 @@
  ****************************************************************************/
 
 #include "evemu.h"
-#include <stdio.h>
+#include <dirent.h>
+#include <errno.h>
 #include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 #define UINPUT_NODE "/dev/uinput"
 #define MAX_EVENT_NODE 32
+#define SYS_INPUT_DIR "/sys/class/input"
 
+
+/*
+ * Extracts the device number from the event file name.
+ */
+static int _device_number_from_event_file_name(const char *event_file_name)
+{
+  int device_number = -1;
+  sscanf(event_file_name, "event%d", &device_number);
+  return device_number;
+}
+
+
+/*
+ * A filter that passes only input event file names.
+ */
+static int _filter_event_files(const struct dirent *d)
+{
+  return 0 == strncmp("event", d->d_name, sizeof("event")-1);
+}
+
+
+/*
+ * A strict weak ordering function to compare two event file names.
+ */
+static int _sort_event_files(const struct dirent **lhs, const struct dirent **rhs)
+{
+  int d1 = _device_number_from_event_file_name((*lhs)->d_name);
+  int d2 = _device_number_from_event_file_name((*rhs)->d_name);
+  return (d1 > d2) ? -1 : (d1 == d2) ? 0 : 1;
+}
+
+
+/*
+ * Finds the device node that has a matching device name and the most recent
+ * creation time.
+ */
+static char * _find_newest_device_node_with_name(const char *device_name)
+{
+  struct dirent **event_file_list;
+  int event_file_count = scandir(SYS_INPUT_DIR,
+                                 &event_file_list,
+                                 _filter_event_files,
+                                 _sort_event_files);
+  if (event_file_count < 0)
+  {
+    fprintf(stderr, "error %d opening %s: %s\n",
+            errno, SYS_INPUT_DIR, strerror(errno));
+    return NULL;
+  }
+
+  time_t  newest_node_time = 0;
+  char   *newest_node_name = NULL;
+  for (int i = 0; i < event_file_count; ++i)
+  {
+    int device_number = _device_number_from_event_file_name(event_file_list[i]->d_name);
+
+    /* get the name of the device */
+    char name_file_name[48];
+    sprintf(name_file_name, SYS_INPUT_DIR "/event%d/device/name", device_number);
+    FILE *name_file = fopen(name_file_name, "r");
+    if (!name_file)
+    {
+      fprintf(stderr, "error %d opening %s: %s\n",
+              errno, name_file_name, strerror(errno));
+      goto next_file;
+    }
+    char name[128];
+    size_t name_length = fread(name, sizeof(char), sizeof(name)-1, name_file);
+    fclose(name_file);
+
+    if (name_length <= 1)
+      goto next_file;
+
+    /* trim the trailing newline */
+    name[name_length-1] = 0;
+
+    /* if the device name matches, compare the creation times */
+    if (0 == strcmp(name, device_name))
+    {
+      char input_name[32];
+      sprintf(input_name, "/dev/input/event%d", device_number);
+      struct stat sbuf;
+      int sstat = stat(input_name, &sbuf);
+      if (sstat < 0)
+      {
+        fprintf(stderr, "error %d stating %s: %s\n",
+                errno, name_file_name, strerror(errno));
+        goto next_file;
+      }
+
+      if (sbuf.st_ctime > newest_node_time)
+      {
+        newest_node_time = sbuf.st_ctime;
+        free(newest_node_name);
+        newest_node_name = strdup(input_name);
+      }
+    }
+
+next_file:
+    free(event_file_list[i]);
+  }
+  free(event_file_list);
+
+  return newest_node_name;
+}
+
+
+/*
+ * Finds the newly created device node and holds it open.
+ */
 static void hold_device(const struct evemu_device *dev)
 {
-	char node[256], data[256];
-	int fd, ret, i;
+	char data[256];
+	int ret;
 
-	memset(node, 0, sizeof(node));
-	for (i = 0; i < MAX_EVENT_NODE; i++) {
-		char path[256], name[256];
-		sprintf(path, "/sys/class/input/event%d/device/name", i + 1);
-		memset(name, 0, sizeof(name));
-		fd = open(path, O_RDONLY);
-		if (fd < 0)
-			continue;
-		ret = read(fd, name, sizeof(name));
-		if (ret > 0)
-			name[ret - 1] = 0;
-		if (!strcmp(evemu_get_name(dev), name))
-			sprintf(node, "/dev/input/event%d", i + 1);
-		close(fd);
-	}
+        char *device_node = _find_newest_device_node_with_name(evemu_get_name(dev));
+        if (!device_node)
+        {
+          fprintf(stderr, "can not determine device node\n");
+          return;
+        }
 
-	fd = open(node, O_RDONLY);
-	if (fd < 0)
-		return;
-	fprintf(stdout, "%s: %s\n", evemu_get_name(dev), node);
+        int fd = open(device_node, O_RDONLY);
+        if (fd < 0)
+        {
+          fprintf(stderr, "error %d opening %s: %s\n",
+                  errno, device_node, strerror(errno));
+          return;
+        }
+	fprintf(stdout, "%s: %s\n", evemu_get_name(dev), device_node);
 	fflush(stdout);
 	while ((ret = read(fd, data, sizeof(data))) > 0);
 	close(fd);
+	free(device_node);
 }
 
 static int evemu_device(FILE *fp)
