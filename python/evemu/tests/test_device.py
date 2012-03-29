@@ -34,14 +34,14 @@ class DeviceActionTestCase(testcase.BaseTestCase):
         Verifies a Device can be constructed from an existing input device node
         name.
         """
-        d = evemu.Device("/dev/input/event10")
+        d = evemu.Device("/dev/input/event0")
 
     def test_construct_from_dev_node_file(self):
         """
         Verifies a Device can be constructed from an existing input device node
         file object.
         """
-        d = evemu.Device(open("/dev/input/event10"))
+        d = evemu.Device(open("/dev/input/event0"))
 
     def test_construct_from_prop_file_name(self):
         """
