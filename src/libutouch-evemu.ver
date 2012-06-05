@@ -40,3 +40,7 @@ UTOUCH_EVEMU_1.0 {
     *;
 };
 
+UTOUCH_EVEMU_1.1 {
+  global:
+    evemu_get_abs_current_value;
+} UTOUCH_EVEMU_1.0;
