@@ -10,15 +10,17 @@ evemu produces two different data formats, one for the device description
 and one for the device event data. hex data is without a 0x prefix.
 
 Device Description Format:
+    # comments are allowed at the top of the file only
+    # Only lines with # as first character are regonized
     N: <device name>
     I: <bustype (hex)> <vendor (hex)> <product (hex)> <version (hex)>
-    # for each kernel property (2.3.38 only)
+     --- for each kernel property (2.3.38 only) ---
     P: <byte 0 (hex)> <byte 1 (hex)> ... <byte 7 (hex)>
     P: <byte 8 (hex)> ...
-    # for each index from 0 to EV_CNT
+     --- for each index from 0 to EV_CNT ---
     B: <index (hex)> <byte 0 (hex)> <byte 1 (hex)> ... <byte 7 (hex)>
     B: <index (hex)> <byte 8 (hex)> ...
-    # for each absolute axis
+     --- for each absolute axis ---
     A: <index (hex)> <min> <max> <fuzz> <flat>
 
 
