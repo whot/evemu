@@ -192,6 +192,16 @@ void evemu_set_abs_minimum(struct evemu_device *dev, int code, int min);
 int evemu_get_abs_maximum(const struct evemu_device *dev, int code);
 
 /**
+ * evemu_get_abs_current() - get kernel current value of event type
+ * @dev: the device in use
+ * @code: the event type code to query
+ *
+ * Returns the current value of the specified event type.
+ */
+int evemu_get_abs_current_value(const struct evemu_device *dev, int code);
+
+
+/**
  * evemu_set_abs_maximum() - set kernel maximum value of event type
  *
  * @dev: the device in use

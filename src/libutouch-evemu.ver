@@ -8,6 +8,7 @@ UTOUCH_EVEMU_1.0 {
     evemu_get_abs_fuzz;
     evemu_get_abs_maximum;
     evemu_get_abs_minimum;
+    evemu_get_abs_current_value;
     evemu_get_abs_resolution;
     evemu_get_id_bustype;
     evemu_get_id_product;

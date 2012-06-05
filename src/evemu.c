@@ -163,6 +163,11 @@ int evemu_get_abs_maximum(const struct evemu_device *dev, int code)
 	return dev->abs[code].maximum;
 }
 
+int evemu_get_abs_current_value(const struct evemu_device *dev, int code)
+{
+	return dev->abs[code].value;
+}
+
 void evemu_set_abs_maximum(struct evemu_device *dev, int code, int max)
 {
 	dev->abs[code].maximum = max;
