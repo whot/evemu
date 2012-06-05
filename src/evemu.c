@@ -490,12 +490,19 @@ static int set_prop(const struct evemu_device *dev, int fd)
 {
 	int bits = 8 * dev->pbytes;
 	int ret, i;
+	int success = 0;
 	for (i = 0; i < bits; i++) {
 		if (!evemu_has_prop(dev, i))
 			continue;
 		ret = set_prop_bit(fd, i);
-		if (ret < 0)
-			return ret;
+		/* Older kernels aways return errors on UI_SET_PROPBIT.
+		   Assume that if we only get failures, it may be an older
+		   kernel and report success anyway. */
+		if (ret < 0) {
+			if (success)
+				return ret;
+		} else if (!success)
+			success = 1;
 	}
 	return 0;
 }
