@@ -25,6 +25,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <linux/input.h>
 
 int main(int argc, char *argv[])
 {
@@ -65,7 +66,7 @@ int main(int argc, char *argv[])
 	}
 
 	if (sync) {
-		evemu_create_event(&ev, 0, 0, 0);
+		evemu_create_event(&ev, EV_SYN, SYN_REPORT, 0);
 		evemu_play_one(fd, &ev);
 	}
 
