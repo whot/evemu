@@ -20,6 +20,7 @@
  ****************************************************************************/
 
 #include "evemu.h"
+#include <limits.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
@@ -53,21 +54,21 @@ int main(int argc, char *argv[])
 
 	arg = argv[idx++];
 	type = strtol(arg, &endp, 0);
-	if (*arg == '\0' || *endp != '\0') {
+	if (*arg == '\0' || *endp != '\0' || type < 0 || type > EV_MAX) {
 		fprintf(stderr, "error: invalid type argument '%s'\n", arg);
 		goto out;
 	}
 
 	arg = argv[idx++];
 	code = strtol(arg, &endp, 0);
-	if (*arg == '\0' || *endp != '\0') {
+	if (*arg == '\0' || *endp != '\0' || code < 0 || code > USHRT_MAX) {
 		fprintf(stderr, "error: invalid code argument '%s'\n", arg);
 		goto out;
 	}
 
 	arg = argv[idx++];
 	value = strtol(arg, &endp, 0);
-	if (*arg == '\0' || *endp != '\0') {
+	if (*arg == '\0' || *endp != '\0' || value < INT_MIN || value > INT_MAX) {
 		fprintf(stderr, "error: invalid value argument '%s'\n", arg);
 		goto out;
 	}
