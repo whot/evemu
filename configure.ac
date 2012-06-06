@@ -1,7 +1,7 @@
 # Initialize Autoconf
 AC_PREREQ([2.60])
 AC_INIT([Kernel device emulation],
-        [1.0.8],
+        [1.0.9],
         [],
         [utouch-evemu])
 AC_CONFIG_SRCDIR([Makefile.am])
@@ -9,7 +9,7 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_AUX_DIR([config-aux])
 
 # Initialize Automake
-AM_INIT_AUTOMAKE([foreign dist-bzip2])
+AM_INIT_AUTOMAKE([foreign dist-xz])
 AM_SILENT_RULES([yes])
 AM_MAINTAINER_MODE([enable])
 
