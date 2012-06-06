@@ -66,8 +66,14 @@ int main(int argc, char *argv[])
 	}
 
 	if (sync) {
-		evemu_create_event(&ev, EV_SYN, SYN_REPORT, 0);
-		evemu_play_one(fd, &ev);
+		if (evemu_create_event(&ev, EV_SYN, SYN_REPORT, 0)) {
+			fprintf(stderr, "error: could not create SYN event\n");
+			return -1;
+		}
+		if (evemu_play_one(fd, &ev)) {
+			fprintf(stderr, "error: could not play SYN event\n");
+			return -1;
+		}
 	}
 
 	close(fd);
