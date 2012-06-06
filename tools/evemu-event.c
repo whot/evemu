@@ -35,6 +35,8 @@ int main(int argc, char *argv[])
 	struct input_event ev;
 	int idx = 1;
 	int sync = 0;
+	const char *arg;
+	char *endp;
 
 	if (argc < 5) {
 		fprintf(stderr, "Usage: %s [--sync] <device> <type> <code> <value>\n", argv[0]);
@@ -52,9 +54,26 @@ int main(int argc, char *argv[])
 		goto out;
 	}
 
-	type = strtol(argv[idx++], NULL, 0);
-	code = strtol(argv[idx++], NULL, 0);
-	value = strtol(argv[idx++], NULL, 0);
+	arg = argv[idx++];
+	type = strtol(arg, &endp, 0);
+	if (*arg == '\0' || *endp != '\0') {
+		fprintf(stderr, "error: invalid type argument '%s'\n", arg);
+		goto out;
+	}
+
+	arg = argv[idx++];
+	code = strtol(arg, &endp, 0);
+	if (*arg == '\0' || *endp != '\0') {
+		fprintf(stderr, "error: invalid code argument '%s'\n", arg);
+		goto out;
+	}
+
+	arg = argv[idx++];
+	value = strtol(arg, &endp, 0);
+	if (*arg == '\0' || *endp != '\0') {
+		fprintf(stderr, "error: invalid value argument '%s'\n", arg);
+		goto out;
+	}
 
 	if (evemu_create_event(&ev, type, code, value)) {
 		fprintf(stderr, "error: failed to create event\n");
