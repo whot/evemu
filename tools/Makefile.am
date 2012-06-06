@@ -5,7 +5,8 @@ bin_PROGRAMS = \
 	evemu-describe \
 	evemu-device \
 	evemu-record \
-	evemu-play
+	evemu-play \
+	evemu-event
 
 INCLUDES=-I$(top_srcdir)/include/
 
