@@ -29,7 +29,8 @@
 
 int main(int argc, char *argv[])
 {
-	int fd;
+	int rc = -1;
+	int fd = -1;
 	long int type, code, value;
 	struct input_event ev;
 	int idx = 1;
@@ -37,7 +38,7 @@ int main(int argc, char *argv[])
 
 	if (argc < 5) {
 		fprintf(stderr, "Usage: %s [--sync] <device> <type> <code> <value>\n", argv[0]);
-		return -1;
+		goto out;
 	}
 
 	if (!strcmp(argv[1], "--sync")) {
@@ -48,7 +49,7 @@ int main(int argc, char *argv[])
 	fd = open(argv[idx++], O_WRONLY);
 	if (fd < 0) {
 		fprintf(stderr, "error: could not open device\n");
-		return -1;
+		goto out;
 	}
 
 	type = strtol(argv[idx++], NULL, 0);
@@ -57,25 +58,28 @@ int main(int argc, char *argv[])
 
 	if (evemu_create_event(&ev, type, code, value)) {
 		fprintf(stderr, "error: failed to create event\n");
-		return -1;
+		goto out;
 	}
 
 	if (evemu_play_one(fd, &ev)) {
 		fprintf(stderr, "error: could not play event\n");
-		return -1;
+		goto out;
 	}
 
 	if (sync) {
 		if (evemu_create_event(&ev, EV_SYN, SYN_REPORT, 0)) {
 			fprintf(stderr, "error: could not create SYN event\n");
-			return -1;
+			goto out;
 		}
 		if (evemu_play_one(fd, &ev)) {
 			fprintf(stderr, "error: could not play SYN event\n");
-			return -1;
+			goto out;
 		}
 	}
 
-	close(fd);
-	return 0;
+	rc = 0;
+out:
+	if (fd > -1)
+		close(fd);
+	return rc;
 }
