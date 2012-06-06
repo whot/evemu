@@ -35,6 +35,7 @@ int main(int argc, char *argv[])
 	struct input_event ev;
 	int idx = 1;
 	int sync = 0;
+	const char *path;
 	const char *arg;
 	char *endp;
 
@@ -48,11 +49,7 @@ int main(int argc, char *argv[])
 		sync = 1;
 	}
 
-	fd = open(argv[idx++], O_WRONLY);
-	if (fd < 0) {
-		fprintf(stderr, "error: could not open device\n");
-		goto out;
-	}
+	path = argv[idx++];
 
 	arg = argv[idx++];
 	type = strtol(arg, &endp, 0);
@@ -72,6 +69,12 @@ int main(int argc, char *argv[])
 	value = strtol(arg, &endp, 0);
 	if (*arg == '\0' || *endp != '\0') {
 		fprintf(stderr, "error: invalid value argument '%s'\n", arg);
+		goto out;
+	}
+
+	fd = open(path, O_WRONLY);
+	if (fd < 0) {
+		fprintf(stderr, "error: could not open device\n");
 		goto out;
 	}
 
