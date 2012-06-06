@@ -13,7 +13,7 @@ SYNOPSIS
 
      evemu-play /dev/input/eventX < event-sequence
 
-     evemu-event [--sync] /dev/input/eventX type code value
+     evemu-event /dev/input/eventX [--sync] --type <type> --code <code> --value <value>
 
 DESCRIPTION
 -----------

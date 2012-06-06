@@ -18,8 +18,8 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  ****************************************************************************/
-
 #include "evemu.h"
+#include <getopt.h>
 #include <limits.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -28,49 +28,86 @@
 #include <stdlib.h>
 #include <linux/input.h>
 
+static struct option opts[] = {
+	{ "type", required_argument, 0, 't'},
+	{ "code", required_argument, 0, 'c'},
+	{ "value", required_argument, 0, 'v'},
+	{ "sync", no_argument, 0, 's'},
+	{ "device", required_argument, 0, 'd'}
+};
+
+int parse_arg(const char *arg, long int *value)
+{
+	char *endp;
+
+	*value = strtol(arg, &endp, 0);
+	if (*arg == '\0' || *endp != '\0')
+		return 1;
+	return 0;
+}
+
+void usage(void)
+{
+	fprintf(stderr, "Usage: %s [--sync] <device> --type <type> --code <code> --value <value>\n", program_invocation_short_name);
+}
+
 int main(int argc, char *argv[])
 {
 	int rc = -1;
 	int fd = -1;
 	long int type, code, value;
 	struct input_event ev;
-	int idx = 1;
 	int sync = 0;
 	const char *path;
-	const char *arg;
-	char *endp;
 
 	if (argc < 5) {
-		fprintf(stderr, "Usage: %s [--sync] <device> <type> <code> <value>\n", argv[0]);
+		usage();
 		goto out;
 	}
 
-	if (!strcmp(argv[1], "--sync")) {
-		idx = 2;
-		sync = 1;
+	while(1) {
+		int option_index = 0;
+		int c;
+
+		c = getopt_long(argc, argv, "", opts, &option_index);
+		if (c == -1) /* we only do long options */
+			break;
+
+		switch(c) {
+			case 't': /* type */
+				if (parse_arg(optarg, &type) || type < 0 || type > EV_MAX) {
+					fprintf(stderr, "error: invalid type argument '%s'\n", optarg);
+					goto out;
+				}
+				break;
+			case 'c': /* code */
+				if (parse_arg(optarg, &code) || code < 0 || code > USHRT_MAX) {
+					fprintf(stderr, "error: invalid code argument '%s'\n", optarg);
+					goto out;
+				}
+				break;
+			case 'v': /* value */
+				if (parse_arg(optarg, &value) || value < INT_MIN || value > INT_MAX) {
+					fprintf(stderr, "error: invalid value argument '%s'\n", optarg);
+					goto out;
+				}
+				break;
+			case 'd': /* device */
+				path = optarg;
+				break;
+			case 's': /* sync */
+				sync = 1;
+				break;
+		}
 	}
 
-	path = argv[idx++];
-
-	arg = argv[idx++];
-	type = strtol(arg, &endp, 0);
-	if (*arg == '\0' || *endp != '\0' || type < 0 || type > EV_MAX) {
-		fprintf(stderr, "error: invalid type argument '%s'\n", arg);
-		goto out;
-	}
-
-	arg = argv[idx++];
-	code = strtol(arg, &endp, 0);
-	if (*arg == '\0' || *endp != '\0' || code < 0 || code > USHRT_MAX) {
-		fprintf(stderr, "error: invalid code argument '%s'\n", arg);
-		goto out;
-	}
-
-	arg = argv[idx++];
-	value = strtol(arg, &endp, 0);
-	if (*arg == '\0' || *endp != '\0' || value < INT_MIN || value > INT_MAX) {
-		fprintf(stderr, "error: invalid value argument '%s'\n", arg);
-		goto out;
+	/* if device wasn't specified as option, take the remaining arg */
+	if (optind < argc) {
+		if (argc - optind != 1) {
+			usage();
+			goto out;
+		}
+		path = argv[optind];
 	}
 
 	fd = open(path, O_WRONLY);
