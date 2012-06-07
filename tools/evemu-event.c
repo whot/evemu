@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 	long int type, code, value;
 	struct input_event ev;
 	int sync = 0;
-	const char *path;
+	const char *path = NULL;
 
 	if (argc < 5) {
 		usage();
@@ -106,11 +106,17 @@ int main(int argc, char *argv[])
 
 	/* if device wasn't specified as option, take the remaining arg */
 	if (optind < argc) {
-		if (argc - optind != 1) {
+		if (argc - optind != 1 || path) {
 			usage();
 			goto out;
 		}
 		path = argv[optind];
+	}
+
+	if (!path) {
+		fprintf(stderr, "error: missing device path\n");
+		usage();
+		goto out;
 	}
 
 	fd = open(path, O_WRONLY);
