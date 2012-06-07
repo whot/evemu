@@ -98,6 +98,9 @@ int main(int argc, char *argv[])
 			case 's': /* sync */
 				sync = 1;
 				break;
+			default:
+				usage();
+				goto out;
 		}
 	}
 
