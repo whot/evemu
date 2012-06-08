@@ -1,6 +1,7 @@
 UTOUCH_EVEMU_1.0 {
   global:
     evemu_create;
+    evemu_create_event;
     evemu_delete;
     evemu_destroy;
     evemu_extract;
@@ -19,6 +20,7 @@ UTOUCH_EVEMU_1.0 {
     evemu_has_prop;
     evemu_new;
     evemu_play;
+    evemu_play_one;
     evemu_read;
     evemu_read_event;
     evemu_read_event_realtime;

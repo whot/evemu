@@ -19,6 +19,8 @@ tools/evemu-describe.1
 tools/evemu-device
 tools/evemu-device.1
 tools/evemu-echo
+tools/evemu-event
+tools/evemu-event.1
 tools/evemu-play
 tools/evemu-play.1
 tools/evemu-record

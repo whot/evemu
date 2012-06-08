@@ -425,6 +425,16 @@ int evemu_read_event(FILE *fp, struct input_event *ev)
 	return ret;
 }
 
+int evemu_create_event(struct input_event *ev, int type, int code, int value)
+{
+	ev->time.tv_sec = 0;
+	ev->time.tv_usec = 0;
+	ev->type = type;
+	ev->code = code;
+	ev->value = value;
+	return 0;
+}
+
 int evemu_read_event_realtime(FILE *fp, struct input_event *ev,
 			      struct timeval *evtime)
 {
@@ -447,6 +457,13 @@ int evemu_read_event_realtime(FILE *fp, struct input_event *ev,
 	}
 
 	return ret;
+}
+
+int evemu_play_one(int fd, const struct input_event *ev)
+{
+	int ret;
+	SYSCALL(ret = write(fd, ev, sizeof(*ev)));
+	return (ret < sizeof(*ev));
 }
 
 int evemu_play(FILE *fp, int fd)

@@ -328,6 +328,15 @@ int evemu_read(struct evemu_device *dev, FILE *fp);
 int evemu_write_event(FILE *fp, const struct input_event *ev);
 
 /**
+ * evemu_create_event() - Create a single event
+ * @ev: pointer to the kernel event to be filled
+ * @type: the event type to set
+ * @code: the event code to set
+ * @value: the event value to set
+ */
+int evemu_create_event(struct input_event *ev, int type, int code, int value);
+
+/**
  * evemu_read_event() - read kernel event from file
  * @fp: file pointer to read the event from
  * @ev: pointer to the kernel event to be filled
@@ -369,6 +378,14 @@ int evemu_read_event_realtime(FILE *fp, struct input_event *ev,
  * Returns zero if successful, negative error otherwise.
  */
 int evemu_record(FILE *fp, int fd, int ms);
+
+
+/**
+ * evemu_play_one() - play one event to kernel device
+ * @fd: file descriptor of kernel device to write to
+ * @ev: pointer to the kernel event to be played
+ */
+int evemu_play_one(int fd, const struct input_event *ev);
 
 /**
  * evemu_play() - replay events from file to kernel device in realtime
