@@ -53,8 +53,10 @@ FILE *output;
 static void handler (int sig __attribute__((unused)))
 {
 	fflush(output);
-	if (output != stdout)
+	if (output != stdout) {
 		fclose(output);
+		output = stdout;
+	}
 }
 
 int main(int argc, char *argv[])
@@ -96,7 +98,9 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "error: could not describe device\n");
 	}
 	close(fd);
-	if (output != stdout)
+	if (output != stdout) {
 		fclose(output);
+		output = stdout;
+	}
 	return 0;
 }
