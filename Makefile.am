@@ -1,7 +1,7 @@
 SUBDIRS = src tools python test
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = utouch-evemu.pc
+pkgconfig_DATA = evemu.pc
 
 INCLUDES = $(top_srcdir)/include/
 

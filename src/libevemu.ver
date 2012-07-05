@@ -1,10 +1,11 @@
-UTOUCH_EVEMU_1.0 {
+EVEMU_1.0 {
   global:
     evemu_create;
     evemu_create_event;
     evemu_delete;
     evemu_destroy;
     evemu_extract;
+    evemu_get_abs_current_value;
     evemu_get_abs_flat;
     evemu_get_abs_fuzz;
     evemu_get_abs_maximum;
@@ -41,8 +42,3 @@ UTOUCH_EVEMU_1.0 {
   local:
     *;
 };
-
-UTOUCH_EVEMU_1.1 {
-  global:
-    evemu_get_abs_current_value;
-} UTOUCH_EVEMU_1.0;

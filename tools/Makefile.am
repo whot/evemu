@@ -10,7 +10,7 @@ bin_PROGRAMS = \
 
 INCLUDES=-I$(top_srcdir)/include/
 
-AM_LDFLAGS = $(top_builddir)/src/libutouch-evemu.la
+AM_LDFLAGS = $(top_builddir)/src/libevemu.la
 
 
 # man page generation

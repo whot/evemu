@@ -3,8 +3,8 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 
-Name: utouch-evemu
+Name: evemu
 Description: Kernel device emulation
 Version: @PACKAGE_VERSION@
-Libs: -L${libdir} -lutouch-evemu
+Libs: -L${libdir} -levemu
 Cflags: -I${includedir}

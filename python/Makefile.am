@@ -1,6 +1,6 @@
 #
 # @file python/Makefile.am
-# @brief automake recipe for the uTouch evemu Python bindings
+# @brief automake recipe for the evemu Python bindings
 #
 # Copyright 2011 Canonical, Ltd.
 #
