@@ -11,7 +11,7 @@ class EvEmuBaseTestCase(testcase.BaseTestCase):
         wrapper = EvEmuBase(self.library)
         # Make sure that the library loads
         self.assertNotEqual(
-            wrapper._lib._name.find("libutouch-evemu"), -1)
+            wrapper._lib._name.find("libevemu"), -1)
 
     def test_c_symbols_found(self):
         # Make sure that the expected functions are present

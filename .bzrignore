@@ -25,4 +25,4 @@ tools/evemu-play
 tools/evemu-play.1
 tools/evemu-record
 tools/evemu-record.1
-utouch-evemu.pc
+evemu.pc
