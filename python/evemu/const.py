@@ -1,4 +1,4 @@
-LIB = "evemu"
+LIB = "libevemu.so"
 DEFAULT_LIB = "/usr/lib/libevemu.so"
 LOCAL_LIB = "../src/.libs/libevemu.so"
 UINPUT_NODE = "/dev/uinput"
