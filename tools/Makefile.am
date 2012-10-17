@@ -30,6 +30,7 @@ SUFFIXES = .1 .txt .xml
 .txt.xml:
 	@$(ASCIIDOC) -b docbook -d manpage -o $@ $<
 
+EXTRA_DIST = $(man_pages_sources)
 dist_man_MANS = $(man_pages)
 CLEANFILES = $(dist_man_MANS)
 MAINTAINERCLEANFILES = $(man_pages) *.xml
