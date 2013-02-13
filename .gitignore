@@ -81,6 +81,7 @@ tools/evemu-echo
 tools/evemu-device
 tools/evemu-record
 tools/evemu-play
+tools/evemu-event
 patches
 .bzr
 .bzrignore
