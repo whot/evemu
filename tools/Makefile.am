@@ -25,10 +25,10 @@ man_pages = $(man_pages_sources:.txt=.1) $(man_pages_shadows)
 SUFFIXES = .1 .txt .xml
 
 .xml.1:
-	@$(XMLTO) man $<
+	$(AM_V_GEN)$(XMLTO) man $<
 
 .txt.xml:
-	@$(ASCIIDOC) -b docbook -d manpage -o $@ $<
+	$(AM_V_GEN)$(ASCIIDOC) -b docbook -d manpage -o $@ $<
 
 EXTRA_DIST = $(man_pages_sources)
 dist_man_MANS = $(man_pages)
