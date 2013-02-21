@@ -85,3 +85,4 @@ tools/evemu-event
 patches
 .bzr
 .bzrignore
+python/evemu-test-runner
