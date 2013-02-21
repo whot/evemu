@@ -62,6 +62,8 @@ static void handler (int sig __attribute__((unused)))
 int main(int argc, char *argv[])
 {
 	int fd;
+	struct sigaction act;
+
 	if (argc < 2) {
 		fprintf(stderr, "Usage: %s <device> [output file]\n", argv[0]);
 		return -1;
@@ -78,7 +80,6 @@ int main(int argc, char *argv[])
 	} else
 		ioctl(fd, EVIOCGRAB, (void*)0);
 
-	struct sigaction act;
 	memset (&act, '\0', sizeof(act));
 	act.sa_handler = &handler;
 

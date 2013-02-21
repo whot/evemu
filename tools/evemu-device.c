@@ -93,6 +93,10 @@ static int _sort_event_files(const struct dirent **lhs, const struct dirent **rh
 static char * _find_newest_device_node_with_name(const char *device_name)
 {
   struct dirent **event_file_list;
+  time_t  newest_node_time = 0;
+  char   *newest_node_name = NULL;
+  int i;
+
   int event_file_count = scandir(SYS_INPUT_DIR,
                                  &event_file_list,
                                  _filter_event_files,
@@ -104,24 +108,25 @@ static char * _find_newest_device_node_with_name(const char *device_name)
     return NULL;
   }
 
-  time_t  newest_node_time = 0;
-  char   *newest_node_name = NULL;
-  for (int i = 0; i < event_file_count; ++i)
+  for (i = 0; i < event_file_count; ++i)
   {
     int device_number = _device_number_from_event_file_name(event_file_list[i]->d_name);
 
-    /* get the name of the device */
     char name_file_name[48];
+    FILE *name_file;
+    char name[128];
+    size_t name_length;
+
+    /* get the name of the device */
     sprintf(name_file_name, SYS_INPUT_DIR "/event%d/device/name", device_number);
-    FILE *name_file = fopen(name_file_name, "r");
+    name_file = fopen(name_file_name, "r");
     if (!name_file)
     {
       fprintf(stderr, "error %d opening %s: %s\n",
               errno, name_file_name, strerror(errno));
       goto next_file;
     }
-    char name[128];
-    size_t name_length = fread(name, sizeof(char), sizeof(name)-1, name_file);
+    name_length = fread(name, sizeof(char), sizeof(name)-1, name_file);
     fclose(name_file);
 
     if (name_length <= 1)
@@ -134,9 +139,11 @@ static char * _find_newest_device_node_with_name(const char *device_name)
     if (0 == strcmp(name, device_name))
     {
       char input_name[32];
-      sprintf(input_name, "/dev/input/event%d", device_number);
       struct stat sbuf;
-      int sstat = stat(input_name, &sbuf);
+      int sstat;
+
+      sprintf(input_name, "/dev/input/event%d", device_number);
+      sstat = stat(input_name, &sbuf);
       if (sstat < 0)
       {
         fprintf(stderr, "error %d stating %s: %s\n",
@@ -168,6 +175,7 @@ static void hold_device(const struct evemu_device *dev)
 {
 	char data[256];
 	int ret;
+	int fd;
 
         char *device_node = _find_newest_device_node_with_name(evemu_get_name(dev));
         if (!device_node)
@@ -176,7 +184,7 @@ static void hold_device(const struct evemu_device *dev)
           return;
         }
 
-        int fd = open(device_node, O_RDONLY);
+        fd = open(device_node, O_RDONLY);
         if (fd < 0)
         {
           fprintf(stderr, "error %d opening %s: %s\n",
