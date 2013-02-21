@@ -46,7 +46,7 @@
 #include <unistd.h>
 #include <signal.h>
 
-#define WAIT_MS 10000
+#define INFINITE -1
 
 FILE *output;
 
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if (evemu_record(output, fd, WAIT_MS)) {
+	if (evemu_record(output, fd, INFINITE)) {
 		fprintf(stderr, "error: could not describe device\n");
 	}
 	close(fd);
