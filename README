@@ -3,8 +3,11 @@ evemu - Kernel device emulation
 The evemu library and tools are used to describe devices, record
 data, create devices and replay data from kernel evdev devices.
 
-http://bitmath.org/code/evemu/
-Please send patches to: patches@bitmath.org
+http://wiki.freedesktop.org/wiki/Evemu
+http://cgit.freedesktop.org/evemu/
+
+Please file patches in the freedesktop.org bugzilla at
+https://bugs.freedesktop.org/enter_bug.cgi?product=evemu
 
 evemu produces two different data formats, one for the device description
 and one for the device event data. hex data is without a 0x prefix.
