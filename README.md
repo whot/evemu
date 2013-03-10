@@ -1,4 +1,5 @@
 evemu - Kernel device emulation
+===============================
 
 The evemu library and tools are used to describe devices, record
 data, create devices and replay data from kernel evdev devices.
@@ -12,7 +13,9 @@ https://bugs.freedesktop.org/enter_bug.cgi?product=evemu
 evemu produces two different data formats, one for the device description
 and one for the device event data. hex data is without a 0x prefix.
 
-Device Description Format:
+Device Description Format
+-------------------------
+
     # comments are allowed at the top of the file only
     # Only lines with # as first character are recognized
     N: <device name>
@@ -27,11 +30,16 @@ Device Description Format:
     A: <index (hex)> <min> <max> <fuzz> <flat>
 
 
-Event Data Format:
+Event Data Format
+-----------------
+
     E: <sec>.<usec> <evtype (hex)> <evcode (hex)> <ev value>
 where type, code and value are the respective fields of the
 input_event struct defined in linux/input.h
 
----
-Copyright (C) 2010 Henrik Rydberg <rydberg@euromail.se>
-Copyright (C) 2010 Canonical Ltd.
+
+Copyright
+---------
+
+ * Copyright (C) 2010 Henrik Rydberg <rydberg@euromail.se>
+ * Copyright (C) 2010 Canonical Ltd.
