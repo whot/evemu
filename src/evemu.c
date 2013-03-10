@@ -40,6 +40,7 @@
  ****************************************************************************/
 
 #include "evemu-impl.h"
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -48,6 +49,13 @@
 #include <poll.h>
 #include <ctype.h>
 #include <unistd.h>
+
+#include "version.h"
+
+/* File format version we write out
+   NOTE: if you bump the version number, make sure you update README */
+#define EVEMU_FILE_MAJOR 1
+#define EVEMU_FILE_MINOR 0
 
 #ifndef UI_SET_PROPBIT
 #define UI_SET_PROPBIT		_IOW(UINPUT_IOCTL_BASE, 110, int)
@@ -295,6 +303,8 @@ int evemu_write(const struct evemu_device *dev, FILE *fp)
 {
 	int i;
 
+	fprintf(fp, "# EVEMU %d.%d\n", EVEMU_FILE_MAJOR, EVEMU_FILE_MINOR);
+
 	fprintf(fp, "N: %s\n", dev->name);
 
 	fprintf(fp, "I: %04x %04x %04x %04x\n",
@@ -313,7 +323,7 @@ int evemu_write(const struct evemu_device *dev, FILE *fp)
 	return 0;
 }
 
-static void read_prop(struct evemu_device *dev, FILE *fp)
+static void read_prop(struct evemu_device *dev, FILE *fp, version_t *fversion)
 {
 	unsigned int mask[8];
 	int i;
@@ -325,7 +335,7 @@ static void read_prop(struct evemu_device *dev, FILE *fp)
 	}
 }
 
-static void read_mask(struct evemu_device *dev, FILE *fp)
+static void read_mask(struct evemu_device *dev, FILE *fp, version_t *fversion)
 {
 	unsigned int mask[8];
 	unsigned int index, i;
@@ -337,22 +347,36 @@ static void read_mask(struct evemu_device *dev, FILE *fp)
 	}
 }
 
-static void read_abs(struct evemu_device *dev, FILE *fp)
+static void read_abs(struct evemu_device *dev, FILE *fp, version_t *fversion)
 {
 	struct input_absinfo abs;
 	unsigned int index;
 	while (fscanf(fp, "A: %02x %d %d %d %d\n", &index,
 		      &abs.minimum, &abs.maximum, &abs.fuzz, &abs.flat) > 0)
 		dev->abs[index] = abs;
+
+static version_t read_file_format_version(FILE *fp)
+{
+	uint16_t major, minor;
+
+	if (fscanf(fp, "# EVEMU %hd.%hd\n", &major, &minor) != 2) {
+		major = 1;
+		minor = 0;
+	}
+
+	return version_new(major, minor);
 }
 
 int evemu_read(struct evemu_device *dev, FILE *fp)
 {
 	unsigned bustype, vendor, product, version;
+	version_t file_version; /* file format version */
 	int ret;
 	char *devname = NULL;
 
 	memset(dev, 0, sizeof(*dev));
+
+	file_version = read_file_format_version(fp);
 
 	skip_comment_block(fp);
 
@@ -376,11 +400,11 @@ int evemu_read(struct evemu_device *dev, FILE *fp)
 	dev->id.product = product;
 	dev->id.version = version;
 
-	read_prop(dev, fp);
+	read_prop(dev, fp, &file_version);
 
-	read_mask(dev, fp);
+	read_mask(dev, fp, &file_version);
 
-	read_abs(dev, fp);
+	read_abs(dev, fp, &file_version);
 
 	return 1;
 }
