@@ -53,9 +53,10 @@
 #include "version.h"
 
 /* File format version we write out
+   * 1.1: added abs.resolution
    NOTE: if you bump the version number, make sure you update README */
 #define EVEMU_FILE_MAJOR 1
-#define EVEMU_FILE_MINOR 0
+#define EVEMU_FILE_MINOR 1
 
 #ifndef UI_SET_PROPBIT
 #define UI_SET_PROPBIT		_IOW(UINPUT_IOCTL_BASE, 110, int)
@@ -295,8 +296,8 @@ static void write_mask(FILE * fp, int index,
 
 static void write_abs(FILE *fp, int index, const struct input_absinfo *abs)
 {
-	fprintf(fp, "A: %02x %d %d %d %d\n", index,
-		abs->minimum, abs->maximum, abs->fuzz, abs->flat);
+	fprintf(fp, "A: %02x %d %d %d %d %d\n", index,
+		abs->minimum, abs->maximum, abs->fuzz, abs->flat, abs->resolution);
 }
 
 int evemu_write(const struct evemu_device *dev, FILE *fp)
@@ -351,9 +352,17 @@ static void read_abs(struct evemu_device *dev, FILE *fp, version_t *fversion)
 {
 	struct input_absinfo abs;
 	unsigned int index;
-	while (fscanf(fp, "A: %02x %d %d %d %d\n", &index,
-		      &abs.minimum, &abs.maximum, &abs.fuzz, &abs.flat) > 0)
+
+	memset(&abs, 0, sizeof(abs));
+
+	/* abs.resolution only in file format 1.1 */
+	while (fscanf(fp, "A: %02x %d %d %d %d %d", &index, &abs.minimum, &abs.maximum, &abs.fuzz,
+				&abs.flat, &abs.resolution) > 0) {
+		char str[128];
+		fgets(str, sizeof(str), fp);
 		dev->abs[index] = abs;
+	}
+}
 
 static version_t read_file_format_version(FILE *fp)
 {
