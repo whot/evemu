@@ -16,7 +16,7 @@ and one for the device event data. hex data is without a 0x prefix.
 Device Description Format
 -------------------------
 
-    # EVEMU 1.1
+    # EVEMU 1.2
     # comments start with a # character and go to the end of the line
     N: <device name>
     I: <bustype (hex)> <vendor (hex)> <product (hex)> <version (hex)>
@@ -27,7 +27,7 @@ Device Description Format
     B: <index (hex)> <byte 0 (hex)> <byte 1 (hex)> ... <byte 7 (hex)>
     B: <index (hex)> <byte 8 (hex)> ...
      --- for each absolute axis ---
-    A: <index (hex)> <min> <max> <fuzz> <flat>
+    A: <index (hex)> <min> <max> <fuzz> <flat> <resolution>
 
 The first line is a special comment and taken to describe the file format
 version. It is always comment character (#), space, "EVEMU", space, followed
@@ -43,6 +43,7 @@ Current file format versions supported:
 	 data
  * 1.1 - comments may be present at any line of the file, including at the
 	 end of a line
+ * 1.2 - abs axis information has the resolution appended
 
 Event Data Format
 -----------------
@@ -60,7 +61,7 @@ appended to lines holding data. For example, both of these comments are
 valid:
 
     # next line is for ABS_FOO
-    A: 1 3 4 5 6 # ABS_FOO
+    A: 1 3 4 5 6 7 # ABS_FOO
 
 Comments are not recognized in the device name line, as a # may be part
 of the device's name. Thus

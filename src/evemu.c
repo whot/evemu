@@ -59,7 +59,7 @@
 /* File format version we write out
    NOTE: if you bump the version number, make sure you update README */
 #define EVEMU_FILE_MAJOR 1
-#define EVEMU_FILE_MINOR 1
+#define EVEMU_FILE_MINOR 2
 
 #ifndef UI_SET_PROPBIT
 #define UI_SET_PROPBIT		_IOW(UINPUT_IOCTL_BASE, 110, int)
@@ -337,8 +337,8 @@ static void write_mask(FILE * fp, int index,
 
 static void write_abs(FILE *fp, int index, const struct input_absinfo *abs)
 {
-	fprintf(fp, "A: %02x %d %d %d %d\n", index,
-		abs->minimum, abs->maximum, abs->fuzz, abs->flat);
+	fprintf(fp, "A: %02x %d %d %d %d %d\n", index,
+		abs->minimum, abs->maximum, abs->fuzz, abs->flat, abs->resolution);
 }
 
 /* Print an evtest-like description */
@@ -505,15 +505,20 @@ static int parse_abs(struct evemu_device *dev, const char *line, struct version 
 	int matched;
 	struct input_absinfo abs = {0};
 	unsigned int index;
+	int needed = 5;
+
+	if (version_cmp(*fversion, version(1, 1)) > 0)
+			needed = 6; /* resolution field */
 
 	if (strlen(line) <= 2 || strncmp(line, "A:", 2) != 0)
 		return 0;
 
-	matched = sscanf(line, "A: %02x %d %d %d %d\n",
+	matched = sscanf(line, "A: %02x %d %d %d %d %d\n",
 				&index, &abs.minimum, &abs.maximum,
-				&abs.fuzz, &abs.flat);
-	if (matched != 5) {
-		error(WARNING, "Invalid EV_ABS line. Parsed %d numbers, expected 5: %s", matched, line);
+				&abs.fuzz, &abs.flat, &abs.resolution);
+
+	if (matched != needed) {
+		error(FATAL, "Invalid EV_ABS line. Parsed %d numbers, expected %d: %s", matched, needed, line);
 		return -1;
 	}
 
