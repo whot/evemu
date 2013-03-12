@@ -16,6 +16,7 @@ and one for the device event data. hex data is without a 0x prefix.
 Device Description Format
 -------------------------
 
+    # EVEMU 1.0
     # comments are allowed at the top of the file only
     # Only lines with # as first character are recognized
     N: <device name>
@@ -29,6 +30,17 @@ Device Description Format
      --- for each absolute axis ---
     A: <index (hex)> <min> <max> <fuzz> <flat>
 
+The first line is a special comment and taken to describe the file format
+version. It is always comment character (#), space, "EVEMU", space, followed
+by a numeric version number in the format major.minor.
+If the line is missing, file format 1.0 is assumed.
+
+minor version numbers are additions of new fields, or alterations of a
+field.
+major version numbers are large redesigns of the format
+
+Current file format versions supported:
+ * 1.0
 
 Event Data Format
 -----------------
