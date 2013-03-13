@@ -1,6 +1,5 @@
-TESTS = test-c-compile test-cxx-compile
-
-check_PROGRAMS = $(TESTS)
+noinst_PROGRAMS = test-c-compile test-cxx-compile
+TESTS = $(noinst_PROGRAMS)
 
 INCLUDES = -I$(top_srcdir)/include/
 
