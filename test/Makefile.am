@@ -1,4 +1,4 @@
-noinst_PROGRAMS = test-c-compile test-cxx-compile
+noinst_PROGRAMS = test-c-compile test-cxx-compile test-evemu-create
 TESTS = $(noinst_PROGRAMS)
 
 INCLUDES = -I$(top_srcdir)/include/
@@ -8,3 +8,6 @@ test_c_compile_LDADD = $(top_builddir)/src/libevemu.la
 
 test_cxx_compile_SOURCES = test-cxx-compile.cpp
 test_cxx_compile_LDADD = $(top_builddir)/src/libevemu.la
+
+test_evemu_create_SOURCES = test-evemu-create.c
+test_evemu_create_LDADD = $(top_builddir)/src/libevemu.la
