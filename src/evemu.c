@@ -323,49 +323,78 @@ int evemu_write(const struct evemu_device *dev, FILE *fp)
 	return 0;
 }
 
-static void read_prop(struct evemu_device *dev, FILE *fp, version_t *fversion)
+static int read_prop(struct evemu_device *dev, const char *line, version_t *fversion)
 {
+	int matched;
 	unsigned int mask[8];
 	int i;
-	while (fscanf(fp, "P: %02x %02x %02x %02x %02x %02x %02x %02x\n",
-		      mask + 0, mask + 1, mask + 2, mask + 3,
-		      mask + 4, mask + 5, mask + 6, mask + 7) > 0) {
+	if ((matched = sscanf(line, "P: %02x %02x %02x %02x %02x %02x %02x %02x\n",
+				    mask + 0, mask + 1, mask + 2, mask + 3,
+				    mask + 4, mask + 5, mask + 6, mask + 7)) > 0) {
 		for (i = 0; i < 8; i++)
 			dev->prop[dev->pbytes++] = mask[i];
 	}
+
+	return matched > 0;
 }
 
-static void read_mask(struct evemu_device *dev, FILE *fp, version_t *fversion)
+static int read_mask(struct evemu_device *dev, const char *line, version_t *fversion)
 {
+	int matched;
 	unsigned int mask[8];
 	unsigned int index, i;
-	while (fscanf(fp, "B: %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
-		      &index, mask + 0, mask + 1, mask + 2, mask + 3,
-		      mask + 4, mask + 5, mask + 6, mask + 7) > 0) {
+	if ((matched = sscanf(line, "B: %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
+				    &index, mask + 0, mask + 1, mask + 2, mask + 3,
+				    mask + 4, mask + 5, mask + 6, mask + 7)) > 0) {
 		for (i = 0; i < 8; i++)
 			dev->mask[index][dev->mbytes[index]++] = mask[i];
 	}
+
+	return matched > 0;
 }
 
-static void read_abs(struct evemu_device *dev, FILE *fp, version_t *fversion)
+static int read_abs(struct evemu_device *dev, const char *line, version_t *fversion)
 {
+	int matched;
 	struct input_absinfo abs;
 	unsigned int index;
-	while (fscanf(fp, "A: %02x %d %d %d %d\n", &index,
-		      &abs.minimum, &abs.maximum, &abs.fuzz, &abs.flat) > 0)
+
+	if ((matched = sscanf(line, "A: %02x %d %d %d %d\n",
+				    &index, &abs.minimum, &abs.maximum,
+				    &abs.fuzz, &abs.flat)) > 0) {
 		dev->abs[index] = abs;
+	}
+
+	return matched > 0;
 }
 
-static version_t read_file_format_version(FILE *fp)
+static version_t read_file_format_version(const char *line)
 {
 	uint16_t major, minor;
 
-	if (fscanf(fp, "# EVEMU %hd.%hd\n", &major, &minor) != 2) {
+	if (sscanf(line, "# EVEMU %hd.%hd\n", &major, &minor) != 2) {
 		major = 1;
 		minor = 0;
 	}
 
 	return version_new(major, minor);
+}
+
+static int is_comment(char *line)
+{
+	return line && strlen(line) > 0 && line[0] == '#';
+}
+
+/**
+ * Read sz bytes from fp into line, skipping comment lines (starting with #).
+ * Return 1 on success, 0 on failure. When returning with success, line now
+ * contains the first non-comment line.
+ */
+static int next_line(FILE *fp, char *line, int sz) {
+	while(fgets(line, sz, fp))
+		if (!is_comment(line))
+			return 1;
+	return 0; /* error */
 }
 
 int evemu_read(struct evemu_device *dev, FILE *fp)
@@ -374,14 +403,20 @@ int evemu_read(struct evemu_device *dev, FILE *fp)
 	version_t file_version; /* file format version */
 	int ret;
 	char *devname = NULL;
+	char line[256];
 
 	memset(dev, 0, sizeof(*dev));
 
-	file_version = read_file_format_version(fp);
+	/* first line _may_ be version */
+	if (!fgets(line, sizeof(line), fp))
+		return -1;
 
-	skip_comment_block(fp);
+	file_version = read_file_format_version(line);
 
-	ret = fscanf(fp, "N: %m[^\n]\n", &devname);
+	if (is_comment(line) && !next_line(fp, line, sizeof(line)))
+		return -1;
+
+	ret = sscanf(line, "N: %m[^\n]\n", &devname);
 	if (ret <= 0) {
 		if (devname != NULL)
 			free(devname);
@@ -391,7 +426,9 @@ int evemu_read(struct evemu_device *dev, FILE *fp)
 	dev->name[sizeof(dev->name)-1] = '\0';
 	free(devname);
 
-	ret = fscanf(fp, "I: %04x %04x %04x %04x\n",
+	if (!next_line(fp, line, sizeof(line)))
+		return -1;
+	ret = sscanf(line, "I: %04x %04x %04x %04x\n",
 		     &bustype, &vendor, &product, &version);
 	if (ret <= 0)
 		return ret;
@@ -401,11 +438,20 @@ int evemu_read(struct evemu_device *dev, FILE *fp)
 	dev->id.product = product;
 	dev->id.version = version;
 
-	read_prop(dev, fp, &file_version);
+	if (!next_line(fp, line, sizeof(line)))
+		return 1;
 
-	read_mask(dev, fp, &file_version);
+	while(read_prop(dev, line, &file_version))
+		if (!next_line(fp, line, sizeof(line)))
+			break;
 
-	read_abs(dev, fp, &file_version);
+	while(read_mask(dev, line, &file_version))
+		if (!next_line(fp, line, sizeof(line)))
+			break;
+
+	while(read_abs(dev, line, &file_version))
+		if (!next_line(fp, line, sizeof(line)))
+			break;
 
 	return 1;
 }

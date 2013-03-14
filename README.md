@@ -17,8 +17,7 @@ Device Description Format
 -------------------------
 
     # EVEMU 1.0
-    # comments are allowed at the top of the file only
-    # Only lines with # as first character are recognized
+    # comments are lines with # as first character
     N: <device name>
     I: <bustype (hex)> <vendor (hex)> <product (hex)> <version (hex)>
      --- for each kernel property (2.3.38 only) ---
