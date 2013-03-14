@@ -394,6 +394,7 @@ static void read_abs(struct evemu_device *dev, FILE *fp, version_t *fversion)
 
 static version_t read_file_format_version(FILE *fp)
 {
+	version_t version;
 	uint16_t major, minor;
 
 	if (fscanf(fp, "# EVEMU %hd.%hd\n", &major, &minor) != 2) {
@@ -403,7 +404,16 @@ static version_t read_file_format_version(FILE *fp)
 
 	fseek(fp, 0, 0);
 
-	return version_new(major, minor);
+	version = version_new(major, minor);
+
+	if (version_compare_numeric(&version,
+				    EVEMU_FILE_MAJOR,
+				    EVEMU_FILE_MINOR) > 0)
+		fprintf(stderr, "Warning: file format %d.%d is newer than "
+				"supported version %d.%d.\n",
+			major, minor, EVEMU_FILE_MAJOR, EVEMU_FILE_MINOR);
+
+	return version;
 }
 
 int evemu_read(struct evemu_device *dev, FILE *fp)
