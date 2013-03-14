@@ -51,6 +51,7 @@
 #include <unistd.h>
 
 #include "version.h"
+#include "event-names.h"
 
 /* File format version we write out
    NOTE: if you bump the version number, make sure you update README */
@@ -443,12 +444,20 @@ int evemu_read(struct evemu_device *dev, FILE *fp)
 	return 1;
 }
 
+#define EVTYPENAME(_arr, _ev) (_arr[_ev->type] ? _arr[_ev->type] : "?")
+#define EVCODENAME(_names, _ev) (_names[_ev->type] && _names[_ev->type][_ev->code] ? _names[_ev->type][_ev->code] : "?")
+
 int evemu_write_event(FILE *fp, const struct input_event *ev)
 {
+	fprintf(fp, "# %s %s %d\n", EVTYPENAME(events, ev),
+				    EVCODENAME(names, ev),
+				    ev->value);
 	return fprintf(fp, "E: %lu.%06u %04x %04x %d\n",
 		       ev->time.tv_sec, (unsigned)ev->time.tv_usec,
 		       ev->type, ev->code, ev->value);
 }
+#undef EVTYPENAME
+#undef EVCODENAME
 
 int evemu_record(FILE *fp, int fd, int ms)
 {
