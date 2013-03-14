@@ -70,19 +70,6 @@
 
 #define SYSCALL(call) while (((call) == -1) && (errno == EINTR))
 
-static void skip_comment_block(FILE *fp)
-{
-	int first_char;
-
-	while ((first_char = getc(fp)) == '#') {
-		char *line = NULL;
-		size_t n = 0;
-		getline(&line, &n, fp);
-		free(line);
-	}
-	ungetc(first_char, fp);
-}
-
 static void copy_bits(unsigned char *mask, const unsigned long *bits, int bytes)
 {
 	int i;
@@ -486,8 +473,14 @@ int evemu_read_event(FILE *fp, struct input_event *ev)
 	unsigned long sec;
 	unsigned usec, type, code;
 	int value;
-	int ret = fscanf(fp, "E: %lu.%06u %04x %04x %d\n",
-			 &sec, &usec, &type, &code, &value);
+	int ret;
+	char line[256];
+
+	if (!next_line(fp, line, sizeof(line)))
+		return  -1;
+
+	ret = sscanf(line, "E: %lu.%06u %04x %04x %d\n",
+			   &sec, &usec, &type, &code, &value);
 	ev->time.tv_sec = sec;
 	ev->time.tv_usec = usec;
 	ev->type = type;
@@ -542,8 +535,6 @@ int evemu_play(FILE *fp, int fd)
 	struct input_event ev;
 	struct timeval evtime;
 	int ret;
-
-	skip_comment_block(fp);
 
 	memset(&evtime, 0, sizeof(evtime));
 	while (evemu_read_event_realtime(fp, &ev, &evtime) > 0)
