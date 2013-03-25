@@ -365,6 +365,8 @@ static version_t read_file_format_version(FILE *fp)
 		minor = 0;
 	}
 
+	fseek(fp, 0, 0);
+
 	return version_new(major, minor);
 }
 
