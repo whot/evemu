@@ -53,6 +53,7 @@
 #include <unistd.h>
 
 #include "version.h"
+#include "event-names.h"
 
 /* File format version we write out
    NOTE: if you bump the version number, make sure you update README */
@@ -306,11 +307,60 @@ static void write_abs(FILE *fp, int index, const struct input_absinfo *abs)
 		abs->minimum, abs->maximum, abs->fuzz, abs->flat);
 }
 
+/* Print an evtest-like description */
+static void write_desc(const struct evemu_device *dev, FILE *fp)
+{
+	int i, j;
+	fprintf(fp, "# Input device name: \"%s\"\n", dev->name);
+	fprintf(fp, "# Input device ID: bus %#04x vendor %#04x product %#04x version %#04x\n",
+		dev->id.bustype, dev->id.vendor,
+		dev->id.product, dev->id.version);
+	fprintf(fp, "# Supported events:\n");
+	for (i = 0; i < EV_MAX; i++) {
+		if (!evemu_has_bit(dev, i))
+			continue;
+
+		fprintf(fp, "#   Event type %d (%s)\n", i, event_get_type_name(i));
+		for (j = 0; j < KEY_MAX; j++) {
+			if (!evemu_has_event(dev, i, j))
+				continue;
+
+			fprintf(fp, "#     Event code %d (%s)\n",
+				    j, event_get_code_name(i, j));
+			if (i == EV_ABS) {
+				fprintf(fp, "#       Value %6d\n"
+					    "#       Min   %6d\n"
+					    "#       Max   %6d\n"
+					    "#       Fuzz  %6d\n"
+					    "#       Flat  %6d\n"
+					    "#       Resolution %d\n",
+					    dev->abs[j].value,
+					    dev->abs[j].minimum,
+					    dev->abs[j].maximum,
+					    dev->abs[j].fuzz,
+					    dev->abs[j].flat,
+					    dev->abs[j].resolution);
+			}
+		}
+	}
+
+#ifdef INPUT_PROP_MAX
+	fprintf(fp, "# Properties:\n");
+	for (i = 0; i < INPUT_PROP_MAX; i++) {
+		if (!evemu_has_prop(dev, i))
+			continue;
+		fprintf(fp, "#   Property  type %d (%s)\n", i, input_prop_map[i]);
+	}
+#endif
+}
+
 int evemu_write(const struct evemu_device *dev, FILE *fp)
 {
 	int i;
 
 	fprintf(fp, "# EVEMU %d.%d\n", EVEMU_FILE_MAJOR, EVEMU_FILE_MINOR);
+
+	write_desc(dev, fp);
 
 	fprintf(fp, "N: %s\n", dev->name);
 
@@ -480,8 +530,31 @@ out:
 	return rc;
 }
 
+static void write_event_desc(FILE *fp, const struct input_event *ev)
+{
+	fprintf(fp, "# Event: time %lu.%06u, ",
+		ev->time.tv_sec, (unsigned)ev->time.tv_usec);
+	if (ev->type == EV_SYN) {
+		if (ev->code == SYN_MT_REPORT)
+			fprintf(fp, "++++++++++++++ %s ++++++++++++\n",
+				event_get_code_name(ev->type, ev->code));
+		else
+			fprintf(fp, "-------------- %s ------------\n",
+				event_get_code_name(ev->type, ev->code));
+	} else {
+		fprintf(fp, "type %d (%s), code %d (%s), value %d\n",
+			ev->type,
+			event_get_type_name(ev->type),
+			ev->code,
+			event_get_code_name(ev->type, ev->code),
+			ev->value);
+	}
+}
+
 int evemu_write_event(FILE *fp, const struct input_event *ev)
 {
+	write_event_desc(fp, ev);
+
 	return fprintf(fp, "E: %lu.%06u %04x %04x %d\n",
 		       ev->time.tv_sec, (unsigned)ev->time.tv_usec,
 		       ev->type, ev->code, ev->value);
