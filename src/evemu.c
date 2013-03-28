@@ -234,6 +234,11 @@ int evemu_has_event(const struct evemu_device *dev, int type, int code)
 	return (dev->mask[type][code >> 3] >> (code & 7)) & 1;
 }
 
+int evemu_has_bit(const struct evemu_device *dev, int type)
+{
+	return (dev->mask[0][type >> 3] >> (type & 7)) & 1;
+}
+
 int evemu_extract(struct evemu_device *dev, int fd)
 {
 	unsigned long bits[64];

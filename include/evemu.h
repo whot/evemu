@@ -288,6 +288,15 @@ int evemu_has_prop(const struct evemu_device *dev, int code);
 int evemu_has_event(const struct evemu_device *dev, int type, int code);
 
 /**
+ * evemu_has_bit() - check if a device has a certain EV_* bit set
+ * @dev: the device in use
+ * @type: the EV_* bit to query
+ *
+ * Returns true if the event bit is supported by the device.
+ */
+int evemu_has_bit(const struct evemu_device *dev, int type);
+
+/**
  * evemu_extract() - configure evemu instance directly from the kernel device
  * @dev: the device in use
  * @fd: file descriptor of the kernel device to query
