@@ -341,6 +341,24 @@ static int read_name(struct evemu_device *dev, FILE *fp, version_t *fversion)
 	return ret;
 }
 
+static int read_bus_vid_pid_ver(struct evemu_device *dev, FILE *fp, version_t *fversion)
+{
+	int ret;
+	unsigned bustype, vendor, product, version;
+
+	ret = fscanf(fp, "I: %04x %04x %04x %04x\n",
+		     &bustype, &vendor, &product, &version);
+	if (ret <= 0)
+		return ret;
+
+	dev->id.bustype = bustype;
+	dev->id.vendor = vendor;
+	dev->id.product = product;
+	dev->id.version = version;
+
+	return ret;
+}
+
 static void read_prop(struct evemu_device *dev, FILE *fp, version_t *fversion)
 {
 	unsigned int mask[8];
@@ -390,7 +408,6 @@ static version_t read_file_format_version(FILE *fp)
 
 int evemu_read(struct evemu_device *dev, FILE *fp)
 {
-	unsigned bustype, vendor, product, version;
 	version_t file_version; /* file format version */
 	int ret;
 
@@ -405,15 +422,9 @@ int evemu_read(struct evemu_device *dev, FILE *fp)
 	if (ret <= 0)
 		return ret;
 
-	ret = fscanf(fp, "I: %04x %04x %04x %04x\n",
-		     &bustype, &vendor, &product, &version);
+	ret = read_bus_vid_pid_ver(dev, fp, &file_version);
 	if (ret <= 0)
 		return ret;
-
-	dev->id.bustype = bustype;
-	dev->id.vendor = vendor;
-	dev->id.product = product;
-	dev->id.version = version;
 
 	read_prop(dev, fp, &file_version);
 
