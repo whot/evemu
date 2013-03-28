@@ -21,5 +21,9 @@ libevemuincludedir = $(includedir)
 libevemuinclude_HEADERS = \
 	$(top_srcdir)/include/evemu.h
 
-EXTRA_DIST = $(version_script)
+event-names.h: Makefile make-event-names.py
+	$(srcdir)/make-event-names.py > $@
 
+EXTRA_DIST = $(version_script) make-event-names.py
+CLEANFILES = event-names.h
+BUILT_SOURCES = event-names.h
