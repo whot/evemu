@@ -323,6 +323,24 @@ int evemu_write(const struct evemu_device *dev, FILE *fp)
 	return 0;
 }
 
+static int read_name(struct evemu_device *dev, FILE *fp, version_t *fversion)
+{
+	int ret;
+	char *devname = NULL;
+
+	ret = fscanf(fp, "N: %m[^\n]\n", &devname);
+	if (ret <= 0) {
+		if (devname != NULL)
+			free(devname);
+		return ret;
+	}
+
+	strncpy(dev->name, devname, sizeof(dev->name));
+	dev->name[sizeof(dev->name)-1] = '\0';
+	free(devname);
+	return ret;
+}
+
 static void read_prop(struct evemu_device *dev, FILE *fp, version_t *fversion)
 {
 	unsigned int mask[8];
@@ -375,23 +393,17 @@ int evemu_read(struct evemu_device *dev, FILE *fp)
 	unsigned bustype, vendor, product, version;
 	version_t file_version; /* file format version */
 	int ret;
-	char *devname = NULL;
 
 	memset(dev, 0, sizeof(*dev));
 
+	/* first line _may_ be version */
 	file_version = read_file_format_version(fp);
 
 	skip_comment_block(fp);
 
-	ret = fscanf(fp, "N: %m[^\n]\n", &devname);
-	if (ret <= 0) {
-		if (devname != NULL)
-			free(devname);
+	ret = read_name(dev, fp, &file_version);
+	if (ret <= 0)
 		return ret;
-	}
-	strncpy(dev->name, devname, sizeof(dev->name));
-	dev->name[sizeof(dev->name)-1] = '\0';
-	free(devname);
 
 	ret = fscanf(fp, "I: %04x %04x %04x %04x\n",
 		     &bustype, &vendor, &product, &version);
