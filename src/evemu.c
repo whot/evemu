@@ -328,7 +328,7 @@ int evemu_write(const struct evemu_device *dev, FILE *fp)
 	return 0;
 }
 
-static int read_name(struct evemu_device *dev, FILE *fp, version_t *fversion)
+static int read_name(struct evemu_device *dev, FILE *fp, struct version *fversion)
 {
 	int ret;
 	char *devname = NULL;
@@ -346,7 +346,7 @@ static int read_name(struct evemu_device *dev, FILE *fp, version_t *fversion)
 	return ret;
 }
 
-static int read_bus_vid_pid_ver(struct evemu_device *dev, FILE *fp, version_t *fversion)
+static int read_bus_vid_pid_ver(struct evemu_device *dev, FILE *fp, struct version *fversion)
 {
 	int ret;
 	unsigned bustype, vendor, product, version;
@@ -364,7 +364,7 @@ static int read_bus_vid_pid_ver(struct evemu_device *dev, FILE *fp, version_t *f
 	return ret;
 }
 
-static void read_prop(struct evemu_device *dev, FILE *fp, version_t *fversion)
+static void read_prop(struct evemu_device *dev, FILE *fp, struct version *fversion)
 {
 	unsigned int mask[8];
 	int i;
@@ -376,7 +376,7 @@ static void read_prop(struct evemu_device *dev, FILE *fp, version_t *fversion)
 	}
 }
 
-static void read_mask(struct evemu_device *dev, FILE *fp, version_t *fversion)
+static void read_mask(struct evemu_device *dev, FILE *fp, struct version *fversion)
 {
 	unsigned int mask[8];
 	unsigned int index, i;
@@ -388,7 +388,7 @@ static void read_mask(struct evemu_device *dev, FILE *fp, version_t *fversion)
 	}
 }
 
-static void read_abs(struct evemu_device *dev, FILE *fp, version_t *fversion)
+static void read_abs(struct evemu_device *dev, FILE *fp, struct version *fversion)
 {
 	struct input_absinfo abs;
 	unsigned int index;
@@ -397,9 +397,9 @@ static void read_abs(struct evemu_device *dev, FILE *fp, version_t *fversion)
 		dev->abs[index] = abs;
 }
 
-static version_t read_file_format_version(FILE *fp)
+static struct version read_file_format_version(FILE *fp)
 {
-	version_t version;
+	struct version v;
 	uint16_t major, minor;
 
 	if (fscanf(fp, "# EVEMU %hd.%hd\n", &major, &minor) != 2) {
@@ -409,21 +409,19 @@ static version_t read_file_format_version(FILE *fp)
 
 	fseek(fp, 0, 0);
 
-	version = version_new(major, minor);
+	v = version(major, minor);
 
-	if (version_compare_numeric(&version,
-				    EVEMU_FILE_MAJOR,
-				    EVEMU_FILE_MINOR) > 0)
+	if (version_cmp(v, version(EVEMU_FILE_MAJOR, EVEMU_FILE_MINOR)) > 0)
 		fprintf(stderr, "Warning: file format %d.%d is newer than "
 				"supported version %d.%d.\n",
 			major, minor, EVEMU_FILE_MAJOR, EVEMU_FILE_MINOR);
 
-	return version;
+	return v;
 }
 
 int evemu_read(struct evemu_device *dev, FILE *fp)
 {
-	version_t file_version; /* file format version */
+	struct version file_version; /* file format version */
 	int ret;
 
 	memset(dev, 0, sizeof(*dev));
