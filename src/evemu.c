@@ -49,6 +49,7 @@
 #include <poll.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <assert.h>
 
 #include "version.h"
 #include "event-names.h"
@@ -70,6 +71,8 @@
 #endif
 
 #define SYSCALL(call) while (((call) == -1) && (errno == EINTR))
+
+#define MAX_EVENTS 256 /* max events before SYN_REPORT */
 
 static void skip_comment_block(FILE *fp)
 {
@@ -521,26 +524,64 @@ static void write_event_desc(FILE *fp, const struct input_event *ev)
 
 int evemu_write_event(FILE *fp, const struct input_event *ev)
 {
-	write_event_desc(fp, ev);
-
 	return fprintf(fp, "E: %lu.%06u %04x %04x %d\n",
 		       ev->time.tv_sec, (unsigned)ev->time.tv_usec,
 		       ev->type, ev->code, ev->value);
 }
 
+static void evemu_write_events(FILE *fp, const struct input_event *events, int nevents)
+{
+	int i;
+
+	for (i = 0; i < nevents; i++)
+		write_event_desc(fp, &events[i]);
+
+	for (i = 0; i < nevents; i++)
+		evemu_write_event(fp, &events[i]);
+	fflush(fp);
+}
+
+/**
+ * Search for the first EV_SYN(SYN_REPORT) in the event list and write all
+ * events up until then to @fp. Shift all remaining events down to events[0]
+ * and return the number of events left.
+ *
+ * @return The number of events left in events
+ */
+static int evemu_write_up_to_syn(FILE *fp, struct input_event *events, int nevents)
+{
+	int i;
+	for (i = 0; i < nevents; i++) {
+		if (events[i].type == EV_SYN && events[i].code == SYN_REPORT) {
+			evemu_write_events(fp, events, i + 1);
+			memmove(events, &events[i + 1], (nevents - (i + 1)) * sizeof(events[0]));
+			nevents -= i + 1;
+			i = 0; /* re-run the loop, we may have 2+ EV_SYN */
+		}
+	}
+
+	assert(nevents >= 0);
+
+	return nevents;
+}
+
 int evemu_record(FILE *fp, int fd, int ms)
 {
         struct pollfd fds = { fd, POLLIN, 0 };
-	struct input_event ev;
+	struct input_event events[MAX_EVENTS];
+	struct input_event *ev = events;
+	int nevents = 0;
 	int ret;
 
 	while (poll(&fds, 1, ms) > 0) {
-		SYSCALL(ret = read(fd, &ev, sizeof(ev)));
+		assert(MAX_EVENTS - nevents > 0);
+
+		SYSCALL(ret = read(fd, &events[nevents], (MAX_EVENTS - nevents) * sizeof(*ev)));
 		if (ret < 0)
 			return ret;
-		if (ret == sizeof(ev))
-			evemu_write_event(fp, &ev);
-			fflush(fp);
+
+		nevents += ret/sizeof(*ev);
+		nevents = evemu_write_up_to_syn(fp, events, nevents);
 	}
 
 	return 0;
