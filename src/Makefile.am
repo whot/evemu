@@ -12,7 +12,8 @@ libevemu_la_CFLAGS = \
 
 libevemu_la_SOURCES = \
 	evemu-impl.h \
-	evemu.c
+	evemu.c \
+	version.h
 
 INCLUDES = -I$(top_srcdir)/include/
 
