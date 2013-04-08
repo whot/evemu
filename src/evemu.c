@@ -104,11 +104,25 @@ static int is_comment(char *line)
 	return line && strlen(line) > 0 && line[0] == '#';
 }
 
+static int first_line(FILE *fp, char **line, size_t *sz)
+{
+	int rc = 1;
+	do {
+		if (getline(line, sz, fp) < 0) {
+			rc = 0;
+			break;
+		}
+	} while(*sz == 0 || strlen(*line) <= 1);
+
+	return rc;
+}
+
 static int next_line(FILE *fp, char **line, size_t *sz)
 {
-	while (getline(line, sz, fp) > 0)
+	while (first_line(fp, line, sz)) {
 		if (!is_comment(*line))
 			return 1;
+	}
 	return 0;
 }
 
@@ -539,19 +553,23 @@ int evemu_read(struct evemu_device *dev, FILE *fp)
 {
 	int rc = -1;
 	struct version file_version; /* file format version */
-	size_t size;
+	size_t size = 0;
 	char *line = NULL;
 
 	memset(dev, 0, sizeof(*dev));
 
 	/* first line _may_ be version */
-	if (getline(&line, &size, fp) < 0)
+	if (!first_line(fp, &line, &size)) {
+		error(WARNING, "This appears to be an empty file\n");
 		return -1;
+	}
 
 	file_version = parse_file_format_version(line);
 
-	if (is_comment(line) && !next_line(fp, &line, &size))
+	if (is_comment(line) && !next_line(fp, &line, &size)) {
+		error(WARNING, "This appears to be an empty file\n");
 		goto out;
+	}
 
 	if (!parse_name(dev, line, &file_version))
 		goto out;
