@@ -665,8 +665,10 @@ int evemu_read_event(FILE *fp, struct input_event *ev)
 	char *line = NULL;
 	size_t size = 0;
 
-	if (!next_line(fp, &line, &size))
-		goto out;
+	do {
+		if (!next_line(fp, &line, &size))
+			goto out;
+	} while(strlen(line) > 2 && strncmp(line, "E:", 2) != 0);
 
 	if (strlen(line) <= 2 || strncmp(line, "E:", 2) != 0)
 		goto out;

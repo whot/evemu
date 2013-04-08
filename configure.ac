@@ -18,6 +18,7 @@ AC_SUBST([LIB_VERSION])
 
 # Initialize libtool
 AC_PROG_LIBTOOL
+AC_PROG_LN_S
 
 # Checks for programs.
 AC_PROG_CC

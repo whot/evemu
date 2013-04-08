@@ -2,7 +2,6 @@ noinst_PROGRAMS = \
 	evemu-echo
 
 bin_PROGRAMS = \
-	evemu-describe \
 	evemu-device \
 	evemu-record \
 	evemu-play \
@@ -12,6 +11,12 @@ INCLUDES=-I$(top_srcdir)/include/
 
 AM_LDFLAGS = $(top_builddir)/src/libevemu.la
 
+install-exec-hook:
+	cd $(DESTDIR)$(bindir); \
+	$(LN_S) evemu-record$(EXEEXT) evemu-describe$(EXEEXT)
+
+uninstall-hook:
+	rm -f $(DESTDIR)$(bindir)/evemu-describe$(EXEEXT)
 
 # man page generation
 if HAVE_DOCTOOLS
