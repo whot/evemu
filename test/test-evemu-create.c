@@ -23,6 +23,7 @@ static const char *eolcomment	= "# end-of-line-comment";
 static const char *props	= "P: %02x %02x %02x %02x %02x %02x %02x %02x";
 static const char *bits		= "B: %02x %02x %02x %02x %02x %02x %02x %02x %02x";
 static const char *absinfo	= "A: %02x %d %d %d %d";
+static const char *event	= "E: %lu.%06u %04x %04x %d";
 
 /* Set of flags used to specify what parts of the evemu file description
    gets written into the input file.
@@ -36,7 +37,8 @@ enum flags {
 	ABSINFO		 = (1 << 4), /* has absinfo */
 	PROPS		 = (1 << 5), /* has props */
 	EOLCOMMENT	 = (1 << 6), /* end-of-line comment */
-	ALLFLAGS	 = (EOLCOMMENT << 1) - 1
+	EVENT		 = (1 << 7), /* event line */
+	ALLFLAGS	 = (EVENT << 1) - 1
 };
 
 static int max[EV_CNT] = {
@@ -108,6 +110,12 @@ void check_evemu_read(int fd, const char *file, enum flags flags)
 		for (i = 0; i < ABS_CNT; i++) {
 			println(fd, flags, absinfo, i, i + 1, i + 2, i + 3, i + 4);
 		}
+	}
+
+	if (flags & EVENT) {
+		int i;
+		for (i = 0; i < 20; i++)
+			println(fd, flags, event, 1, 2, 3, 4 ,5);
 	}
 
 	fsync(fd);
