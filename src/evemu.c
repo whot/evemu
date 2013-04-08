@@ -59,7 +59,7 @@
 /* File format version we write out
    NOTE: if you bump the version number, make sure you update README */
 #define EVEMU_FILE_MAJOR 1
-#define EVEMU_FILE_MINOR 0
+#define EVEMU_FILE_MINOR 1
 
 #ifndef UI_SET_PROPBIT
 #define UI_SET_PROPBIT		_IOW(UINPUT_IOCTL_BASE, 110, int)
