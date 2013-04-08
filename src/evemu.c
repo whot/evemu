@@ -43,6 +43,7 @@
 #define _GNU_SOURCE
 #include "evemu-impl.h"
 #include <stdint.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -71,6 +72,31 @@
 #endif
 
 #define SYSCALL(call) while (((call) == -1) && (errno == EINTR))
+
+enum error_level {
+	INFO,
+	WARNING,
+	FATAL,
+};
+
+static int error(enum error_level level, const char *format, ...)
+{
+	va_list args;
+	const char *strlevel = NULL;
+
+	switch (level) {
+		case INFO: strlevel = "INFO"; break;
+		case WARNING: strlevel = "WARNING"; break;
+		case FATAL: strlevel = "FATAL"; break;
+	}
+
+	fprintf(stderr, "%s: ", strlevel);
+	va_start(args, format);
+	vfprintf(stderr, format, args);
+	va_end(args);
+
+	return -1;
+}
 
 static int is_comment(char *line)
 {
@@ -343,6 +369,9 @@ static int parse_name(struct evemu_device *dev, const char *line, struct version
 	if (devname != NULL)
 		free(devname);
 
+	if (matched <= 0)
+		error(FATAL, "Expected device name, but got: %s", line);
+
 	return matched > 0;
 }
 
@@ -359,7 +388,10 @@ static int parse_bus_vid_pid_ver(struct evemu_device *dev, const char *line, str
 		dev->id.version = version;
 	}
 
-	return matched > 0;
+	if (matched != 4)
+		error(FATAL, "Expected bus/vendor/product/version, got: %s", line);
+
+	return matched == 4;
 }
 
 static int parse_prop(struct evemu_device *dev, const char *line, struct version *fversion)
@@ -367,14 +399,23 @@ static int parse_prop(struct evemu_device *dev, const char *line, struct version
 	int matched;
 	unsigned int mask[8];
 	int i;
-	if ((matched = sscanf(line, "P: %02x %02x %02x %02x %02x %02x %02x %02x\n",
-				    mask + 0, mask + 1, mask + 2, mask + 3,
-				    mask + 4, mask + 5, mask + 6, mask + 7)) > 0) {
-		for (i = 0; i < 8; i++)
-			dev->prop[dev->pbytes++] = mask[i];
+
+	if (strlen(line) <= 2 || strncmp(line, "P:", 2) != 0)
+		return 0;
+
+	matched = sscanf(line, "P: %02x %02x %02x %02x %02x %02x %02x %02x\n",
+				mask + 0, mask + 1, mask + 2, mask + 3,
+				mask + 4, mask + 5, mask + 6, mask + 7);
+
+	if (matched != 8) {
+		error(WARNING, "Invalid INPUT_PROP line. Parsed %d numbers, expected 8: %s", matched, line);
+		return -1;
 	}
 
-	return matched > 0;
+	for (i = 0; i < 8; i++)
+		dev->prop[dev->pbytes++] = mask[i];
+
+	return 1;
 }
 
 static int parse_mask(struct evemu_device *dev, const char *line, struct version *fversion)
@@ -382,14 +423,23 @@ static int parse_mask(struct evemu_device *dev, const char *line, struct version
 	int matched;
 	unsigned int mask[8];
 	unsigned int index, i;
-	if ((matched = sscanf(line, "B: %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
-				    &index, mask + 0, mask + 1, mask + 2, mask + 3,
-				    mask + 4, mask + 5, mask + 6, mask + 7)) > 0) {
-		for (i = 0; i < 8; i++)
-			dev->mask[index][dev->mbytes[index]++] = mask[i];
+
+	if (strlen(line) <= 2 || strncmp(line, "B:", 2) != 0)
+		return 0;
+
+	matched = sscanf(line, "B: %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
+				&index, mask + 0, mask + 1, mask + 2, mask + 3,
+				mask + 4, mask + 5, mask + 6, mask + 7);
+
+	if (matched != 9) {
+		error(WARNING, "Invalid EV_BIT line. Parsed %d numbers, expected 9: %s", matched, line);
+		return -1;
 	}
 
-	return matched > 0;
+	for (i = 0; i < 8; i++)
+		dev->mask[index][dev->mbytes[index]++] = mask[i];
+
+	return 1;
 }
 
 static int parse_abs(struct evemu_device *dev, const char *line, struct version *fversion)
@@ -398,13 +448,20 @@ static int parse_abs(struct evemu_device *dev, const char *line, struct version 
 	struct input_absinfo abs;
 	unsigned int index;
 
-	if ((matched = sscanf(line, "A: %02x %d %d %d %d\n",
-				    &index, &abs.minimum, &abs.maximum,
-				    &abs.fuzz, &abs.flat)) > 0) {
-		dev->abs[index] = abs;
+	if (strlen(line) <= 2 || strncmp(line, "A:", 2) != 0)
+		return 0;
+
+	matched = sscanf(line, "A: %02x %d %d %d %d\n",
+				&index, &abs.minimum, &abs.maximum,
+				&abs.fuzz, &abs.flat);
+	if (matched != 5) {
+		error(WARNING, "Invalid EV_ABS line. Parsed %d numbers, expected 5: %s", matched, line);
+		return -1;
 	}
 
-	return matched > 0;
+	dev->abs[index] = abs;
+
+	return 1;
 }
 
 static struct version parse_file_format_version(const char *line)
@@ -461,17 +518,23 @@ int evemu_read(struct evemu_device *dev, FILE *fp)
 		goto out;
 	}
 
-	while(parse_prop(dev, line, &file_version))
+	while((rc = parse_prop(dev, line, &file_version)) > 0)
 		if (!next_line(fp, &line, &size))
 			break;
+	if (rc == -1)
+		goto out;
 
-	while(parse_mask(dev, line, &file_version))
+	while((rc = parse_mask(dev, line, &file_version)) > 0)
 		if (!next_line(fp, &line, &size))
 			break;
+	if (rc == -1)
+		goto out;
 
-	while(parse_abs(dev, line, &file_version))
+	while((rc = parse_abs(dev, line, &file_version)) > 0)
 		if (!next_line(fp, &line, &size))
 			break;
+	if (rc == -1)
+		goto out;
 
 	rc = 1;
 
@@ -517,15 +580,21 @@ int evemu_read_event(FILE *fp, struct input_event *ev)
 	if (!next_line(fp, &line, &size))
 		goto out;
 
+	if (strlen(line) <= 2 || strncmp(line, "E:", 2) != 0)
+		goto out;
+
 	matched = sscanf(line, "E: %lu.%06u %04x %04x %d\n",
 			 &sec, &usec, &type, &code, &value);
-	if (matched > 0) {
-		ev->time.tv_sec = sec;
-		ev->time.tv_usec = usec;
-		ev->type = type;
-		ev->code = code;
-		ev->value = value;
+	if (matched != 5) {
+		error(FATAL, "Invalid event format: %s\n", line);
+		return -1;
 	}
+
+	ev->time.tv_sec = sec;
+	ev->time.tv_usec = usec;
+	ev->type = type;
+	ev->code = code;
+	ev->value = value;
 
 out:
 	free(line);
