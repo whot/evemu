@@ -188,6 +188,107 @@ static void check_valid_formats(int fd, const char *file)
 		check_evemu_read(fd, file, flags++);
 }
 
+static void test_number_bits(int fd, const char *file, const char *prefix, int required)
+{
+	enum flags flags = 0;
+	FILE *fp;
+	struct evemu_device *dev;
+	int i;
+
+	dev = evemu_new("test device");
+	assert(dev);
+
+	/* not enough values */
+	for (i = 0; i < required; i++) {
+		int j;
+		ftruncate(fd, 0);
+		lseek(fd, 0, SEEK_SET);
+		println(fd, flags, "%s", name);
+		println(fd, flags, "%s", ident);
+		dprintf(fd, "%s: ", prefix);
+		for (j = 0; j < i; j++)
+			dprintf(fd, "%d ", i);
+		dprintf(fd, "\n");
+
+		assert((fp = fopen(file, "r")));
+		assert(evemu_read(dev, fp) < 0);
+		fclose(fp);
+	}
+
+	/* same thing with garbage */
+	for (i = 0; i < required; i++) {
+		int j;
+		ftruncate(fd, 0);
+		lseek(fd, 0, SEEK_SET);
+		println(fd, flags, "%s", name);
+		println(fd, flags, "%s", ident);
+		dprintf(fd, "%s: ", prefix);
+		for (j = 0; j < i; j++)
+			dprintf(fd, "%d ", i);
+		dprintf(fd, "XX ");
+		dprintf(fd, "\n");
+
+		assert((fp = fopen(file, "r")));
+		assert(evemu_read(dev, fp) < 0);
+		fclose(fp);
+	}
+
+	evemu_delete(dev);
+}
+
+static void check_invalid_formats(int fd, const char *file)
+{
+	enum flags flags = 0;
+	FILE *fp;
+	struct evemu_device *dev;
+
+	ftruncate(fd, 0);
+	lseek(fd, 0, SEEK_SET);
+
+	dev = evemu_new("test device");
+	assert(dev);
+
+
+	/* empty file */
+	assert((fp = fopen(file, "r")));
+	assert(evemu_read(dev, fp) < 0);
+	fclose(fp);
+
+	/* invalid name */
+	lseek(fd, 0, SEEK_SET);
+	dprintf(fd, "N: \n");
+
+	assert((fp = fopen(file, "r")));
+	assert(evemu_read(dev, fp) < 0);
+	fclose(fp);
+
+	/* valid name, but after something else */
+	ftruncate(fd, 0);
+	lseek(fd, 0, SEEK_SET);
+	println(fd, flags, "%s", ident);
+	println(fd, flags, "%s", name);
+
+	assert((fp = fopen(file, "r")));
+	assert(evemu_read(dev, fp) < 0);
+	fclose(fp);
+
+	/* invalid ident */
+	ftruncate(fd, 0);
+	lseek(fd, 0, SEEK_SET);
+	println(fd, flags, "%s", name);
+	println(fd, flags, "I: 0001 asdf\n");
+
+	assert((fp = fopen(file, "r")));
+	assert(evemu_read(dev, fp) < 0);
+	fclose(fp);
+
+	test_number_bits(fd, file, "P", 8);
+	test_number_bits(fd, file, "B", 9);
+	test_number_bits(fd, file, "A", 5);
+
+	evemu_delete(dev);
+}
+
 int main(int argc UNUSED, char **argv UNUSED) {
 	int fd = 0;
 
@@ -198,6 +299,7 @@ int main(int argc UNUSED, char **argv UNUSED) {
 		return 1;
 	}
 
+	check_invalid_formats(fd, tmpname);
 	check_valid_formats(fd, tmpname);
 
 	close(fd);
