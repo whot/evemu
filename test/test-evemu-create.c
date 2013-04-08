@@ -19,6 +19,7 @@ static const char *name		= "N: " NAME "";
 static const char *ident	= "I: 0003 0004 0005 0006";
 static const char *ffversion	= "# EVEMU 1.0";
 static const char *comment	= "# some multiline\n#comment";
+static const char *emptyline	= "\n";
 static const char *eolcomment	= "# end-of-line-comment";
 static const char *props	= "P: %02x %02x %02x %02x %02x %02x %02x %02x";
 static const char *bits		= "B: %02x %02x %02x %02x %02x %02x %02x %02x %02x";
@@ -38,7 +39,8 @@ enum flags {
 	PROPS		 = (1 << 5), /* has props */
 	EOLCOMMENT	 = (1 << 6), /* end-of-line comment */
 	EVENT		 = (1 << 7), /* event line */
-	ALLFLAGS	 = (EVENT << 1) - 1
+	EMPTYLINE	 = (1 << 8),
+	ALLFLAGS	 = (EMPTYLINE << 1) - 1
 };
 
 static int max[EV_CNT] = {
@@ -71,18 +73,28 @@ void check_evemu_read(int fd, const char *file, enum flags flags)
 	ftruncate(fd, 0);
 	lseek(fd, 0, SEEK_SET);
 
+	if (flags & EMPTYLINE)
+		println(fd, flags, "%s", emptyline);
 	if (flags & FFVERSION)
 		println(fd, flags, "%s", ffversion);
+	if (flags & EMPTYLINE)
+		println(fd, flags, "%s", emptyline);
 	if (flags & HEADER_COMMENT)
 		println(fd, flags, "%s", comment);
+	if (flags & EMPTYLINE)
+		println(fd, flags, "%s", emptyline);
 
 	println(fd, flags & ~EOLCOMMENT, "%s", name);
 	if (flags & LINE_COMMENT)
 		println(fd, flags, "%s", comment);
+	if (flags & EMPTYLINE)
+		println(fd, flags, "%s", emptyline);
 
 	println(fd, flags, "%s", ident);
 	if (flags & LINE_COMMENT)
 		println(fd, flags, "%s", comment);
+	if (flags & EMPTYLINE)
+		println(fd, flags, "%s", emptyline);
 
 	/* We always set all prop bits. Should probably be more selective
 	   about this */
@@ -90,6 +102,8 @@ void check_evemu_read(int fd, const char *file, enum flags flags)
 		int i;
 		for (i = 0; i < INPUT_PROP_CNT; i += 8) {
 			println(fd, flags, props, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
+			if (flags & EMPTYLINE)
+				println(fd, flags, "%s", emptyline);
 		}
 	}
 
@@ -101,6 +115,8 @@ void check_evemu_read(int fd, const char *file, enum flags flags)
 			int j;
 			for (j = 0; j < max[i]; j += 8) {
 				println(fd, flags, bits, i, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
+				if (flags & EMPTYLINE)
+					println(fd, flags, "%s", emptyline);
 			}
 		}
 	}
@@ -109,13 +125,18 @@ void check_evemu_read(int fd, const char *file, enum flags flags)
 		int i;
 		for (i = 0; i < ABS_CNT; i++) {
 			println(fd, flags, absinfo, i, i + 1, i + 2, i + 3, i + 4);
+			if (flags & EMPTYLINE)
+				println(fd, flags, "%s", emptyline);
 		}
 	}
 
 	if (flags & EVENT) {
 		int i;
-		for (i = 0; i < 20; i++)
+		for (i = 0; i < 20; i++) {
 			println(fd, flags, event, 1, 2, 3, 4 ,5);
+			if (flags & EMPTYLINE)
+				println(fd, flags, "%s", emptyline);
+		}
 	}
 
 	fsync(fd);
