@@ -3,6 +3,7 @@
  */
 
 #include <stdio.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
@@ -14,13 +15,14 @@
 
 #define NAME "evemu test device"
 
-static const char *name		= "N: " NAME "\n";
-static const char *ident	= "I: 0003 0004 0005 0006\n";
-static const char *ffversion	= "# EVEMU 1.0\n";
-static const char *comment	= "# some multiline\n#comment\n";
-static const char *props	= "P: %02x %02x %02x %02x %02x %02x %02x %02x\n";
-static const char *bits		= "B: %02x %02x %02x %02x %02x %02x %02x %02x %02x\n";
-static const char *absinfo	= "A: %02x %d %d %d %d\n";
+static const char *name		= "N: " NAME "";
+static const char *ident	= "I: 0003 0004 0005 0006";
+static const char *ffversion	= "# EVEMU 1.0";
+static const char *comment	= "# some multiline\n#comment";
+static const char *eolcomment	= "# end-of-line-comment";
+static const char *props	= "P: %02x %02x %02x %02x %02x %02x %02x %02x";
+static const char *bits		= "B: %02x %02x %02x %02x %02x %02x %02x %02x %02x";
+static const char *absinfo	= "A: %02x %d %d %d %d";
 
 /* Set of flags used to specify what parts of the evemu file description
    gets written into the input file.
@@ -33,7 +35,8 @@ enum flags {
 	BITS		 = (1 << 3), /* some bits are set */
 	ABSINFO		 = (1 << 4), /* has absinfo */
 	PROPS		 = (1 << 5), /* has props */
-	ALLFLAGS	 = (PROPS << 1) - 1
+	EOLCOMMENT	 = (1 << 6), /* end-of-line comment */
+	ALLFLAGS	 = (EOLCOMMENT << 1) - 1
 };
 
 static int max[EV_CNT] = {
@@ -49,6 +52,15 @@ static int max[EV_CNT] = {
 	FF_MAX   /* EV_FF */
 };
 
+static void println(int fd, int flags, const char *format, ...)
+{
+	va_list args;
+	va_start(args, format);
+	vdprintf(fd, format, args);
+	dprintf(fd, "%s\n", (flags & EOLCOMMENT) ? eolcomment : "");
+	va_end(args);
+}
+
 void check_evemu_read(int fd, const char *file, enum flags flags)
 {
 	FILE *fp;
@@ -58,24 +70,24 @@ void check_evemu_read(int fd, const char *file, enum flags flags)
 	lseek(fd, 0, SEEK_SET);
 
 	if (flags & FFVERSION)
-		dprintf(fd, "%s", ffversion);
+		println(fd, flags, "%s", ffversion);
 	if (flags & HEADER_COMMENT)
-		dprintf(fd, "%s", comment);
+		println(fd, flags, "%s", comment);
 
-	dprintf(fd, "%s", name);
+	println(fd, flags & ~EOLCOMMENT, "%s", name);
 	if (flags & LINE_COMMENT)
-		dprintf(fd, "%s", comment);
+		println(fd, flags, "%s", comment);
 
-	dprintf(fd, "%s", ident);
+	println(fd, flags, "%s", ident);
 	if (flags & LINE_COMMENT)
-		dprintf(fd, "%s", comment);
+		println(fd, flags, "%s", comment);
 
 	/* We always set all prop bits. Should probably be more selective
 	   about this */
 	if (flags & PROPS) {
 		int i;
 		for (i = 0; i < INPUT_PROP_CNT; i += 8) {
-			dprintf(fd, props, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
+			println(fd, flags, props, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
 		}
 	}
 
@@ -86,7 +98,7 @@ void check_evemu_read(int fd, const char *file, enum flags flags)
 		for (i = 0; i < EV_CNT; i++) {
 			int j;
 			for (j = 0; j < max[i]; j += 8) {
-				dprintf(fd, bits, i, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
+				println(fd, flags, bits, i, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
 			}
 		}
 	}
@@ -94,7 +106,7 @@ void check_evemu_read(int fd, const char *file, enum flags flags)
 	if (flags & ABSINFO) {
 		int i;
 		for (i = 0; i < ABS_CNT; i++) {
-			dprintf(fd, absinfo, i, i + 1, i + 2, i + 3, i + 4);
+			println(fd, flags, absinfo, i, i + 1, i + 2, i + 3, i + 4);
 		}
 	}
 
