@@ -3,6 +3,7 @@
  * evemu - Kernel device emulation
  *
  * Copyright (C) 2010-2012 Canonical Ltd.
+ * Copyright (C) 2013 Red Hat, Inc.
  *
  * This library is free software: you can redistribute it and/or modify it 
  * under the terms of the GNU Lesser General Public License version 3
@@ -39,6 +40,7 @@
  *
  ****************************************************************************/
 
+#define _GNU_SOURCE
 #include "evemu-impl.h"
 #include <stdint.h>
 #include <stdlib.h>
@@ -70,17 +72,17 @@
 
 #define SYSCALL(call) while (((call) == -1) && (errno == EINTR))
 
-static void skip_comment_block(FILE *fp)
+static int is_comment(char *line)
 {
-	int first_char;
+	return line && strlen(line) > 0 && line[0] == '#';
+}
 
-	while ((first_char = getc(fp)) == '#') {
-		char *line = NULL;
-		size_t n = 0;
-		getline(&line, &n, fp);
-		free(line);
-	}
-	ungetc(first_char, fp);
+static int next_line(FILE *fp, char **line, size_t *sz)
+{
+	while (getline(line, sz, fp) > 0)
+		if (!is_comment(*line))
+			return 1;
+	return 0;
 }
 
 static void copy_bits(unsigned char *mask, const unsigned long *bits, int bytes)
@@ -328,86 +330,93 @@ int evemu_write(const struct evemu_device *dev, FILE *fp)
 	return 0;
 }
 
-static int read_name(struct evemu_device *dev, FILE *fp, struct version *fversion)
+static int parse_name(struct evemu_device *dev, const char *line, struct version *fversion)
 {
-	int ret;
+	int matched;
 	char *devname = NULL;
 
-	ret = fscanf(fp, "N: %m[^\n]\n", &devname);
-	if (ret <= 0) {
-		if (devname != NULL)
-			free(devname);
-		return ret;
+	if ((matched = sscanf(line, "N: %m[^\n]\n", &devname)) > 0) {
+		strncpy(dev->name, devname, sizeof(dev->name));
+		dev->name[sizeof(dev->name)-1] = '\0';
 	}
 
-	strncpy(dev->name, devname, sizeof(dev->name));
-	dev->name[sizeof(dev->name)-1] = '\0';
-	free(devname);
-	return ret;
+	if (devname != NULL)
+		free(devname);
+
+	return matched > 0;
 }
 
-static int read_bus_vid_pid_ver(struct evemu_device *dev, FILE *fp, struct version *fversion)
+static int parse_bus_vid_pid_ver(struct evemu_device *dev, const char *line, struct version *fversion)
 {
-	int ret;
+	int matched;
 	unsigned bustype, vendor, product, version;
 
-	ret = fscanf(fp, "I: %04x %04x %04x %04x\n",
-		     &bustype, &vendor, &product, &version);
-	if (ret <= 0)
-		return ret;
+	if ((matched = sscanf(line, "I: %04x %04x %04x %04x\n",
+				    &bustype, &vendor, &product, &version)) > 0) {
+		dev->id.bustype = bustype;
+		dev->id.vendor = vendor;
+		dev->id.product = product;
+		dev->id.version = version;
+	}
 
-	dev->id.bustype = bustype;
-	dev->id.vendor = vendor;
-	dev->id.product = product;
-	dev->id.version = version;
-
-	return ret;
+	return matched > 0;
 }
 
-static void read_prop(struct evemu_device *dev, FILE *fp, struct version *fversion)
+static int parse_prop(struct evemu_device *dev, const char *line, struct version *fversion)
 {
+	int matched;
 	unsigned int mask[8];
 	int i;
-	while (fscanf(fp, "P: %02x %02x %02x %02x %02x %02x %02x %02x\n",
-		      mask + 0, mask + 1, mask + 2, mask + 3,
-		      mask + 4, mask + 5, mask + 6, mask + 7) > 0) {
+	if ((matched = sscanf(line, "P: %02x %02x %02x %02x %02x %02x %02x %02x\n",
+				    mask + 0, mask + 1, mask + 2, mask + 3,
+				    mask + 4, mask + 5, mask + 6, mask + 7)) > 0) {
 		for (i = 0; i < 8; i++)
 			dev->prop[dev->pbytes++] = mask[i];
 	}
+
+	return matched > 0;
 }
 
-static void read_mask(struct evemu_device *dev, FILE *fp, struct version *fversion)
+static int parse_mask(struct evemu_device *dev, const char *line, struct version *fversion)
 {
+	int matched;
 	unsigned int mask[8];
 	unsigned int index, i;
-	while (fscanf(fp, "B: %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
-		      &index, mask + 0, mask + 1, mask + 2, mask + 3,
-		      mask + 4, mask + 5, mask + 6, mask + 7) > 0) {
+	if ((matched = sscanf(line, "B: %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
+				    &index, mask + 0, mask + 1, mask + 2, mask + 3,
+				    mask + 4, mask + 5, mask + 6, mask + 7)) > 0) {
 		for (i = 0; i < 8; i++)
 			dev->mask[index][dev->mbytes[index]++] = mask[i];
 	}
+
+	return matched > 0;
 }
 
-static void read_abs(struct evemu_device *dev, FILE *fp, struct version *fversion)
+static int parse_abs(struct evemu_device *dev, const char *line, struct version *fversion)
 {
+	int matched;
 	struct input_absinfo abs;
 	unsigned int index;
-	while (fscanf(fp, "A: %02x %d %d %d %d\n", &index,
-		      &abs.minimum, &abs.maximum, &abs.fuzz, &abs.flat) > 0)
+
+	if ((matched = sscanf(line, "A: %02x %d %d %d %d\n",
+				    &index, &abs.minimum, &abs.maximum,
+				    &abs.fuzz, &abs.flat)) > 0) {
 		dev->abs[index] = abs;
+	}
+
+	return matched > 0;
 }
 
-static struct version read_file_format_version(FILE *fp)
+static struct version parse_file_format_version(const char *line)
 {
 	struct version v;
 	uint16_t major, minor;
 
-	if (fscanf(fp, "# EVEMU %hd.%hd\n", &major, &minor) != 2) {
+	if (sscanf(line, "# EVEMU %hd.%hd\n", &major, &minor) != 2) {
 		major = 1;
 		minor = 0;
 	}
 
-	fseek(fp, 0, 0);
 
 	v = version(major, minor);
 
@@ -421,31 +430,54 @@ static struct version read_file_format_version(FILE *fp)
 
 int evemu_read(struct evemu_device *dev, FILE *fp)
 {
+	int rc = -1;
 	struct version file_version; /* file format version */
-	int ret;
+	size_t size;
+	char *line = NULL;
 
 	memset(dev, 0, sizeof(*dev));
 
 	/* first line _may_ be version */
-	file_version = read_file_format_version(fp);
+	if (getline(&line, &size, fp) < 0)
+		return -1;
 
-	skip_comment_block(fp);
+	file_version = parse_file_format_version(line);
 
-	ret = read_name(dev, fp, &file_version);
-	if (ret <= 0)
-		return ret;
+	if (is_comment(line) && !next_line(fp, &line, &size))
+		goto out;
 
-	ret = read_bus_vid_pid_ver(dev, fp, &file_version);
-	if (ret <= 0)
-		return ret;
+	if (!parse_name(dev, line, &file_version))
+		goto out;
 
-	read_prop(dev, fp, &file_version);
+	if (!next_line(fp, &line, &size))
+		goto out;
 
-	read_mask(dev, fp, &file_version);
+	if (!parse_bus_vid_pid_ver(dev, line, &file_version))
+		goto out;
 
-	read_abs(dev, fp, &file_version);
+	/* devices without prop/mask/abs bits are valid */
+	if (!next_line(fp, &line, &size)) {
+		rc = 1;
+		goto out;
+	}
 
-	return 1;
+	while(parse_prop(dev, line, &file_version))
+		if (!next_line(fp, &line, &size))
+			break;
+
+	while(parse_mask(dev, line, &file_version))
+		if (!next_line(fp, &line, &size))
+			break;
+
+	while(parse_abs(dev, line, &file_version))
+		if (!next_line(fp, &line, &size))
+			break;
+
+	rc = 1;
+
+out:
+	free(line);
+	return rc;
 }
 
 int evemu_write_event(FILE *fp, const struct input_event *ev)
@@ -478,14 +510,26 @@ int evemu_read_event(FILE *fp, struct input_event *ev)
 	unsigned long sec;
 	unsigned usec, type, code;
 	int value;
-	int ret = fscanf(fp, "E: %lu.%06u %04x %04x %d\n",
+	int matched = 0;
+	char *line = NULL;
+	size_t size = 0;
+
+	if (!next_line(fp, &line, &size))
+		goto out;
+
+	matched = sscanf(line, "E: %lu.%06u %04x %04x %d\n",
 			 &sec, &usec, &type, &code, &value);
-	ev->time.tv_sec = sec;
-	ev->time.tv_usec = usec;
-	ev->type = type;
-	ev->code = code;
-	ev->value = value;
-	return ret;
+	if (matched > 0) {
+		ev->time.tv_sec = sec;
+		ev->time.tv_usec = usec;
+		ev->type = type;
+		ev->code = code;
+		ev->value = value;
+	}
+
+out:
+	free(line);
+	return matched > 0;
 }
 
 int evemu_create_event(struct input_event *ev, int type, int code, int value)
@@ -534,8 +578,6 @@ int evemu_play(FILE *fp, int fd)
 	struct input_event ev;
 	struct timeval evtime;
 	int ret;
-
-	skip_comment_block(fp);
 
 	memset(&evtime, 0, sizeof(evtime));
 	while (evemu_read_event_realtime(fp, &ev, &evtime) > 0)

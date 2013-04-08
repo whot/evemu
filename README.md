@@ -55,3 +55,4 @@ Copyright
 
  * Copyright (C) 2010 Henrik Rydberg <rydberg@euromail.se>
  * Copyright (C) 2010 Canonical Ltd.
+ * Copyright (C) 2013 Red Hat, Inc.
