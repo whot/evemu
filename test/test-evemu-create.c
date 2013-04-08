@@ -160,9 +160,15 @@ void check_evemu_read(int fd, const char *file, enum flags flags)
 	fclose(fp);
 }
 
+static void check_valid_formats(int fd, const char *file)
+{
+	int flags = 0;
+	while (flags < ALLFLAGS)
+		check_evemu_read(fd, file, flags++);
+}
+
 int main(int argc UNUSED, char **argv UNUSED) {
 	int fd = 0;
-	int flags = 0;
 
 	char tmpname[] = "evemu.tmp.XXXXXXX";
 
@@ -171,8 +177,7 @@ int main(int argc UNUSED, char **argv UNUSED) {
 		return 1;
 	}
 
-	while (flags < ALLFLAGS)
-		check_evemu_read(fd, tmpname, flags++);
+	check_valid_formats(fd, tmpname);
 
 	close(fd);
 	unlink(tmpname);
