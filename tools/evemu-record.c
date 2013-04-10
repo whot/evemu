@@ -39,6 +39,7 @@
  *
  ****************************************************************************/
 
+#define _GNU_SOURCE
 #include "evemu.h"
 #include <stdio.h>
 #include <fcntl.h>
@@ -50,6 +51,24 @@
 
 FILE *output;
 
+static int describe_device(int fd)
+{
+	struct evemu_device *dev;
+	int ret = -ENOMEM;
+
+	dev = evemu_new(0);
+	if (!dev)
+		goto out;
+	ret = evemu_extract(dev, fd);
+	if (ret)
+		goto out;
+
+	evemu_write(dev, stdout);
+out:
+	evemu_delete(dev);
+	return ret;
+}
+
 static void handler (int sig __attribute__((unused)))
 {
 	fflush(output);
@@ -59,10 +78,22 @@ static void handler (int sig __attribute__((unused)))
 	}
 }
 
+enum mode {
+	EVEMU_RECORD,
+	EVEMU_DESCRIBE
+};
+
 int main(int argc, char *argv[])
 {
+	enum mode mode = EVEMU_RECORD;
 	int fd;
 	struct sigaction act;
+	char *prgm_name = program_invocation_short_name;
+
+	if (prgm_name && (strcmp(prgm_name, "evemu-describe") == 0 ||
+			/* when run directly from the sources (not installed) */
+			strcmp(prgm_name, "lt-evemu-describe") == 0))
+		mode = EVEMU_DESCRIBE;
 
 	if (argc < 2) {
 		fprintf(stderr, "Usage: %s <device> [output file]\n", argv[0]);
@@ -101,9 +132,20 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if (evemu_record(output, fd, INFINITE)) {
+	if (describe_device(fd)) {
 		fprintf(stderr, "error: could not describe device\n");
+		goto out;
 	}
+
+	if (mode == EVEMU_RECORD) {
+		fprintf(output,  "################################\n");
+		fprintf(output,  "#      Waiting for events      #\n");
+		fprintf(output,  "################################\n");
+		if (evemu_record(output, fd, INFINITE))
+			fprintf(stderr, "error: could not describe device\n");
+	}
+
+out:
 	close(fd);
 	if (output != stdout) {
 		fclose(output);
