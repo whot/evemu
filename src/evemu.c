@@ -732,16 +732,48 @@ int evemu_play_one(int fd, const struct input_event *ev)
 	return (ret < sizeof(*ev));
 }
 
+static void evemu_warn_about_incompatible_event(struct input_event *ev)
+{
+	const int max_warnings = 3;
+	static int warned = 0;
+
+	if (++warned <= max_warnings) {
+		if (warned == 1)
+			error(WARNING, "You are trying to play events incompatbile with this device. "
+					"Is this the right device/recordings file?\n");
+		error(WARNING, "%s %s is not supported by this device.\n",
+				event_get_type_name(ev->type),
+				event_get_code_name(ev->type, ev->code));
+	} else if (warned == max_warnings + 1) {
+		error(INFO, "warned about incompatible events %d times. Will be quiet now.\n",
+				warned - 1);
+	}
+}
+
 int evemu_play(FILE *fp, int fd)
 {
 	struct input_event ev;
 	struct timeval evtime;
 	int ret;
+	struct evemu_device *dev;
+
+	dev = evemu_new(NULL);
+	if (dev) {
+		if (evemu_extract(dev, fd) != 0) {
+			evemu_delete(dev);
+			dev = NULL;
+		}
+	}
 
 	memset(&evtime, 0, sizeof(evtime));
-	while (evemu_read_event_realtime(fp, &ev, &evtime) > 0)
+	while (evemu_read_event_realtime(fp, &ev, &evtime) > 0) {
+		if (dev && !evemu_has_event(dev, ev.type, ev.code))
+			evemu_warn_about_incompatible_event(&ev);
 		SYSCALL(ret = write(fd, &ev, sizeof(ev)));
+	}
 
+	if (dev)
+		evemu_delete(dev);
 	return 0;
 }
 
