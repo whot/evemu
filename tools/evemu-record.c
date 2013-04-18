@@ -56,7 +56,7 @@ static int describe_device(int fd)
 	struct evemu_device *dev;
 	int ret = -ENOMEM;
 
-	dev = evemu_new(0);
+	dev = evemu_new(NULL);
 	if (!dev)
 		goto out;
 	ret = evemu_extract(dev, fd);
