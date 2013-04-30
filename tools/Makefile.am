@@ -12,7 +12,8 @@ INCLUDES=-I$(top_srcdir)/include/
 
 AM_LDFLAGS = $(top_builddir)/src/libevemu.la
 
-evemu_describe_SOURCES = evemu-record.c
+evemu_describe_SOURCES = evemu-record.c find_event_devices.c find_event_devices.h
+evemu_record_SOURCES = evemu-record.c find_event_devices.c find_event_devices.h
 
 # man page generation
 if HAVE_DOCTOOLS

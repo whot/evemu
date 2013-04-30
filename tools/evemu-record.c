@@ -42,10 +42,13 @@
 #define _GNU_SOURCE
 #include "evemu.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
 #include <signal.h>
+
+#include "find_event_devices.h"
 
 #define INFINITE -1
 
@@ -89,17 +92,20 @@ int main(int argc, char *argv[])
 	int fd;
 	struct sigaction act;
 	char *prgm_name = program_invocation_short_name;
+	char *device;
 
 	if (prgm_name && (strcmp(prgm_name, "evemu-describe") == 0 ||
 			/* when run directly from the sources (not installed) */
 			strcmp(prgm_name, "lt-evemu-describe") == 0))
 		mode = EVEMU_DESCRIBE;
 
-	if (argc < 2) {
+	device = (argc < 2) ? find_event_devices() : strdup(argv[1]);
+
+	if (device == NULL) {
 		fprintf(stderr, "Usage: %s <device> [output file]\n", argv[0]);
 		return -1;
 	}
-	fd = open(argv[1], O_RDONLY | O_NONBLOCK);
+	fd = open(device, O_RDONLY | O_NONBLOCK);
 	if (fd < 0) {
 		fprintf(stderr, "error: could not open device\n");
 		return -1;
@@ -146,6 +152,7 @@ int main(int argc, char *argv[])
 	}
 
 out:
+	free(device);
 	close(fd);
 	if (output != stdout) {
 		fclose(output);
