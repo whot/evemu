@@ -767,7 +767,9 @@ int evemu_play(FILE *fp, int fd)
 
 	memset(&evtime, 0, sizeof(evtime));
 	while (evemu_read_event_realtime(fp, &ev, &evtime) > 0) {
-		if (dev && !evemu_has_event(dev, ev.type, ev.code))
+		if (dev &&
+		    (ev.type != EV_SYN || ev.code != SYN_MT_REPORT) &&
+		    !evemu_has_event(dev, ev.type, ev.code))
 			evemu_warn_about_incompatible_event(&ev);
 		SYSCALL(ret = write(fd, &ev, sizeof(ev)));
 	}
