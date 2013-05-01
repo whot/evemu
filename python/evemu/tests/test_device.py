@@ -23,6 +23,22 @@ def record(recording_started, device_node, q):
         outdata = event_file.readlines()
         q.put(outdata)
 
+def strip_comments(data):
+    """
+    Strip comments, superfluous whitespaces and empty lines from the data.
+    """
+    stripped_data = []
+    for line in data:
+        line = line.partition("#")[0].strip()
+        if len(line) > 0:
+            stripped_data.append(line)
+    return stripped_data
+
+def extract_events(data):
+    """
+    Extract the actual event part from an event recording.
+    """
+    return [line for line in data if line.startswith("E:")]
 
 class DeviceActionTestCase(testcase.BaseTestCase):
     """
@@ -63,7 +79,7 @@ class DeviceActionTestCase(testcase.BaseTestCase):
         """
         # Get original description
         with open(self.get_device_file()) as f:
-            data = f.readlines()
+	     data = strip_comments(f.readlines())
 
         # Create a pseudo device with that description
         d = evemu.Device(self.get_device_file())
@@ -75,7 +91,7 @@ class DeviceActionTestCase(testcase.BaseTestCase):
             # read in the temporary file and compare to the original
             t.flush()
             t.seek(0)
-            newdata = t.readlines()
+            newdata = strip_comments(t.readlines())
             self.assertEquals(data, newdata)
 
     def test_play_and_record(self):
@@ -85,8 +101,10 @@ class DeviceActionTestCase(testcase.BaseTestCase):
         device = evemu.Device(self.get_device_file())
         devnode = device.devnode
         events_file = self.get_events_file()
+        # device.record() calls evemu_record() and is thus missing the
+        # description that the input file has
         with open(events_file) as e:
-            indata = e.readlines()
+            indata = extract_events(strip_comments(e.readlines()))
 
         recording_started = Event()
         q = Queue()
@@ -96,7 +114,7 @@ class DeviceActionTestCase(testcase.BaseTestCase):
         recording_started.wait(100)
         device.play(open(events_file))
 
-        outdata = q.get()
+        outdata = strip_comments(q.get())
         record_process.join()
 
         self.assertEquals(len(indata), len(outdata))
