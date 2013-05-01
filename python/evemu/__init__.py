@@ -53,14 +53,7 @@ class Device(object):
         else:
             raise TypeError("expected file or file name")
 
-        self._is_propfile = True
-        if stat.S_ISCHR(os.fstat(self._file.fileno()).st_mode):
-            self._is_propfile = False
-        elif self._file.read(3) == 'N: ':
-            self._file.seek(0)
-        else:
-            raise TypeError("file must be a device special or prop file")
-
+        self._is_propfile = self._check_is_propfile(self._file)
         self._evemu = evemu.base.EvEmuBase(find_library(evemu.const.LIB))
         self._uinput = None
 
@@ -107,6 +100,24 @@ class Device(object):
                        if ctime > newest_node[1]:
                            newest_node = (devname, ctime)
         return newest_node[0]
+
+    def _check_is_propfile(self, f):
+        if stat.S_ISCHR(os.fstat(f.fileno()).st_mode):
+            return False
+
+        result = False
+        for line in f.readlines():
+            if line.startswith("N:"):
+                result = True
+                break
+            elif line.startswith("# EVEMU"):
+                result = True
+                break
+            elif line[0] != "#":
+                raise TypeError("file must be a device special or prop file")
+
+        f.seek(0)
+        return result
 
     def describe(self, prop_file):
         """
