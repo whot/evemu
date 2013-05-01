@@ -509,7 +509,7 @@ static int parse_mask(struct evemu_device *dev, const char *line, struct version
 static int parse_abs(struct evemu_device *dev, const char *line, struct version *fversion)
 {
 	int matched;
-	struct input_absinfo abs;
+	struct input_absinfo abs = {0};
 	unsigned int index;
 
 	if (strlen(line) <= 2 || strncmp(line, "A:", 2) != 0)
