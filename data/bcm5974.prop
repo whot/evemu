@@ -1,5 +1,100 @@
+# EVEMU 1.1
+# Input device name: "bcm5974 Virtual Device"
+# Input device ID: bus 0x03 vendor 0x5ac product 0x223 version 0000
+# Supported events:
+#   Event type 0 (EV_SYN)
+#     Event code 0 (SYN_REPORT)
+#     Event code 1 (SYN_CONFIG)
+#     Event code 3 (SYN_DROPPED)
+#   Event type 1 (EV_KEY)
+#     Event code 272 (BTN_LEFT)
+#     Event code 325 (BTN_TOOL_FINGER)
+#     Event code 330 (BTN_TOUCH)
+#     Event code 333 (BTN_TOOL_DOUBLETAP)
+#     Event code 334 (BTN_TOOL_TRIPLETAP)
+#     Event code 335 (BTN_TOOL_QUADTAP)
+#   Event type 3 (EV_ABS)
+#     Event code 0 (ABS_X)
+#       Value      0
+#       Min        0
+#       Max     1280
+#       Fuzz       5
+#       Flat       0
+#       Resolution 0
+#     Event code 1 (ABS_Y)
+#       Value      0
+#       Min        0
+#       Max      800
+#       Fuzz       3
+#       Flat       0
+#       Resolution 0
+#     Event code 24 (ABS_PRESSURE)
+#       Value      0
+#       Min        0
+#       Max      256
+#       Fuzz       5
+#       Flat       0
+#       Resolution 0
+#     Event code 28 (ABS_TOOL_WIDTH)
+#       Value      0
+#       Min        0
+#       Max       16
+#       Fuzz       0
+#       Flat       0
+#       Resolution 0
+#     Event code 48 (ABS_MT_TOUCH_MAJOR)
+#       Value      0
+#       Min        0
+#       Max     2048
+#       Fuzz       0
+#       Flat       0
+#       Resolution 0
+#     Event code 49 (ABS_MT_TOUCH_MINOR)
+#       Value      0
+#       Min        0
+#       Max     2048
+#       Fuzz       0
+#       Flat       0
+#       Resolution 0
+#     Event code 50 (ABS_MT_WIDTH_MAJOR)
+#       Value      0
+#       Min        0
+#       Max     2048
+#       Fuzz       0
+#       Flat       0
+#       Resolution 0
+#     Event code 51 (ABS_MT_WIDTH_MINOR)
+#       Value      0
+#       Min        0
+#       Max     2048
+#       Fuzz       0
+#       Flat       0
+#       Resolution 0
+#     Event code 52 (ABS_MT_ORIENTATION)
+#       Value      0
+#       Min   -16384
+#       Max    16384
+#       Fuzz       0
+#       Flat       0
+#       Resolution 0
+#     Event code 53 (ABS_MT_POSITION_X)
+#       Value      0
+#       Min    -4824
+#       Max     5342
+#       Fuzz       0
+#       Flat       0
+#       Resolution 0
+#     Event code 54 (ABS_MT_POSITION_Y)
+#       Value      0
+#       Min     -172
+#       Max     5820
+#       Fuzz       0
+#       Flat       0
+#       Resolution 0
+# Properties:
 N: bcm5974 Virtual Device
 I: 0003 05ac 0223 0000
+P: 00 00 00 00 00 00 00 00
 B: 00 0b 00 00 00 00 00 00 00
 B: 01 00 00 00 00 00 00 00 00
 B: 01 00 00 00 00 00 00 00 00

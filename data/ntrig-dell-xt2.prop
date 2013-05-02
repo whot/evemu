@@ -1,3 +1,64 @@
+# EVEMU 1.1
+# Input device name: "N-Trig-MultiTouch-Virtual-Device"
+# Input device ID: bus 0x03 vendor 0x1b96 product 0x01 version 0x110
+# Supported events:
+#   Event type 0 (EV_SYN)
+#     Event code 0 (SYN_REPORT)
+#     Event code 1 (SYN_CONFIG)
+#     Event code 3 (SYN_DROPPED)
+#   Event type 1 (EV_KEY)
+#     Event code 330 (BTN_TOUCH)
+#   Event type 3 (EV_ABS)
+#     Event code 0 (ABS_X)
+#       Value      0
+#       Min        0
+#       Max     9600
+#       Fuzz      75
+#       Flat       0
+#       Resolution 0
+#     Event code 1 (ABS_Y)
+#       Value      0
+#       Min        0
+#       Max     7200
+#       Fuzz      78
+#       Flat       0
+#       Resolution 0
+#     Event code 48 (ABS_MT_TOUCH_MAJOR)
+#       Value      0
+#       Min        0
+#       Max     9600
+#       Fuzz     200
+#       Flat       0
+#       Resolution 0
+#     Event code 49 (ABS_MT_TOUCH_MINOR)
+#       Value      0
+#       Min        0
+#       Max     7200
+#       Fuzz     150
+#       Flat       0
+#       Resolution 0
+#     Event code 52 (ABS_MT_ORIENTATION)
+#       Value      0
+#       Min        0
+#       Max        1
+#       Fuzz       0
+#       Flat       0
+#       Resolution 0
+#     Event code 53 (ABS_MT_POSITION_X)
+#       Value      0
+#       Min        0
+#       Max     9600
+#       Fuzz      75
+#       Flat       0
+#       Resolution 0
+#     Event code 54 (ABS_MT_POSITION_Y)
+#       Value      0
+#       Min        0
+#       Max     7200
+#       Fuzz      78
+#       Flat       0
+#       Resolution 0
+# Properties:
 N: N-Trig-MultiTouch-Virtual-Device
 I: 0003 1b96 0001 0110
 P: 00 00 00 00 00 00 00 00

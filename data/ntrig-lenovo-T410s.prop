@@ -1,3 +1,10 @@
+# EVEMU 1.1
+# Input device name: "N-Trig-MultiTouch Virtual Device"
+# Input device ID: bus 0x03 vendor 0x1b96 product 0x01 version 0x110
+# Supported events:
+#   Event type 0 (EV_SYN)
+#     Event code 0 (SYN_REPORT)
+# Properties:
 N: N-Trig-MultiTouch Virtual Device
 I: 0003 1b96 0001 0110
 P: 00 00 00 00 00 00 00 00

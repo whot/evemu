@@ -1,4 +1,40 @@
-N: Elo-TouchSystems,-Inc.-Elo-TouchSystems-2700-IntelliTouch(r)-USB-Touchmonitor-In
+# EVEMU 1.1
+# Input device name: "Elo-TouchSystems,-Inc.-Elo-TouchSystems-2700-IntelliTouch(r)-USB-Touchmonitor-I"
+# Input device ID: bus 0x03 vendor 0x4e7 product 0x20 version 0x100
+# Supported events:
+#   Event type 0 (EV_SYN)
+#     Event code 0 (SYN_REPORT)
+#     Event code 1 (SYN_CONFIG)
+#     Event code 3 (SYN_DROPPED)
+#     Event code 4 (INPUT_PROP_POINTER)
+#   Event type 1 (EV_KEY)
+#     Event code 272 (BTN_LEFT)
+#   Event type 3 (EV_ABS)
+#     Event code 0 (ABS_X)
+#       Value      0
+#       Min        0
+#       Max     4095
+#       Fuzz       0
+#       Flat       0
+#       Resolution 0
+#     Event code 1 (ABS_Y)
+#       Value      0
+#       Min        0
+#       Max     4095
+#       Fuzz       0
+#       Flat       0
+#       Resolution 0
+#     Event code 40 (ABS_MISC)
+#       Value      0
+#       Min        0
+#       Max      256
+#       Fuzz       0
+#       Flat       0
+#       Resolution 0
+#   Event type 4 (EV_MSC)
+#     Event code 4 (MSC_SCAN)
+# Properties:
+N: Elo-TouchSystems,-Inc.-Elo-TouchSystems-2700-IntelliTouch(r)-USB-Touchmonitor-I
 I: 0003 04e7 0020 0100
 P: 00 00 00 00 00 00 00 00
 B: 00 1b 00 00 00 00 00 00 00

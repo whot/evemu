@@ -1,5 +1,81 @@
+# EVEMU 1.1
+# Input device name: "3M-3M-MicroTouch-USB-controller Virtual Device"
+# Input device ID: bus 0x03 vendor 0x596 product 0x502 version 0x110
+# Supported events:
+#   Event type 0 (EV_SYN)
+#     Event code 0 (SYN_REPORT)
+#     Event code 1 (SYN_CONFIG)
+#     Event code 3 (SYN_DROPPED)
+#   Event type 1 (EV_KEY)
+#     Event code 330 (BTN_TOUCH)
+#   Event type 3 (EV_ABS)
+#     Event code 0 (ABS_X)
+#       Value      0
+#       Min        0
+#       Max    32767
+#       Fuzz      15
+#       Flat       0
+#       Resolution 0
+#     Event code 1 (ABS_Y)
+#       Value      0
+#       Min        0
+#       Max    32767
+#       Fuzz      15
+#       Flat       0
+#       Resolution 0
+#     Event code 47 (ABS_MT_SLOT)
+#       Value      0
+#       Min        0
+#       Max       59
+#       Fuzz       0
+#       Flat       0
+#       Resolution 0
+#     Event code 48 (ABS_MT_TOUCH_MAJOR)
+#       Value      0
+#       Min        0
+#       Max    32767
+#       Fuzz     255
+#       Flat       0
+#       Resolution 0
+#     Event code 49 (ABS_MT_TOUCH_MINOR)
+#       Value      0
+#       Min        0
+#       Max    32767
+#       Fuzz     255
+#       Flat       0
+#       Resolution 0
+#     Event code 52 (ABS_MT_ORIENTATION)
+#       Value      0
+#       Min        0
+#       Max        1
+#       Fuzz       0
+#       Flat       0
+#       Resolution 0
+#     Event code 53 (ABS_MT_POSITION_X)
+#       Value      0
+#       Min        0
+#       Max    32767
+#       Fuzz      15
+#       Flat       0
+#       Resolution 0
+#     Event code 54 (ABS_MT_POSITION_Y)
+#       Value      0
+#       Min        0
+#       Max    32767
+#       Fuzz      15
+#       Flat       0
+#       Resolution 0
+#     Event code 57 (ABS_MT_TRACKING_ID)
+#       Value      0
+#       Min        0
+#       Max    65535
+#       Fuzz       0
+#       Flat       0
+#       Resolution 0
+# Properties:
 N: 3M-3M-MicroTouch-USB-controller Virtual Device
 I: 0003 0596 0502 0110
+P: 00 00 00 00 00 00 00 00
 B: 00 0b 00 00 00 00 00 00 00
 B: 01 00 00 00 00 00 00 00 00
 B: 01 00 00 00 00 00 00 00 00
