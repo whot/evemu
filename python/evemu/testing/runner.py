@@ -56,8 +56,11 @@ def get_runner():
 def run_tests():
     loader = unittest.TestLoader()
     suite = get_suite(loader, get_test_directory())
-    get_runner().run(suite)
+    return get_runner().run(suite)
 
 
 if __name__ == "__main__":
-    run_tests()
+    import sys
+    result = run_tests()
+    if not result.wasSuccessful():
+        sys.exit(1)
