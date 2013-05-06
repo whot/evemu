@@ -70,6 +70,7 @@ core
 *.pdb
 *.tar.bz2
 *.tar.gz
+*.tar.xz
 #
 #		Add & Override patterns for mtdev
 #
