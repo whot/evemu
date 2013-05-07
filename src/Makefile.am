@@ -22,8 +22,11 @@ libevemuinclude_HEADERS = \
 	$(top_srcdir)/include/evemu.h
 
 event-names.h: Makefile make-event-names.py
-	$(srcdir)/make-event-names.py > $@
+	$(srcdir)/make-event-names.py --output=c > $@
 
-EXTRA_DIST = $(version_script) make-event-names.py
-CLEANFILES = event-names.h
-BUILT_SOURCES = event-names.h
+event_names.py: Makefile make-event-names.py
+	$(srcdir)/make-event-names.py --output=python > $@
+
+EXTRA_DIST = $(version_script) make-event-names.py convert-old-dumps-to-1.1.py
+CLEANFILES = event-names.h event_names.py event_names.pyc
+BUILT_SOURCES = event-names.h event_names.py
