@@ -64,12 +64,6 @@
 #ifndef UI_SET_PROPBIT
 #define UI_SET_PROPBIT		_IOW(UINPUT_IOCTL_BASE, 110, int)
 #define EVIOCGPROP(len)		_IOC(_IOC_READ, 'E', 0x09, len)
-#define INPUT_PROP_POINTER		0x00
-#define INPUT_PROP_DIRECT		0x01
-#define INPUT_PROP_BUTTONPAD		0x02
-#define INPUT_PROP_SEMI_MT		0x03
-#define INPUT_PROP_MAX			0x1f
-#define INPUT_PROP_CNT			(INPUT_PROP_MAX + 1)
 #endif
 
 #define SYSCALL(call) while (((call) == -1) && (errno == EINTR))
