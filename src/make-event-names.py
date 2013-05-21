@@ -33,6 +33,8 @@ blacklist = [
 ]
 
 def print_bits(bits, prefix):
+	if  not hasattr(bits, prefix):
+		return
 	print "static const char * const %s_map[%s_MAX + 1] = {" % (prefix, prefix.upper())
 	print "	[0 ... %s_MAX] = NULL," % prefix.upper()
 	for val, name in getattr(bits, prefix).items():
@@ -41,6 +43,9 @@ def print_bits(bits, prefix):
 	print ""
 
 def print_python_bits(bits, prefix):
+	if  not hasattr(bits, prefix):
+		return
+
 	print "%s_map = {" % (prefix)
 	for val, name in getattr(bits, prefix).items():
 		print "	%d : \"%s\"," % (val, name)
