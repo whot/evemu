@@ -7,6 +7,7 @@
 #
 
 import re
+import os
 import sys
 import evemu
 from event_names import *
@@ -33,8 +34,14 @@ def convert_events(lines):
 		else:
 			print line,
 
+def usage(args):
+	print "%s mydev.desc [mydev.events]" % os.path.basename(args[0])
+	return 1
+
 
 if __name__ == "__main__":
+	if len(sys.argv) < 2:
+		exit(usage(sys.argv))
 	file_desc = sys.argv[1]
 	d = evemu.Device(file_desc)
 	d.describe(sys.stdout)
