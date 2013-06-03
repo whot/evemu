@@ -1,7 +1,7 @@
 noinst_PROGRAMS = test-c-compile test-cxx-compile
 TESTS = $(noinst_PROGRAMS)
 
-INCLUDES = -I$(top_srcdir)/include/
+AM_CPPFLAGS = -I$(top_srcdir)/include/
 
 test_c_compile_SOURCES = test-c-compile.c
 test_c_compile_LDADD = $(top_builddir)/src/libevemu.la

@@ -3,7 +3,7 @@ SUBDIRS = src tools python test
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = evemu.pc
 
-INCLUDES = $(top_srcdir)/include/
+AM_CPPFLAGS = -I $(top_srcdir)/include/
 
 .PHONY: INSTALL
 INSTALL:

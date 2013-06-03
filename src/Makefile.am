@@ -15,7 +15,7 @@ libevemu_la_SOURCES = \
 	evemu.c \
 	version.h
 
-INCLUDES = -I$(top_srcdir)/include/
+AM_CPPFLAGS = -I$(top_srcdir)/include/
 
 libevemuincludedir = $(includedir)
 libevemuinclude_HEADERS = \
