@@ -52,6 +52,7 @@
 #include <poll.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <sys/inotify.h>
 
 #include "version.h"
 #include "event-names.h"
@@ -60,6 +61,8 @@
    NOTE: if you bump the version number, make sure you update README */
 #define EVEMU_FILE_MAJOR 1
 #define EVEMU_FILE_MINOR 2
+
+#define DEV_INPUT_DIR "/dev/input/"
 
 #ifndef UI_SET_PROPBIT
 #define UI_SET_PROPBIT		_IOW(UINPUT_IOCTL_BASE, 110, int)
@@ -863,10 +866,67 @@ static int set_mask(const struct evemu_device *dev, int type, int fd)
 	return 0;
 }
 
+static int
+inotify_setup()
+{
+	int ifd = inotify_init1(IN_NONBLOCK);
+	if (ifd == -1 || inotify_add_watch(ifd, DEV_INPUT_DIR, IN_CREATE) == -1) {
+		if (ifd != -1)
+			close(ifd);
+		ifd = -1;
+	}
+
+	return ifd;
+}
+
+
+static char*
+wait_for_inotify(int fd)
+{
+	char *devnode = NULL;
+	int found = 0;
+	char buf[1024];
+	size_t bufidx = 0;
+	struct pollfd pfd;
+
+	pfd.fd = fd;
+	pfd.events = POLLIN;
+
+	while (!found && poll(&pfd, 1, 2000) > 0) {
+		struct inotify_event *e;
+		ssize_t r;
+
+		r = read(fd, buf + bufidx, sizeof(buf) - bufidx);
+		if (r == -1 && errno != EAGAIN)
+			return NULL;
+
+		bufidx += r;
+
+		e = (struct inotify_event*)buf;
+
+		while (bufidx > sizeof(*e) && bufidx >= sizeof(*e) + e->len) {
+			if (strncmp(e->name, "event", 5) == 0) {
+				asprintf(&devnode, "%s%s", DEV_INPUT_DIR, e->name);
+				found = 1;
+				break;
+			}
+
+			/* this packet didn't contain what we're looking for */
+			int len = sizeof(*e) + e->len;
+			memmove(buf, buf + len, bufidx - len);
+			bufidx -= len;
+		}
+	}
+
+	return devnode;
+}
+
 int evemu_create(const struct evemu_device *dev, int fd)
 {
 	struct uinput_user_dev udev;
 	int ret, i;
+	int ifd = -1, dev_fd = -1;
+	char *devnode = NULL;
 
 	memset(&udev, 0, sizeof(udev));
 	memcpy(udev.name, dev->name, sizeof(udev.name));
@@ -894,7 +954,45 @@ int evemu_create(const struct evemu_device *dev, int fd)
 	if (ret < 0)
 		return ret;
 
+	ifd = inotify_setup();
+
 	SYSCALL(ret = ioctl(fd, UI_DEV_CREATE, NULL));
+
+	devnode = wait_for_inotify(ifd);
+
+	/* write abs resolution now */
+	if (devnode != NULL && evemu_has_bit(dev, EV_ABS)) {
+		unsigned int code;
+
+		dev_fd = open(devnode, O_RDWR);
+		free(devnode);
+
+
+		for (code = 0; dev_fd >= 0 && code < ABS_MAX; code++ ) {
+			struct input_absinfo abs;
+
+			/* can't change slots */
+			if (code == ABS_MT_SLOT)
+				continue;
+
+			if (!evemu_has_event(dev, EV_ABS, i))
+				continue;
+
+			abs = dev->abs[code];
+			ret = ioctl(dev_fd, EVIOCSABS(code), &abs);
+			if (ret < 0) {
+				evemu_destroy(fd);
+				break;
+			}
+		}
+	}
+
+	if (ifd != -1)
+		close(ifd);
+	if (dev_fd != -1)
+		close(dev_fd);
+	free(devnode);
+
 	return ret;
 }
 
