@@ -921,7 +921,7 @@ wait_for_inotify(int fd)
 	return devnode;
 }
 
-int evemu_create(const struct evemu_device *dev, int fd)
+int evemu_create(struct evemu_device *dev, int fd)
 {
 	struct uinput_user_dev udev;
 	int ret, i;

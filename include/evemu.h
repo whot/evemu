@@ -418,7 +418,7 @@ int evemu_play(FILE *fp, int fd);
  *
  * Returns zero if successful, negative error otherwise.
  */
-int evemu_create(const struct evemu_device *dev, int fd);
+int evemu_create(struct evemu_device *dev, int fd);
 
 /**
  * evemu_destroy() - destroy all created kernel devices
