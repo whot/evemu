@@ -19,18 +19,17 @@
 
 #include <evemu.h>
 #include <linux/uinput.h>
-
-#define EVPLAY_NBITS	KEY_CNT
-#define EVPLAY_NBYTES	((EVPLAY_NBITS + 7) / 8)
+#include <libevdev/libevdev.h>
+#include <libevdev/libevdev-uinput.h>
 
 struct evemu_device {
 	unsigned int version;
-	char name[UINPUT_MAX_NAME_SIZE];
-	struct input_id id;
-	unsigned char prop[EVPLAY_NBYTES];
-	unsigned char mask[EV_CNT][EVPLAY_NBYTES];
+	struct libevdev *evdev;
+	struct libevdev_uinput *uidev;
+	/* we read in properties and bits 8 at a time, but the file format
+	 * has no hint which byte we're up to. So we count what we've read
+	 * already to know where the next one tacks onto */
 	int pbytes, mbytes[EV_CNT];
-	struct input_absinfo abs[ABS_CNT];
 };
 
 #endif

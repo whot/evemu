@@ -52,10 +52,8 @@
 #include <poll.h>
 #include <ctype.h>
 #include <unistd.h>
-#include <sys/inotify.h>
 
 #include "version.h"
-#include "event-names.h"
 
 /* File format version we write out
    NOTE: if you bump the version number, make sure you update README */
@@ -123,20 +121,17 @@ static int next_line(FILE *fp, char **line, size_t *sz)
 	return 0;
 }
 
-static void copy_bits(unsigned char *mask, const unsigned long *bits, int bytes)
-{
-	int i;
-	for (i = 0; i < bytes; i++) {
-		int pos = 8 * (i % sizeof(long));
-		mask[i] = (bits[i / sizeof(long)] >> pos) & 0xff;
-	}
-}
 
 struct evemu_device *evemu_new(const char *name)
 {
 	struct evemu_device *dev = calloc(1, sizeof(struct evemu_device));
 
 	if (dev) {
+		dev->evdev = libevdev_new();
+		if (!dev->evdev) {
+			free(dev);
+			return NULL;
+		}
 		dev->version = EVEMU_VERSION;
 		evemu_set_name(dev, name);
 	}
@@ -146,6 +141,9 @@ struct evemu_device *evemu_new(const char *name)
 
 void evemu_delete(struct evemu_device *dev)
 {
+	if (dev->uidev)
+		evemu_destroy(dev, libevdev_uinput_get_fd(dev->uidev));
+	libevdev_free(dev->evdev);
 	free(dev);
 }
 
@@ -156,186 +154,134 @@ unsigned int evemu_get_version(const struct evemu_device *dev)
 
 const char *evemu_get_name(const struct evemu_device *dev)
 {
-	return dev->name;
+	return libevdev_get_name(dev->evdev);
 }
 
 void evemu_set_name(struct evemu_device *dev, const char *name)
 {
-	if (name && strlen(name) < sizeof(dev->name))
-		strcpy(dev->name, name);
+	if (name)
+		libevdev_set_name(dev->evdev, name);
 }
 
-unsigned int evemu_get_id_bustype(const struct evemu_device *dev)
-{
-	return dev->id.bustype;
+#define ID_GETTER(field) \
+unsigned int evemu_get_id_##field(const struct evemu_device *dev) { \
+	return libevdev_get_id_##field(dev->evdev); \
 }
 
-void evemu_set_id_bustype(struct evemu_device *dev,
-			  unsigned int bustype)
-{
-	dev->id.bustype = bustype;
+ID_GETTER(bustype)
+ID_GETTER(version)
+ID_GETTER(product)
+ID_GETTER(vendor)
+
+#define ID_SETTER(field) \
+void evemu_set_id_##field(struct evemu_device *dev, unsigned int value) { \
+	libevdev_set_id_##field(dev->evdev, value); \
 }
 
-unsigned int evemu_get_id_vendor(const struct evemu_device *dev)
-{
-	return dev->id.vendor;
+ID_SETTER(bustype)
+ID_SETTER(version)
+ID_SETTER(product)
+ID_SETTER(vendor)
+
+#define ABS_GETTER(field) \
+int evemu_get_abs_##field(const struct evemu_device *dev, int code) { \
+	return libevdev_get_abs_##field(dev->evdev, code); \
 }
 
-void evemu_set_id_vendor(struct evemu_device *dev,
-			 unsigned int vendor)
-{
-	dev->id.vendor = vendor;
+ABS_GETTER(minimum)
+ABS_GETTER(maximum)
+ABS_GETTER(fuzz)
+ABS_GETTER(flat)
+ABS_GETTER(resolution)
+
+#define ABS_SETTER(field) \
+void evemu_set_abs_##field(struct evemu_device *dev, int code, int value) { \
+	libevdev_set_abs_##field(dev->evdev, code, value); \
 }
 
-unsigned int evemu_get_id_product(const struct evemu_device *dev)
-{
-	return dev->id.product;
-}
-
-void evemu_set_id_product(struct evemu_device *dev,
-			  unsigned int product)
-{
-	dev->id.product = product;
-}
-
-unsigned int evemu_get_id_version(const struct evemu_device *dev)
-{
-	return dev->id.version;
-}
-
-void evemu_set_id_version(struct evemu_device *dev,
-			  unsigned int version)
-{
-	dev->id.version = version;
-}
-
-int evemu_get_abs_minimum(const struct evemu_device *dev, int code)
-{
-	return dev->abs[code].minimum;
-}
-
-void evemu_set_abs_minimum(struct evemu_device *dev, int code, int min)
-{
-	dev->abs[code].minimum = min;
-}
-
-int evemu_get_abs_maximum(const struct evemu_device *dev, int code)
-{
-	return dev->abs[code].maximum;
-}
+ABS_SETTER(minimum)
+ABS_SETTER(maximum)
+ABS_SETTER(fuzz)
+ABS_SETTER(flat)
+ABS_SETTER(resolution)
 
 int evemu_get_abs_current_value(const struct evemu_device *dev, int code)
 {
-	return dev->abs[code].value;
-}
-
-void evemu_set_abs_maximum(struct evemu_device *dev, int code, int max)
-{
-	dev->abs[code].maximum = max;
-}
-
-int evemu_get_abs_fuzz(const struct evemu_device *dev, int code)
-{
-	return dev->abs[code].fuzz;
-}
-
-void evemu_set_abs_fuzz(struct evemu_device *dev, int code, int fuzz)
-{
-	dev->abs[code].fuzz = fuzz;
-}
-
-int evemu_get_abs_flat(const struct evemu_device *dev, int code)
-{
-	return dev->abs[code].flat;
-}
-
-void evemu_set_abs_flat(struct evemu_device *dev, int code, int flat)
-{
-	dev->abs[code].flat = flat;
-}
-
-int evemu_get_abs_resolution(const struct evemu_device *dev, int code)
-{
-	return dev->abs[code].resolution;
-}
-
-void evemu_set_abs_resolution(struct evemu_device *dev, int code, int res)
-{
-	dev->abs[code].resolution = res;
+	return libevdev_get_event_value(dev->evdev, EV_ABS, code);
 }
 
 int evemu_has_prop(const struct evemu_device *dev, int code)
 {
-	return (dev->prop[code >> 3] >> (code & 7)) & 1;
+	return libevdev_has_property(dev->evdev, code);
 }
 
 int evemu_has_event(const struct evemu_device *dev, int type, int code)
 {
-	return (dev->mask[type][code >> 3] >> (code & 7)) & 1;
+	return libevdev_has_event_code(dev->evdev, type, code);
 }
 
 int evemu_has_bit(const struct evemu_device *dev, int type)
 {
-	return (dev->mask[0][type >> 3] >> (type & 7)) & 1;
+	return libevdev_has_event_type(dev->evdev, type);
 }
 
 int evemu_extract(struct evemu_device *dev, int fd)
 {
-	unsigned long bits[64];
-	int rc, i;
-
-	memset(dev, 0, sizeof(*dev));
-
-	SYSCALL(rc = ioctl(fd, EVIOCGNAME(sizeof(dev->name)-1), dev->name));
-	if (rc < 0)
-		return rc;
-
-	SYSCALL(rc = ioctl(fd, EVIOCGID, &dev->id));
-	if (rc < 0)
-		return rc;
-
-	SYSCALL(rc = ioctl(fd, EVIOCGPROP(sizeof(bits)), bits));
-	if (rc >= 0) {
-		copy_bits(dev->prop, bits, rc);
-		dev->pbytes = rc;
-	}
-
-	for (i = 0; i < EV_CNT; i++) {
-		SYSCALL(rc = ioctl(fd, EVIOCGBIT(i, sizeof(bits)), bits));
-		if (rc < 0)
-			continue;
-		copy_bits(dev->mask[i], bits, rc);
-		dev->mbytes[i] = rc;
-	}
-
-	for (i = 0; i < ABS_CNT; i++) {
-		if (!evemu_has_event(dev, EV_ABS, i))
-			continue;
-		SYSCALL(rc = ioctl(fd, EVIOCGABS(i), &dev->abs[i]));
-		if (rc < 0)
-			return rc;
-	}
-
-	return 0;
+	return libevdev_set_fd(dev->evdev, fd);
 }
 
-static void write_prop(FILE * fp, const unsigned char *mask, int bytes)
+static inline int bit_is_set(unsigned char *mask, int bit)
 {
-	int i;
-	for (i = 0; i < bytes; i += 8)
+	return !!(mask[bit/8] & (1 << (bit & 0x7)));
+}
+
+static inline void set_bit(unsigned char *mask, int bit)
+{
+	mask[bit/8] |= 1 << (bit & 0x7);
+}
+
+static void write_prop(FILE * fp, const struct evemu_device *dev)
+{
+	int i, highest = 0;
+	unsigned char mask[(INPUT_PROP_MAX + 7)/8] = {0};
+
+	for (i = 0; i < INPUT_PROP_MAX; i ++) {
+		if (evemu_has_prop(dev, i)) {
+			set_bit(mask, i);
+			highest = i;
+		}
+	}
+
+	for (i = 0; i < highest/8; i++) {
 		fprintf(fp, "P: %02x %02x %02x %02x %02x %02x %02x %02x\n",
 			mask[i], mask[i + 1], mask[i + 2], mask[i + 3],
 			mask[i + 4], mask[i + 5], mask[i + 6], mask[i + 7]);
+	}
 }
 
-static void write_mask(FILE * fp, int index,
-		       const unsigned char *mask, int bytes)
+static void write_mask(FILE * fp, const struct evemu_device *dev)
 {
-	int i;
-	for (i = 0; i < bytes; i += 8)
-		fprintf(fp, "B: %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
-			index, mask[i], mask[i + 1], mask[i + 2], mask[i + 3],
-			mask[i + 4], mask[i + 5], mask[i + 6], mask[i + 7]);
+	unsigned int type;
+
+	for (type = 1 /* don't write EV_SYN */; type < EV_CNT; type++) {
+		int i;
+		int max = libevdev_get_event_type_max(type);
+		unsigned char mask[KEY_CNT] = {0};
+		unsigned int code, highest = 0;
+
+		for (code = 0; max != - 1 && code < max; code++) {
+			if (evemu_has_event(dev, type, code)) {
+				set_bit(mask, code);
+				highest = code;
+			}
+		}
+
+		for (i = 0; i < highest/8; i++) {
+			fprintf(fp, "B: %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
+				type, mask[i], mask[i + 1], mask[i + 2], mask[i + 3],
+				mask[i + 4], mask[i + 5], mask[i + 6], mask[i + 7]);
+		}
+	}
 }
 
 static void write_abs(FILE *fp, int index, const struct input_absinfo *abs)
@@ -357,26 +303,29 @@ static void write_desc(const struct evemu_device *dev, FILE *fp)
 		if (!evemu_has_bit(dev, i))
 			continue;
 
-		fprintf(fp, "#   Event type %d (%s)\n", i, event_get_type_name(i));
-		for (j = 0; j < KEY_MAX; j++) {
+		fprintf(fp, "#   Event type %d (%s)\n", i, libevdev_get_event_type_name(i));
+		for (j = 0; j < libevdev_get_event_type_max(i); j++) {
 			if (!evemu_has_event(dev, i, j))
 				continue;
 
 			fprintf(fp, "#     Event code %d (%s)\n",
-				    j, event_get_code_name(i, j));
+				    j, libevdev_get_event_code_name(i, j));
 			if (i == EV_ABS) {
+				const struct input_absinfo *abs;
+				abs = libevdev_get_abs_info(dev->evdev, j);
+
 				fprintf(fp, "#       Value %6d\n"
 					    "#       Min   %6d\n"
 					    "#       Max   %6d\n"
 					    "#       Fuzz  %6d\n"
 					    "#       Flat  %6d\n"
 					    "#       Resolution %d\n",
-					    dev->abs[j].value,
-					    dev->abs[j].minimum,
-					    dev->abs[j].maximum,
-					    dev->abs[j].fuzz,
-					    dev->abs[j].flat,
-					    dev->abs[j].resolution);
+					    abs->value,
+					    abs->minimum,
+					    abs->maximum,
+					    abs->fuzz,
+					    abs->flat,
+					    abs->resolution);
 			}
 		}
 	}
@@ -386,7 +335,8 @@ static void write_desc(const struct evemu_device *dev, FILE *fp)
 	for (i = 0; i < INPUT_PROP_MAX; i++) {
 		if (!evemu_has_prop(dev, i))
 			continue;
-		fprintf(fp, "#   Property  type %d (%s)\n", i, input_prop_map[i]);
+		fprintf(fp, "#   Property  type %d (%s)\n", i,
+				libevdev_get_property_name(i));
 	}
 #endif
 }
@@ -407,14 +357,12 @@ int evemu_write(const struct evemu_device *dev, FILE *fp)
 		evemu_get_id_product(dev),
 		evemu_get_id_version(dev));
 
-	write_prop(fp, dev->prop, dev->pbytes);
-
-	for (i = 0; i < EV_CNT; i++)
-		write_mask(fp, i, dev->mask[i], dev->mbytes[i]);
+	write_prop(fp, dev);
+	write_mask(fp, dev);
 
 	for (i = 0; i < ABS_CNT; i++)
 		if (evemu_has_event(dev, EV_ABS, i))
-			write_abs(fp, i, &dev->abs[i]);
+			write_abs(fp, i, libevdev_get_abs_info(dev->evdev, i));
 
 	return 0;
 }
@@ -458,7 +406,7 @@ static int parse_bus_vid_pid_ver(struct evemu_device *dev, const char *line, str
 static int parse_prop(struct evemu_device *dev, const char *line, struct version *fversion)
 {
 	int matched;
-	unsigned int mask[8];
+	unsigned char mask[8];
 	int i;
 
 	if (strlen(line) <= 2 || strncmp(line, "P:", 2) != 0)
@@ -473,8 +421,12 @@ static int parse_prop(struct evemu_device *dev, const char *line, struct version
 		return -1;
 	}
 
-	for (i = 0; i < 8; i++)
-		dev->prop[dev->pbytes++] = mask[i];
+	for (i = 0; i < sizeof(mask) * 8; i++) {
+		if (bit_is_set(mask, i))
+			libevdev_enable_property(dev->evdev, dev->pbytes * 8 + i);
+	}
+
+	dev->pbytes += 8;
 
 	return 1;
 }
@@ -482,7 +434,7 @@ static int parse_prop(struct evemu_device *dev, const char *line, struct version
 static int parse_mask(struct evemu_device *dev, const char *line, struct version *fversion)
 {
 	int matched;
-	unsigned int mask[8];
+	unsigned char mask[8];
 	unsigned int index, i;
 
 	if (strlen(line) <= 2 || strncmp(line, "B:", 2) != 0)
@@ -497,8 +449,15 @@ static int parse_mask(struct evemu_device *dev, const char *line, struct version
 		return -1;
 	}
 
-	for (i = 0; i < 8; i++)
-		dev->mask[index][dev->mbytes[index]++] = mask[i];
+	for (i = 0; i < sizeof(mask) * 8; i++) {
+		const struct input_absinfo abs = {0, 0, 1}; /* dummy */
+		if (bit_is_set(mask, i)) {
+			unsigned int code = dev->mbytes[index] * 8 + i;
+			libevdev_enable_event_code(dev->evdev, index, code, (index == EV_ABS) ? &abs : NULL);
+		}
+	}
+
+	dev->mbytes[index] += 8;
 
 	return 1;
 }
@@ -562,8 +521,6 @@ int evemu_read(struct evemu_device *dev, FILE *fp)
 	size_t size = 0;
 	char *line = NULL;
 
-	memset(dev, 0, sizeof(*dev));
-
 	/* first line _may_ be version */
 	if (!first_line(fp, &line, &size)) {
 		error(WARNING, "This appears to be an empty file\n");
@@ -622,16 +579,16 @@ static void write_event_desc(FILE *fp, const struct input_event *ev)
 	if (ev->type == EV_SYN) {
 		if (ev->code == SYN_MT_REPORT)
 			fprintf(fp, "# ++++++++++++ %s (%d) ++++++++++\n",
-				event_get_code_name(ev->type, ev->code),
+				libevdev_get_event_code_name(ev->type, ev->code),
 				ev->value);
 		else
 			fprintf(fp, "# ------------ %s (%d) ----------\n",
-				event_get_code_name(ev->type, ev->code),
+				libevdev_get_event_code_name(ev->type, ev->code),
 				ev->value);
 	} else {
 		fprintf(fp, "# %s / %-20s %d\n",
-			event_get_type_name(ev->type),
-			event_get_code_name(ev->type, ev->code),
+			libevdev_get_event_type_name(ev->type),
+			libevdev_get_event_code_name(ev->type, ev->code),
 			ev->value);
 	}
 }
@@ -748,8 +705,8 @@ static void evemu_warn_about_incompatible_event(struct input_event *ev)
 			error(WARNING, "You are trying to play events incompatbile with this device. "
 					"Is this the right device/recordings file?\n");
 		error(WARNING, "%s %s is not supported by this device.\n",
-				event_get_type_name(ev->type),
-				event_get_code_name(ev->type, ev->code));
+				libevdev_get_event_type_name(ev->type),
+				libevdev_get_event_code_name(ev->type, ev->code));
 	} else if (warned == max_warnings + 1) {
 		error(INFO, "warned about incompatible events %d times. Will be quiet now.\n",
 				warned - 1);
@@ -785,223 +742,15 @@ int evemu_play(FILE *fp, int fd)
 	return 0;
 }
 
-static int set_prop_bit(int fd, int code)
-{
-	int ret;
-	SYSCALL(ret = ioctl(fd, UI_SET_PROPBIT, code));
-	return ret;
-}
-
-static int set_event_bit(int fd, int type, int code)
-{
-	int ret = 0;
-
-	switch(type) {
-	case EV_SYN:
-		SYSCALL(ret = ioctl(fd, UI_SET_EVBIT, code));
-		break;
-	case EV_KEY:
-		SYSCALL(ret = ioctl(fd, UI_SET_KEYBIT, code));
-		break;
-	case EV_REL:
-		SYSCALL(ret = ioctl(fd, UI_SET_RELBIT, code));
-		break;
-	case EV_ABS:
-		SYSCALL(ret = ioctl(fd, UI_SET_ABSBIT, code));
-		break;
-	case EV_MSC:
-		SYSCALL(ret = ioctl(fd, UI_SET_MSCBIT, code));
-		break;
-	case EV_LED:
-		SYSCALL(ret = ioctl(fd, UI_SET_LEDBIT, code));
-		break;
-	case EV_SND:
-		SYSCALL(ret = ioctl(fd, UI_SET_SNDBIT, code));
-		break;
-	case EV_FF:
-		SYSCALL(ret = ioctl(fd, UI_SET_FFBIT, code));
-		break;
-	case EV_SW:
-		SYSCALL(ret = ioctl(fd, UI_SET_SWBIT, code));
-		break;
-	}
-
-	return ret;
-}
-
-static int set_prop(const struct evemu_device *dev, int fd)
-{
-	int bits = 8 * dev->pbytes;
-	int ret, i;
-	int success = 0;
-	for (i = 0; i < bits; i++) {
-		if (!evemu_has_prop(dev, i))
-			continue;
-		ret = set_prop_bit(fd, i);
-		/* Older kernels aways return errors on UI_SET_PROPBIT.
-		   Assume that if we only get failures, it may be an older
-		   kernel and report success anyway. */
-		if (ret < 0) {
-			if (success)
-				return ret;
-		} else if (!success)
-			success = 1;
-	}
-	return 0;
-}
-
-static int set_mask(const struct evemu_device *dev, int type, int fd)
-{
-	int bits = 8 * dev->mbytes[type];
-	int ret, i;
-	for (i = 0; i < bits; i++) {
-		if (!evemu_has_event(dev, type, i))
-			continue;
-
-		/* kernel doesn't like those */
-		if (type == EV_ABS &&
-			dev->abs[i].maximum == 0 && dev->abs[i].minimum == 0)
-			continue;
-
-		ret = set_event_bit(fd, type, i);
-		if (ret < 0)
-			return ret;
-	}
-	return 0;
-}
-
-static int
-inotify_setup()
-{
-	int ifd = inotify_init1(IN_NONBLOCK);
-	if (ifd == -1 || inotify_add_watch(ifd, DEV_INPUT_DIR, IN_CREATE) == -1) {
-		if (ifd != -1)
-			close(ifd);
-		ifd = -1;
-	}
-
-	return ifd;
-}
-
-
-static char*
-wait_for_inotify(int fd)
-{
-	char *devnode = NULL;
-	int found = 0;
-	char buf[1024];
-	size_t bufidx = 0;
-	struct pollfd pfd;
-
-	pfd.fd = fd;
-	pfd.events = POLLIN;
-
-	while (!found && poll(&pfd, 1, 2000) > 0) {
-		struct inotify_event *e;
-		ssize_t r;
-
-		r = read(fd, buf + bufidx, sizeof(buf) - bufidx);
-		if (r == -1 && errno != EAGAIN)
-			return NULL;
-
-		bufidx += r;
-
-		e = (struct inotify_event*)buf;
-
-		while (bufidx > sizeof(*e) && bufidx >= sizeof(*e) + e->len) {
-			if (strncmp(e->name, "event", 5) == 0) {
-				asprintf(&devnode, "%s%s", DEV_INPUT_DIR, e->name);
-				found = 1;
-				break;
-			}
-
-			/* this packet didn't contain what we're looking for */
-			int len = sizeof(*e) + e->len;
-			memmove(buf, buf + len, bufidx - len);
-			bufidx -= len;
-		}
-	}
-
-	return devnode;
-}
-
 int evemu_create(struct evemu_device *dev, int fd)
 {
-	struct uinput_user_dev udev;
-	int ret, i;
-	int ifd = -1, dev_fd = -1;
-	char *devnode = NULL;
-
-	memset(&udev, 0, sizeof(udev));
-	memcpy(udev.name, dev->name, sizeof(udev.name));
-	udev.id = dev->id;
-	for (i = 0; i < ABS_CNT; i++) {
-		if (!evemu_has_event(dev, EV_ABS, i))
-			continue;
-		udev.absmax[i] = dev->abs[i].maximum;
-		udev.absmin[i] = dev->abs[i].minimum;
-		udev.absfuzz[i] = dev->abs[i].fuzz;
-		udev.absflat[i] = dev->abs[i].flat;
-	}
-
-	ret = set_prop(dev, fd);
-	if (ret < 0)
-		return ret;
-
-	for (i = 0; i < EV_CNT; i++) {
-		ret = set_mask(dev, i, fd);
-		if (ret < 0)
-			return ret;
-	}
-
-	SYSCALL(ret = write(fd, &udev, sizeof(udev)));
-	if (ret < 0)
-		return ret;
-
-	ifd = inotify_setup();
-
-	SYSCALL(ret = ioctl(fd, UI_DEV_CREATE, NULL));
-
-	devnode = wait_for_inotify(ifd);
-
-	/* write abs resolution now */
-	if (devnode != NULL && evemu_has_bit(dev, EV_ABS)) {
-		unsigned int code;
-
-		dev_fd = open(devnode, O_RDWR);
-		free(devnode);
-
-
-		for (code = 0; dev_fd >= 0 && code < ABS_MAX; code++ ) {
-			struct input_absinfo abs;
-
-			/* can't change slots */
-			if (code == ABS_MT_SLOT)
-				continue;
-
-			if (!evemu_has_event(dev, EV_ABS, i))
-				continue;
-
-			abs = dev->abs[code];
-			ret = ioctl(dev_fd, EVIOCSABS(code), &abs);
-			if (ret < 0) {
-				evemu_destroy(dev, fd);
-				break;
-			}
-		}
-	}
-
-	if (ifd != -1)
-		close(ifd);
-	if (dev_fd != -1)
-		close(dev_fd);
-	free(devnode);
-
-	return ret;
+	return libevdev_uinput_create_from_device(dev->evdev, fd, &dev->uidev);
 }
 
 void evemu_destroy(struct evemu_device *dev, int fd)
 {
-	int ret;
-	SYSCALL(ret = ioctl(fd, UI_DEV_DESTROY, NULL));
+	if (dev->uidev) {
+		libevdev_uinput_destroy(dev->uidev);
+		dev->uidev = NULL;
+	}
 }
