@@ -222,7 +222,7 @@ static int evemu_device(FILE *fp)
 	if (ret < 0)
 		goto out_close;
 	hold_device(dev);
-	evemu_destroy(fd);
+	evemu_destroy(dev, fd);
 
 out_close:
 	close(fd);

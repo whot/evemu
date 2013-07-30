@@ -426,7 +426,7 @@ int evemu_create(struct evemu_device *dev, int fd);
  *
  * Destroys all devices created using this file descriptor.
  */
-void evemu_destroy(int fd);
+void evemu_destroy(struct evemu_device *dev, int fd);
 
 #ifdef __cplusplus
 }

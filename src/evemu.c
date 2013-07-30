@@ -981,7 +981,7 @@ int evemu_create(struct evemu_device *dev, int fd)
 			abs = dev->abs[code];
 			ret = ioctl(dev_fd, EVIOCSABS(code), &abs);
 			if (ret < 0) {
-				evemu_destroy(fd);
+				evemu_destroy(dev, fd);
 				break;
 			}
 		}
@@ -996,7 +996,7 @@ int evemu_create(struct evemu_device *dev, int fd)
 	return ret;
 }
 
-void evemu_destroy(int fd)
+void evemu_destroy(struct evemu_device *dev, int fd)
 {
 	int ret;
 	SYSCALL(ret = ioctl(fd, UI_DEV_DESTROY, NULL));
