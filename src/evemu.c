@@ -638,7 +638,7 @@ int evemu_write_event(FILE *fp, const struct input_event *ev)
 
 int evemu_record(FILE *fp, int fd, int ms)
 {
-        struct pollfd fds = { fd, POLLIN, 0 };
+	struct pollfd fds = { fd, POLLIN, 0 };
 	struct input_event ev;
 	int ret;
 
