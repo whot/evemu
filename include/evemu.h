@@ -380,7 +380,7 @@ int evemu_read_event_realtime(FILE *fp, struct input_event *ev,
  * @fd: file descriptor of kernel device to read from
  * @ms: maximum time to wait for an event to appear before reading (ms)
  *
- * Contiuously reads events from the kernel device and writes them to
+ * Continuously reads events from the kernel device and writes them to
  * the file. The function terminates after ms milliseconds of
  * inactivity.
  *
