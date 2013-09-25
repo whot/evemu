@@ -636,17 +636,36 @@ int evemu_write_event(FILE *fp, const struct input_event *ev)
 		       ev->type, ev->code, ev->value);
 }
 
+static inline long time_to_long(const struct timeval *tv) {
+	return tv->tv_sec * 1000000 + tv->tv_usec;
+}
+
+static inline struct timeval long_to_time(long time) {
+	struct timeval tv;
+	tv.tv_sec = time/1000000;
+	tv.tv_usec = time % 1000000;
+	return tv;
+}
+
 int evemu_record(FILE *fp, int fd, int ms)
 {
 	struct pollfd fds = { fd, POLLIN, 0 };
 	struct input_event ev;
 	int ret;
+	long offset = 0;
 
 	while (poll(&fds, 1, ms) > 0) {
 		SYSCALL(ret = read(fd, &ev, sizeof(ev)));
 		if (ret < 0)
 			return ret;
 		if (ret == sizeof(ev)) {
+			long time;
+
+			if (offset == 0)
+				offset = time_to_long(&ev.time);
+
+			time = time_to_long(&ev.time);
+			ev.time = long_to_time(time - offset);
 			evemu_write_event(fp, &ev);
 			write_event_desc(fp, &ev);
 			fflush(fp);
