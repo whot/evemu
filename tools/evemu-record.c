@@ -47,6 +47,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <signal.h>
+#include <time.h>
 
 #include "find_event_devices.h"
 
@@ -144,6 +145,11 @@ int main(int argc, char *argv[])
 	}
 
 	if (mode == EVEMU_RECORD) {
+#ifdef EVIOCSCLOCKID
+		int clockid = CLOCK_MONOTONIC;
+		ioctl(fd, EVIOCSCLOCKID, &clockid);
+#endif
+
 		fprintf(output,  "################################\n");
 		fprintf(output,  "#      Waiting for events      #\n");
 		fprintf(output,  "################################\n");
