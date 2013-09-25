@@ -646,10 +646,11 @@ int evemu_record(FILE *fp, int fd, int ms)
 		SYSCALL(ret = read(fd, &ev, sizeof(ev)));
 		if (ret < 0)
 			return ret;
-		if (ret == sizeof(ev))
+		if (ret == sizeof(ev)) {
 			evemu_write_event(fp, &ev);
 			write_event_desc(fp, &ev);
 			fflush(fp);
+		}
 	}
 
 	return 0;
