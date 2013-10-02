@@ -8,7 +8,7 @@ bin_PROGRAMS = \
 	evemu-play \
 	evemu-event
 
-AM_CPPFLAGS =-I$(top_srcdir)/include/
+AM_CPPFLAGS =-I$(top_srcdir)/src/
 
 AM_LDFLAGS = $(top_builddir)/src/libevemu.la
 

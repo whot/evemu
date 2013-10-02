@@ -13,13 +13,11 @@ libevemu_la_CFLAGS = \
 libevemu_la_SOURCES = \
 	evemu-impl.h \
 	evemu.c \
+	evemu.h \
 	version.h
 
-AM_CPPFLAGS = -I$(top_srcdir)/include/
-
 libevemuincludedir = $(includedir)
-libevemuinclude_HEADERS = \
-	$(top_srcdir)/include/evemu.h
+libevemuinclude_HEADERS = evemu.h
 
 event-names.h: Makefile make-event-names.py
 	$(srcdir)/make-event-names.py --output=c > $@
