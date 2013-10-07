@@ -96,6 +96,7 @@ void check_evemu_read(int fd, const char *file, enum flags flags)
 	if (flags & EMPTYLINE)
 		println(fd, flags, "%s", emptyline);
 
+#ifdef INPUT_PROP_MAX
 	/* We always set all prop bits. Should probably be more selective
 	   about this */
 	if (flags & PROPS) {
@@ -106,6 +107,7 @@ void check_evemu_read(int fd, const char *file, enum flags flags)
 				println(fd, flags, "%s", emptyline);
 		}
 	}
+#endif
 
 	/* We always set all ev bits. Should probably be more selective
 	   about this */
@@ -154,11 +156,13 @@ void check_evemu_read(int fd, const char *file, enum flags flags)
 	assert(evemu_get_id_product(dev) == 0x0005);
 	assert(evemu_get_id_version(dev) == 0x0006);
 
+#ifdef INPUT_PROP_MAX
 	if (flags & PROPS) {
 		int i;
 		for (i = 0; i < INPUT_PROP_CNT; i++)
 			assert(evemu_has_prop(dev, i));
 	}
+#endif
 
 	if (flags & BITS) {
 		int i, j;
