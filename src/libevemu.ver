@@ -42,3 +42,8 @@ EVEMU_1.0 {
   local:
     *;
 };
+
+EVEMU_1.1 {
+  global:
+    evemu_has_bit;
+} EVEMU_1.0;
