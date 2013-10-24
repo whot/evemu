@@ -141,7 +141,7 @@ class DevicePropertiesTestCase(testcase.BaseTestCase):
         super(DevicePropertiesTestCase, self).tearDown()
 
     def test_version(self):
-        self.assertEqual(self._device.version, 0)
+        self.assertEqual(self._device.version, 0x10000)
 
     def test_name(self):
         self.assertEqual(self._device.name, "N-Trig-MultiTouch-Virtual-Device")

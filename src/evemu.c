@@ -560,6 +560,7 @@ int evemu_read(struct evemu_device *dev, FILE *fp)
 	char *line = NULL;
 
 	memset(dev, 0, sizeof(*dev));
+	dev->version = EVEMU_VERSION;
 
 	/* first line _may_ be version */
 	if (!first_line(fp, &line, &size)) {
