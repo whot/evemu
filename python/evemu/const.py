@@ -36,6 +36,7 @@ API = [
     # Device hasers
     "evemu_has_prop",
     "evemu_has_event",
+    "evemu_has_bit",
     ]
 
 event_types = {
