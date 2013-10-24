@@ -76,7 +76,7 @@ class Device(object):
                              self._file.fileno())
 
     def __del__(self):
-        if self._is_propfile:
+        if hasattr(self, "_is_propfile") and self._is_propfile:
             self._file.close()
             self._evemu._call(self._evemu.get_lib().evemu_destroy,
                               self._uinput)
