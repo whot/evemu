@@ -345,10 +345,10 @@ static void write_abs(FILE *fp, int index, const struct input_absinfo *abs)
 static void write_desc(const struct evemu_device *dev, FILE *fp)
 {
 	int i, j;
-	fprintf(fp, "# Input device name: \"%s\"\n", dev->name);
+	fprintf(fp, "# Input device name: \"%s\"\n", evemu_get_name(dev));
 	fprintf(fp, "# Input device ID: bus %#04x vendor %#04x product %#04x version %#04x\n",
-		dev->id.bustype, dev->id.vendor,
-		dev->id.product, dev->id.version);
+		evemu_get_id_bustype(dev), evemu_get_id_vendor(dev),
+		evemu_get_id_product(dev), evemu_get_id_version(dev));
 	fprintf(fp, "# Supported events:\n");
 	for (i = 0; i < EV_MAX; i++) {
 		if (!evemu_has_bit(dev, i))
@@ -368,12 +368,12 @@ static void write_desc(const struct evemu_device *dev, FILE *fp)
 					    "#       Fuzz  %6d\n"
 					    "#       Flat  %6d\n"
 					    "#       Resolution %d\n",
-					    dev->abs[j].value,
-					    dev->abs[j].minimum,
-					    dev->abs[j].maximum,
-					    dev->abs[j].fuzz,
-					    dev->abs[j].flat,
-					    dev->abs[j].resolution);
+					    evemu_get_abs_current_value(dev, j),
+					    evemu_get_abs_minimum(dev, j),
+					    evemu_get_abs_maximum(dev,j),
+					    evemu_get_abs_fuzz(dev, j),
+					    evemu_get_abs_flat(dev, j),
+					    evemu_get_abs_resolution(dev, j));
 			}
 		}
 	}
@@ -396,11 +396,13 @@ int evemu_write(const struct evemu_device *dev, FILE *fp)
 
 	write_desc(dev, fp);
 
-	fprintf(fp, "N: %s\n", dev->name);
+	fprintf(fp, "N: %s\n", evemu_get_name(dev));
 
 	fprintf(fp, "I: %04x %04x %04x %04x\n",
-		dev->id.bustype, dev->id.vendor,
-		dev->id.product, dev->id.version);
+		evemu_get_id_bustype(dev),
+		evemu_get_id_vendor(dev),
+		evemu_get_id_product(dev),
+		evemu_get_id_version(dev));
 
 	write_prop(fp, dev->prop, dev->pbytes);
 
@@ -419,10 +421,8 @@ static int parse_name(struct evemu_device *dev, const char *line, struct version
 	int matched;
 	char *devname = NULL;
 
-	if ((matched = sscanf(line, "N: %m[^\n]\n", &devname)) > 0) {
-		strncpy(dev->name, devname, sizeof(dev->name));
-		dev->name[sizeof(dev->name)-1] = '\0';
-	}
+	if ((matched = sscanf(line, "N: %m[^\n]\n", &devname)) > 0)
+		evemu_set_name(dev, devname);
 
 	if (devname != NULL)
 		free(devname);
@@ -440,10 +440,10 @@ static int parse_bus_vid_pid_ver(struct evemu_device *dev, const char *line, str
 
 	if ((matched = sscanf(line, "I: %04x %04x %04x %04x\n",
 				    &bustype, &vendor, &product, &version)) > 0) {
-		dev->id.bustype = bustype;
-		dev->id.vendor = vendor;
-		dev->id.product = product;
-		dev->id.version = version;
+		evemu_set_id_bustype(dev, bustype),
+		evemu_set_id_vendor(dev, vendor),
+		evemu_set_id_product(dev, product),
+		evemu_set_id_version(dev, version);
 	}
 
 	if (matched != 4)
@@ -522,7 +522,11 @@ static int parse_abs(struct evemu_device *dev, const char *line, struct version 
 		return -1;
 	}
 
-	dev->abs[index] = abs;
+	evemu_set_abs_minimum(dev, index, abs.minimum);
+	evemu_set_abs_maximum(dev, index, abs.maximum);
+	evemu_set_abs_fuzz(dev, index, abs.fuzz);
+	evemu_set_abs_flat(dev, index, abs.flat);
+	evemu_set_abs_resolution(dev, index, abs.resolution);
 
 	return 1;
 }
@@ -873,7 +877,7 @@ static int set_mask(const struct evemu_device *dev, int type, int fd)
 
 		/* kernel doesn't like those */
 		if (type == EV_ABS &&
-			dev->abs[i].maximum == 0 && dev->abs[i].minimum == 0)
+			evemu_get_abs_maximum(dev, i) == 0 && evemu_get_abs_minimum(dev, i) == 0)
 			continue;
 
 		ret = set_event_bit(fd, type, i);
@@ -894,10 +898,10 @@ int evemu_create(const struct evemu_device *dev, int fd)
 	for (i = 0; i < ABS_CNT; i++) {
 		if (!evemu_has_event(dev, EV_ABS, i))
 			continue;
-		udev.absmax[i] = dev->abs[i].maximum;
-		udev.absmin[i] = dev->abs[i].minimum;
-		udev.absfuzz[i] = dev->abs[i].fuzz;
-		udev.absflat[i] = dev->abs[i].flat;
+		udev.absmax[i] = evemu_get_abs_maximum(dev, i);
+		udev.absmin[i] = evemu_get_abs_minimum(dev, i);
+		udev.absfuzz[i] = evemu_get_abs_fuzz(dev, i);
+		udev.absflat[i] = evemu_get_abs_flat(dev, i);
 	}
 
 	ret = set_prop(dev, fd);
