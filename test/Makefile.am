@@ -11,5 +11,6 @@ test_cxx_compile_LDADD = $(top_builddir)/src/libevemu.la
 
 test_evemu_create_SOURCES = test-evemu-create.c
 test_evemu_create_LDADD = $(top_builddir)/src/libevemu.la
+test_evemu_create_LDFLAGS = -static
 
 CLEANFILES = evemu.tmp.*
