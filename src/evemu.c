@@ -421,8 +421,10 @@ static int parse_name(struct evemu_device *dev, const char *line, struct version
 	int matched;
 	char *devname = NULL;
 
-	if ((matched = sscanf(line, "N: %m[^\n]\n", &devname)) > 0)
-		evemu_set_name(dev, devname);
+	if ((matched = sscanf(line, "N: %m[^\n]\n", &devname)) > 0) {
+		if (strlen(evemu_get_name(dev)) == 0)
+			evemu_set_name(dev, devname);
+	}
 
 	if (devname != NULL)
 		free(devname);
@@ -558,9 +560,16 @@ int evemu_read(struct evemu_device *dev, FILE *fp)
 	struct version file_version; /* file format version */
 	size_t size = 0;
 	char *line = NULL;
+	char *name = NULL;
 
+	if (strlen(evemu_get_name(dev)) > 0)
+		name = strdup(evemu_get_name(dev));
 	memset(dev, 0, sizeof(*dev));
 	dev->version = EVEMU_VERSION;
+	if (name) {
+		evemu_set_name(dev, name);
+		free(name);
+	}
 
 	/* first line _may_ be version */
 	if (!first_line(fp, &line, &size)) {

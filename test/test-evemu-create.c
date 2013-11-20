@@ -14,6 +14,7 @@
 #define UNUSED __attribute__((unused))
 
 #define NAME "evemu test device"
+#define CUSTOM_NAME "custom evemu test device"
 
 static const char *name		= "N: " NAME "";
 static const char *ident	= "I: 0003 0004 0005 0006";
@@ -40,7 +41,8 @@ enum flags {
 	EOLCOMMENT	 = (1 << 6), /* end-of-line comment */
 	EVENT		 = (1 << 7), /* event line */
 	EMPTYLINE	 = (1 << 8),
-	ALLFLAGS	 = (EMPTYLINE << 1) - 1
+	WITHNAME	 = (1 << 9), /* use evemu_new(custom name) */
+	ALLFLAGS	 = (WITHNAME << 1) - 1
 };
 
 static int max[EV_CNT] = {
@@ -69,6 +71,7 @@ void check_evemu_read(int fd, const char *file, enum flags flags)
 {
 	FILE *fp;
 	struct evemu_device *dev;
+	const char *device_name;
 
 	ftruncate(fd, 0);
 	lseek(fd, 0, SEEK_SET);
@@ -146,11 +149,16 @@ void check_evemu_read(int fd, const char *file, enum flags flags)
 	fp = fopen(file, "r");
 	assert(fp);
 
-	dev = evemu_new("test device");
+	if (flags & WITHNAME) {
+		dev = evemu_new(CUSTOM_NAME);
+		device_name = CUSTOM_NAME;
+	} else {
+		dev = evemu_new(NULL);
+		device_name = NAME;
+	}
 	assert(dev);
-
 	assert(evemu_read(dev, fp) >= 0);
-	assert(strcmp(NAME, evemu_get_name(dev)) == 0);
+	assert(strcmp(device_name, evemu_get_name(dev)) == 0);
 	assert(evemu_get_id_bustype(dev) == 0x0003);
 	assert(evemu_get_id_vendor(dev) == 0x0004);
 	assert(evemu_get_id_product(dev) == 0x0005);

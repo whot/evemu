@@ -201,18 +201,21 @@ static void hold_device(const struct evemu_device *dev)
 static int evemu_device(FILE *fp)
 {
 	struct evemu_device *dev;
-	char name[64];
 	int ret = -ENOMEM;
 	int fd;
 
-	sprintf(name, "evemu-%d", getpid());
-
-	dev = evemu_new(name);
+	dev = evemu_new(NULL);
 	if (!dev)
 		goto out;
 	ret = evemu_read(dev, fp);
 	if (ret <= 0)
 		goto out;
+
+	if (strlen(evemu_get_name(dev)) == 0) {
+		char name[64];
+		sprintf(name, "evemu-%d", getpid());
+		evemu_set_name(dev, name);
+	}
 
 	ret = fd = open(UINPUT_NODE, O_WRONLY);
 	if (ret < 0)
