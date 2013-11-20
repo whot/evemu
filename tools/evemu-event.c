@@ -38,7 +38,7 @@ static struct option opts[] = {
 	{ "device", required_argument, 0, 'd'}
 };
 
-int parse_arg(const char *arg, long int *value)
+static int parse_arg(const char *arg, long int *value)
 {
 	char *endp;
 
@@ -48,7 +48,7 @@ int parse_arg(const char *arg, long int *value)
 	return 0;
 }
 
-void usage(void)
+static void usage(void)
 {
 	fprintf(stderr, "Usage: %s [--sync] <device> --type <type> --code <code> --value <value>\n", program_invocation_short_name);
 }
