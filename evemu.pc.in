@@ -6,5 +6,6 @@ includedir=@includedir@
 Name: evemu
 Description: Kernel device emulation
 Version: @PACKAGE_VERSION@
+Requires.private: libevdev
 Libs: -L${libdir} -levemu
 Cflags: -I${includedir}
