@@ -279,7 +279,7 @@ static void write_mask(FILE * fp, const struct evemu_device *dev)
 		if (max == -1)
 			continue;
 
-		for (code = 0; code < max; code++)
+		for (code = 0; code < (unsigned int)max; code++)
 			if (evemu_has_event(dev, type, code))
 				set_bit(mask, code);
 
@@ -413,7 +413,7 @@ static int parse_prop(struct evemu_device *dev, const char *line, struct version
 {
 	int matched;
 	unsigned char mask[8];
-	int i;
+	size_t i;
 
 	if (strlen(line) <= 2 || strncmp(line, "P:", 2) != 0)
 		return 0;
@@ -722,7 +722,7 @@ int evemu_play_one(int fd, const struct input_event *ev)
 {
 	int ret;
 	SYSCALL(ret = write(fd, ev, sizeof(*ev)));
-	return (ret < sizeof(*ev));
+	return (ret == -1 || (size_t)ret < sizeof(*ev));
 }
 
 static void evemu_warn_about_incompatible_event(struct input_event *ev)
