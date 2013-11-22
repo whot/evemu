@@ -135,7 +135,7 @@ struct evemu_device *evemu_new(const char *name)
 void evemu_delete(struct evemu_device *dev)
 {
 	if (dev->uidev)
-		evemu_destroy(dev, libevdev_uinput_get_fd(dev->uidev));
+		evemu_destroy(dev);
 	libevdev_free(dev->evdev);
 	free(dev);
 }
@@ -777,7 +777,7 @@ int evemu_create(struct evemu_device *dev, int fd)
 	return libevdev_uinput_create_from_device(dev->evdev, fd, &dev->uidev);
 }
 
-void evemu_destroy(struct evemu_device *dev, int fd)
+void evemu_destroy(struct evemu_device *dev)
 {
 	if (dev->uidev) {
 		libevdev_uinput_destroy(dev->uidev);

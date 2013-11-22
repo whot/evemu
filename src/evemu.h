@@ -422,11 +422,11 @@ int evemu_create(struct evemu_device *dev, int fd);
 
 /**
  * evemu_destroy() - destroy all created kernel devices
- * @fd: file descriptor of the special kernel uinput device
+ * @dev: the device to destroy
  *
  * Destroys all devices created using this file descriptor.
  */
-void evemu_destroy(struct evemu_device *dev, int fd);
+void evemu_destroy(struct evemu_device *dev);
 
 #ifdef __cplusplus
 }
