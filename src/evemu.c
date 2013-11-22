@@ -897,7 +897,7 @@ static int set_mask(const struct evemu_device *dev, int type, int fd)
 	return 0;
 }
 
-int evemu_create(const struct evemu_device *dev, int fd)
+int evemu_create(struct evemu_device *dev, int fd)
 {
 	struct uinput_user_dev udev;
 	int ret, i;

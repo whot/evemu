@@ -1,4 +1,4 @@
-EVEMU_1.0 {
+EVEMU_2.0 {
   global:
     evemu_create;
     evemu_create_event;
@@ -19,6 +19,7 @@ EVEMU_1.0 {
     evemu_get_version;
     evemu_has_event;
     evemu_has_prop;
+    evemu_has_bit;
     evemu_new;
     evemu_play;
     evemu_play_one;
@@ -42,8 +43,3 @@ EVEMU_1.0 {
   local:
     *;
 };
-
-EVEMU_1.1 {
-  global:
-    evemu_has_bit;
-} EVEMU_1.0;
