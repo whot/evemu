@@ -87,6 +87,5 @@ patches
 .bzr
 .bzrignore
 python/evemu-test-runner
-event-names.h
 event_names.py
 *.pyc
