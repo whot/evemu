@@ -371,7 +371,7 @@ int evemu_write(const struct evemu_device *dev, FILE *fp)
 	return 0;
 }
 
-static int parse_name(struct evemu_device *dev, const char *line, struct version *fversion)
+static int parse_name(struct evemu_device *dev, const char *line)
 {
 	int matched;
 	char *devname = NULL;
@@ -390,7 +390,7 @@ static int parse_name(struct evemu_device *dev, const char *line, struct version
 	return matched > 0;
 }
 
-static int parse_bus_vid_pid_ver(struct evemu_device *dev, const char *line, struct version *fversion)
+static int parse_bus_vid_pid_ver(struct evemu_device *dev, const char *line)
 {
 	int matched;
 	unsigned bustype, vendor, product, version;
@@ -409,7 +409,7 @@ static int parse_bus_vid_pid_ver(struct evemu_device *dev, const char *line, str
 	return matched == 4;
 }
 
-static int parse_prop(struct evemu_device *dev, const char *line, struct version *fversion)
+static int parse_prop(struct evemu_device *dev, const char *line)
 {
 	int matched;
 	unsigned char mask[8];
@@ -437,7 +437,7 @@ static int parse_prop(struct evemu_device *dev, const char *line, struct version
 	return 1;
 }
 
-static int parse_mask(struct evemu_device *dev, const char *line, struct version *fversion)
+static int parse_mask(struct evemu_device *dev, const char *line)
 {
 	int matched;
 	unsigned char mask[8];
@@ -544,13 +544,13 @@ int evemu_read(struct evemu_device *dev, FILE *fp)
 		goto out;
 	}
 
-	if (!parse_name(dev, line, &file_version))
+	if (!parse_name(dev, line))
 		goto out;
 
 	if (!next_line(fp, &line, &size))
 		goto out;
 
-	if (!parse_bus_vid_pid_ver(dev, line, &file_version))
+	if (!parse_bus_vid_pid_ver(dev, line))
 		goto out;
 
 	/* devices without prop/mask/abs bits are valid */
@@ -559,13 +559,13 @@ int evemu_read(struct evemu_device *dev, FILE *fp)
 		goto out;
 	}
 
-	while((rc = parse_prop(dev, line, &file_version)) > 0)
+	while((rc = parse_prop(dev, line)) > 0)
 		if (!next_line(fp, &line, &size))
 			break;
 	if (rc == -1)
 		goto out;
 
-	while((rc = parse_mask(dev, line, &file_version)) > 0)
+	while((rc = parse_mask(dev, line)) > 0)
 		if (!next_line(fp, &line, &size))
 			break;
 	if (rc == -1)
