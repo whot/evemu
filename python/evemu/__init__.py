@@ -79,7 +79,7 @@ class Device(object):
         if hasattr(self, "_is_propfile") and self._is_propfile:
             self._file.close()
             self._evemu._call(self._evemu.get_lib().evemu_destroy,
-                              self._uinput)
+                              self._evemu_device, self._uinput)
 
     def _create_devnode(self):
         self._evemu._call(self._evemu.get_lib().evemu_create,

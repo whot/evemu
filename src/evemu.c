@@ -932,7 +932,7 @@ int evemu_create(struct evemu_device *dev, int fd)
 	return ret;
 }
 
-void evemu_destroy(int fd)
+void evemu_destroy(struct evemu_device *dev, int fd)
 {
 	int ret;
 	SYSCALL(ret = ioctl(fd, UI_DEV_DESTROY, NULL));
