@@ -7,9 +7,6 @@ libevemu_la_LDFLAGS = \
 	-Wl,-z,defs -Wl,--as-needed \
 	-Wl,--version-script=$(version_script)
 
-libevemu_la_CFLAGS = \
-	-Wno-format
-
 libevemu_la_SOURCES = \
 	evemu-impl.h \
 	evemu.c \
