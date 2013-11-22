@@ -456,8 +456,12 @@ static int parse_mask(struct evemu_device *dev, const char *line)
 	}
 
 	for (i = 0; i < sizeof(mask) * 8; i++) {
-		const struct input_absinfo abs = {0, 0, 1}; /* dummy */
 		if (bit_is_set(mask, i)) {
+			struct input_absinfo abs = {0}; /* dummy */
+
+			abs.minimum = 0;
+			abs.maximum = 1;
+
 			unsigned int code = dev->mbytes[index] * 8 + i;
 			libevdev_enable_event_code(dev->evdev, index, code, (index == EV_ABS) ? &abs : NULL);
 		}
