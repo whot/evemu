@@ -174,14 +174,20 @@ void check_evemu_read(int fd, const char *file, enum flags flags)
 
 	if (flags & BITS) {
 		int i, j;
-		for (i = 0; i < EV_CNT; i++)
+		for (i = 1; i < EV_CNT; i++) {
+			if (!evemu_has_bit(dev, i))
+				continue;
+
 			for (j = 0; j < max[i]; j++)
 				assert(evemu_has_event(dev, i, j));
+		}
 	}
 
 	if (flags & ABSINFO) {
 		int i;
 		for (i = 0; i < ABS_CNT; i++) {
+			if (!evemu_has_event(dev, EV_ABS, i))
+				continue;
 			assert(evemu_get_abs_minimum(dev, i) == i + 1);
 			assert(evemu_get_abs_maximum(dev, i) == i + 2);
 			assert(evemu_get_abs_fuzz(dev, i) == i + 3);
