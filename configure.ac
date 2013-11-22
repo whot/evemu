@@ -46,7 +46,7 @@ if test "x$XMLTO" = "x" || test "x$ASCIIDOC" = "x"; then
 fi
 
 AC_SUBST(AM_CFLAGS,
-         "-Wall -Wextra -pedantic")
+         "-Wall -Wextra")
 
 
 AC_CONFIG_FILES([Makefile
