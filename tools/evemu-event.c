@@ -29,6 +29,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <linux/input.h>
+#include <libevdev/libevdev.h>
 
 static struct option opts[] = {
 	{ "type", required_argument, 0, 't'},
@@ -48,6 +49,24 @@ static int parse_arg(const char *arg, long int *value)
 	return 0;
 }
 
+static int parse_type(const char *arg, long int *value)
+{
+	*value = libevdev_event_type_from_name(arg);
+	if (*value != -1)
+		return 0;
+
+	return parse_arg(arg, value);
+}
+
+static int parse_code(long int type, const char *arg, long int *value)
+{
+	*value = libevdev_event_code_from_name(type, arg);
+	if (*value != -1)
+		return 0;
+
+	return parse_arg(arg, value);
+}
+
 static void usage(void)
 {
 	fprintf(stderr, "Usage: %s [--sync] <device> --type <type> --code <code> --value <value>\n", program_invocation_short_name);
@@ -61,6 +80,7 @@ int main(int argc, char *argv[])
 	struct input_event ev;
 	int sync = 0;
 	const char *path = NULL;
+	const char *code_arg = NULL, *type_arg = NULL;
 
 	if (argc < 5) {
 		usage();
@@ -77,16 +97,10 @@ int main(int argc, char *argv[])
 
 		switch(c) {
 			case 't': /* type */
-				if (parse_arg(optarg, &type) || type < 0 || type > EV_MAX) {
-					fprintf(stderr, "error: invalid type argument '%s'\n", optarg);
-					goto out;
-				}
+				type_arg = optarg;
 				break;
 			case 'c': /* code */
-				if (parse_arg(optarg, &code) || code < 0 || code > USHRT_MAX) {
-					fprintf(stderr, "error: invalid code argument '%s'\n", optarg);
-					goto out;
-				}
+				code_arg = optarg;
 				break;
 			case 'v': /* value */
 				if (parse_arg(optarg, &value) || value < INT_MIN || value > INT_MAX) {
@@ -104,6 +118,21 @@ int main(int argc, char *argv[])
 				usage();
 				goto out;
 		}
+	}
+
+	if (!type_arg || !code_arg) {
+		usage();
+		goto out;
+	}
+
+	if (parse_type(type_arg, &type)) {
+		fprintf(stderr, "error: invalid type argument '%s'\n", type_arg);
+		goto out;
+	}
+
+	if (parse_code(type, code_arg, &code)) {
+		fprintf(stderr, "error: invalid code argument '%s'\n", code_arg);
+		goto out;
 	}
 
 	/* if device wasn't specified as option, take the remaining arg */

@@ -33,7 +33,7 @@ AC_PROG_CXX
 AC_PROG_INSTALL
 AM_PATH_PYTHON([2.6])
 
-PKG_CHECK_MODULES([LIBEVDEV], [libevdev >= 0.4])
+PKG_CHECK_MODULES([LIBEVDEV], [libevdev >= 0.5])
 
 # man page generation
 AC_ARG_VAR([XMLTO], [Path to xmlto command])

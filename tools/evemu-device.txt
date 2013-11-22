@@ -27,7 +27,9 @@ evemu-play replays the event sequence given on stdin through the input
 device. The event sequence must be in the form created by evemu-record(1).
 
 evemu-event plays exactly one event with the current time. If *--sync* is
-given, evemu-event generates an *EV_SYN* event after the event.
+given, evemu-event generates an *EV_SYN* event after the event. The event
+type and code may be specified as the numerical value or the symbolic name
+from linux/input.h.
 
 evemu-device must be able to write to the uinput device node, and evemu-play
 must be able to write to the device node specified; in most cases this means
