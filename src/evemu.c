@@ -418,7 +418,7 @@ static int parse_prop(struct evemu_device *dev, const char *line)
 	if (strlen(line) <= 2 || strncmp(line, "P:", 2) != 0)
 		return 0;
 
-	matched = sscanf(line, "P: %02x %02x %02x %02x %02x %02x %02x %02x\n",
+	matched = sscanf(line, "P: %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx\n",
 				mask + 0, mask + 1, mask + 2, mask + 3,
 				mask + 4, mask + 5, mask + 6, mask + 7);
 
@@ -446,7 +446,7 @@ static int parse_mask(struct evemu_device *dev, const char *line)
 	if (strlen(line) <= 2 || strncmp(line, "B:", 2) != 0)
 		return 0;
 
-	matched = sscanf(line, "B: %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
+	matched = sscanf(line, "B: %02x %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx\n",
 				&index, mask + 0, mask + 1, mask + 2, mask + 3,
 				mask + 4, mask + 5, mask + 6, mask + 7);
 
