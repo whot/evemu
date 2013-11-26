@@ -397,9 +397,9 @@ static int parse_bus_vid_pid_ver(struct evemu_device *dev, const char *line, str
 
 	if ((matched = sscanf(line, "I: %04x %04x %04x %04x\n",
 				    &bustype, &vendor, &product, &version)) > 0) {
-		evemu_set_id_bustype(dev, bustype),
-		evemu_set_id_vendor(dev, vendor),
-		evemu_set_id_product(dev, product),
+		evemu_set_id_bustype(dev, bustype);
+		evemu_set_id_vendor(dev, vendor);
+		evemu_set_id_product(dev, product);
 		evemu_set_id_version(dev, version);
 	}
 
