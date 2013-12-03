@@ -39,6 +39,11 @@ switching to a TTY or shutting down the X server terminates this grab and
 the devices can be recorded. For most X drivers, disabling the device also
 removes the grab.
 
+The following command shows the processes with an open file descriptor on
+the device.
+
+   fuser -v /dev/input/eventX
+
 SEE ALSO
 --------
 evemu-device(1)
