@@ -112,12 +112,6 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-	if (ioctl(fd, EVIOCGRAB, (void*)1) < 0) {
-		fprintf(stderr, "error: this device is grabbed and I cannot record events\n");
-		return -1;
-	} else
-		ioctl(fd, EVIOCGRAB, (void*)0);
-
 	memset (&act, '\0', sizeof(act));
 	act.sa_handler = &handler;
 
@@ -149,6 +143,11 @@ int main(int argc, char *argv[])
 		int clockid = CLOCK_MONOTONIC;
 		ioctl(fd, EVIOCSCLOCKID, &clockid);
 #endif
+		if (ioctl(fd, EVIOCGRAB, (void*)1) < 0) {
+			fprintf(stderr, "error: this device is grabbed and I cannot record events\n");
+			return -1;
+		} else
+			ioctl(fd, EVIOCGRAB, (void*)0);
 
 		fprintf(output,  "################################\n");
 		fprintf(output,  "#      Waiting for events      #\n");
