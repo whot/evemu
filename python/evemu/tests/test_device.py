@@ -149,7 +149,7 @@ class DevicePropertiesTestCase(evemu.testing.testcase.BaseTestCase):
         self.assertEqual(self._device.id_bustype, 3)
 
     def test_id_vendor(self):
-        self.assertEqual(hex(self._device.id_vendor), "0x1b96")
+        self.assertEqual(self._device.id_vendor, 0x1b96)
 
     def test_id_product(self):
         self.assertEqual(self._device.id_product, 1)
