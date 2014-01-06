@@ -58,10 +58,8 @@ def print_python_bits(bits, prefix):
 
 	print("%s_map = {" % (prefix))
 	for val, name in getattr(bits, prefix).items():
-		print("	%d : \"%s\"," % (val, name))
+		print("	%d : \"%s\", \"%s\" : %d," % (val, name, name, val))
 	print("}")
-	print("for k, v in %s_map.items():" % (prefix))
-	print("	%s_map[v] = k" % (prefix))
 	print("")
 
 def print_map(bits):
