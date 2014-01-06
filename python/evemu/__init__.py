@@ -46,9 +46,9 @@ class Device(object):
         to create a pseudo-device node.
         """
 
-        if type(f).__name__ == 'str':
+        if type(f) == str:
             self._file = open(f)
-        elif type(f).__name__ == 'file':
+        elif hasattr(f, "read"):
             self._file = f
         else:
             raise TypeError("expected file or file name")
@@ -127,7 +127,7 @@ class Device(object):
 
         Scripts that use this method need to be run as root.
         """
-        if type(prop_file).__name__ != 'file':
+        if not hasattr(prop_file, "read"):
             raise TypeError("expected file")
 
         fs = self._evemu._call0(self._evemu.get_c_lib().fdopen,
@@ -146,7 +146,7 @@ class Device(object):
 
         Scripts that use this method need to be run as root.
         """
-        if type(events_file).__name__ != 'file':
+        if not hasattr(events_file, "read"):
             raise TypeError("expected file")
 
         fs = self._evemu._call0(self._evemu.get_c_lib().fdopen,
@@ -165,7 +165,7 @@ class Device(object):
 
         Scripts that use this method need to be run as root.
         """
-        if type(events_file).__name__ != 'file':
+        if not hasattr(events_file, "read"):
             raise TypeError("expected file")
 
         fs = self._evemu._call0(self._evemu.get_c_lib().fdopen,
