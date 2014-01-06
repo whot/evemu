@@ -1,9 +1,6 @@
 LIB = "libevemu.so"
 UINPUT_NODE = "/dev/uinput"
-MAX_EVENT_NODE = 32
-UINPUT_MAX_NAME_SIZE = 80 # defined in linux/uinput.h
-DEVICE_PATH_TEMPLATE = "/dev/input/event%d"
-DEVICE_NAME_PATH_TEMPLATE = "/sys/class/input/event%d/device/name"
+
 # The following should be examined every release of evemu
 API = [
     "evemu_new",
