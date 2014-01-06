@@ -6,6 +6,9 @@
 #   python convert-old-dumps-to-1.1.py myEvent.desc [myEvent.events]
 #
 
+# Make sure the print statement is disabled and the function is used.
+from __future__ import print_function
+
 import re
 import os
 import sys
@@ -22,20 +25,20 @@ def convert_events(lines):
 			type = int(type, 16)
 			code = int(code, 16)
 			value = int(value, 0)
-			print "E: %s %04x %04x %04d\t" % (t, type, code, value),
+			print("E: %s %04x %04x %04d\t" % (t, type, code, value))
 			desc = ""
 			if type == ev_map["EV_SYN"]:
 				if code == syn_map["SYN_MT_REPORT"]:
-					print "# ++++++++++++ %s (%d) ++++++++++" % (event_get_code_name(type, code), value)
+					print("# ++++++++++++ %s (%d) ++++++++++" % (event_get_code_name(type, code), value))
 				else:
-					print "# ------------ %s (%d) ----------" % (event_get_code_name(type, code), value)
+					print("# ------------ %s (%d) ----------" % (event_get_code_name(type, code), value))
 			else:
-				print "# %s / %-20s %d" % ( event_get_type_name(type), event_get_code_name(type, code), value)
+				print("# %s / %-20s %d" % ( event_get_type_name(type), event_get_code_name(type, code), value))
 		else:
-			print line,
+			print(line)
 
 def usage(args):
-	print "%s mydev.desc [mydev.events]" % os.path.basename(args[0])
+	print("%s mydev.desc [mydev.events]" % os.path.basename(args[0]))
 	return 1
 
 
@@ -47,8 +50,8 @@ if __name__ == "__main__":
 	d.describe(sys.stdout)
 	d = None
 	if len(sys.argv) > 2:
-		print "################################"
-		print "#      Waiting for events      #"
-		print "################################"
+		print("################################")
+		print("#      Waiting for events      #")
+		print("################################")
 		with open(sys.argv[2]) as f:
 			convert_events(f.readlines())
