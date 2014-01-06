@@ -79,7 +79,7 @@ class DeviceActionTestCase(testcase.BaseTestCase):
         """
         # Get original description
         with open(self.get_device_file()) as f:
-	     data = strip_comments(f.readlines())
+            data = strip_comments(f.readlines())
 
         # Create a pseudo device with that description
         d = evemu.Device(self.get_device_file())
