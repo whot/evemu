@@ -15,7 +15,7 @@ def record(recording_started, device_node, q):
     blocking API.
     """
     device = evemu.Device(device_node)
-    with tempfile.TemporaryFile() as event_file:
+    with tempfile.TemporaryFile(mode='rt') as event_file:
         recording_started.set()
         device.record(event_file, 1000)
         event_file.flush()
@@ -85,7 +85,7 @@ class DeviceActionTestCase(testcase.BaseTestCase):
         d = evemu.Device(self.get_device_file())
 
         # get the description to a temporary file
-        with tempfile.TemporaryFile() as t:
+        with tempfile.TemporaryFile(mode='rt') as t:
             d.describe(t)
 
             # read in the temporary file and compare to the original
