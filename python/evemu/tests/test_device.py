@@ -159,82 +159,54 @@ class DevicePropertiesTestCase(testcase.BaseTestCase):
         self.assertEqual(self._device.id_version, 272)
 
     def test_get_abs_minimum(self):
-        expected = [
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            ]
-        results = [self._device.get_abs_minimum(x) 
-                   for x in evemu.const.absolute_axes.values()]
-        self.assertEqual(results, expected)
+        keys = evemu.const.absolute_axes.values()
+        results = dict((x, self._device.get_abs_minimum(x)) for x in keys)
+
+        self.assertEqual(results, self.get_expected_abs("min"))
 
     def test_get_abs_maximum(self):
-        expected = [
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9600, 7200, 0, 0, 0, 0,
-            7200, 1, 7200, 0, 9600, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9600,
-            0, 0,
-            ]
-        # Skipping the entry for ABS_CNT; some times it's 0, sometimes a very
-        # large negative number.
-        results = [self._device.get_abs_maximum(x) 
-                   for x in evemu.const.absolute_axes.values()]
-        self.assertEqual(results[:-1], expected[:-1])
+        keys = evemu.const.absolute_axes.values()
+        results = dict((x, self._device.get_abs_maximum(x)) for x in keys)
+
+        self.assertEqual(results, self.get_expected_abs("max"))
 
     def test_get_abs_fuzz(self):
-        expected = [
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 75, 78, 0, 0, 0, 0, 150,
-            0, 78, 0, 75, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 200, 0, 0, 
-            ]
-        results = [self._device.get_abs_fuzz(x) 
-                   for x in evemu.const.absolute_axes.values()]
-        self.assertEqual(results, expected)
+        keys = evemu.const.absolute_axes.values()
+        results = dict((x, self._device.get_abs_fuzz(x)) for x in keys)
+
+        self.assertEqual(results, self.get_expected_abs("fuzz"))
 
     def test_get_abs_flat(self):
-        expected = [
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            ]
-        results = [self._device.get_abs_flat(x) 
-                   for x in evemu.const.absolute_axes.values()]
-        self.assertEqual(results, expected)
+        keys = evemu.const.absolute_axes.values()
+        results = dict((x, self._device.get_abs_flat(x)) for x in keys)
+
+        self.assertEqual(results, self.get_expected_abs("flat"))
 
     def test_get_abs_resolution(self):
-        expected = [
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            ]
-        results = [self._device.get_abs_resolution(x) 
-                   for x in evemu.const.absolute_axes.values()]
-        self.assertEqual(results, expected)
+        keys = evemu.const.absolute_axes.values()
+        results = dict((x, self._device.get_abs_resolution(x)) for x in keys)
+
+        self.assertEqual(results, self.get_expected_abs("res"))
 
     def test_has_prop(self):
-        expected = [
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            ]
-        results = [self._device.has_prop(x) 
-                   for x in evemu.const.absolute_axes.values()]
-        self.assertEqual(results, expected)
+        keys = evemu.const.absolute_axes.values()
+        results = dict((x, bool(self._device.has_prop(x))) for x in keys)
+
+        self.assertEqual(results, self.get_expected_propbits())
 
     def test_has_event_ev_abs(self):
-        expected = [
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1,
-            1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-            ]
-        results = [self._device.has_event(evemu.const.event_types["EV_ABS"], x) 
-                   for x in evemu.const.absolute_axes.values()]
-        self.assertEqual(results, expected)
+        ev_abs = evemu.const.event_types["EV_ABS"]
+        keys = evemu.const.absolute_axes.values()
+        results = dict((x, bool(self._device.has_event(ev_abs, x))) for x in keys)
+
+        self.assertEqual(results, self.get_expected_absbits())
 
     def test_has_event_ev_key(self):
-        expected = [
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            ]
-        results = [self._device.has_event(evemu.const.event_types["EV_KEY"], x) 
-                   for x in evemu.const.buttons.values()]
-        self.assertEqual(results, expected)
+        ev_key = evemu.const.event_types["EV_KEY"]
+        keys = evemu.const.buttons.values()
+        results = dict((x, bool(self._device.has_event(ev_key, x))) for x in keys)
+
+        self.assertEqual(results, self.get_expected_keybits())
 
 
 if __name__ == "__main__":
