@@ -10,10 +10,8 @@ class EvEmuBase(object):
     """
     A base wrapper class for the evemu functions, accessed via ctypes.
     """
-    def __init__(self, library=""):
-        if not library:
-            library = const.LIB
-        self._lib = ctypes.CDLL(library, use_errno=True)
+    def __init__(self):
+        self._lib = ctypes.CDLL(const.LIB, use_errno=True)
         self._libc = ctypes.CDLL(find_library("c"), use_errno=True)
 
     def _call0(self, api_call, *parameters):

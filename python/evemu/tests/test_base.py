@@ -8,14 +8,14 @@ from evemu.testing import testcase
 class EvEmuBaseTestCase(testcase.BaseTestCase):
 
     def test_so_library_found(self):
-        wrapper = EvEmuBase(self.library)
+        wrapper = EvEmuBase()
         # Make sure that the library loads
         self.assertNotEqual(
             wrapper._lib._name.find("libevemu"), -1)
 
     def test_c_symbols_found(self):
         # Make sure that the expected functions are present
-        wrapper = EvEmuBase(self.library)
+        wrapper = EvEmuBase()
         for function_name in const.API:
             function = getattr(wrapper._lib, function_name)
             self.assertTrue(function is not None)

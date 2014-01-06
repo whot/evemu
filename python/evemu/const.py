@@ -1,6 +1,4 @@
 LIB = "libevemu.so"
-DEFAULT_LIB = "/usr/lib/libevemu.so"
-LOCAL_LIB = "../src/.libs/libevemu.so"
 UINPUT_NODE = "/dev/uinput"
 MAX_EVENT_NODE = 32
 UINPUT_MAX_NAME_SIZE = 80 # defined in linux/uinput.h

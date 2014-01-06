@@ -46,13 +46,6 @@ class BaseTestCase(unittest.TestCase):
 
     def setUp(self):
         super(BaseTestCase, self).setUp()
-        library = find_library(const.LIB)
-        if not library:
-            if os.path.exists(const.DEFAULT_LIB):
-                library = const.DEFAULT_LIB
-            else:
-                library = const.LOCAL_LIB
-        self.library = library
         basedir = get_top_directory()
         self.data_dir = os.path.join(basedir, "..", "..", "data")
         self.device = None

@@ -54,7 +54,7 @@ class Device(object):
             raise TypeError("expected file or file name")
 
         self._is_propfile = self._check_is_propfile(self._file)
-        self._evemu = evemu.base.EvEmuBase(find_library(evemu.const.LIB))
+        self._evemu = evemu.base.EvEmuBase()
         self._uinput = None
 
         libevemu_new = self._evemu.get_lib().evemu_new
