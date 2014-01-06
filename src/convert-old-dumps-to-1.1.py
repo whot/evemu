@@ -9,11 +9,12 @@
 # Make sure the print statement is disabled and the function is used.
 from __future__ import print_function
 
-import re
 import os
+import re
 import sys
+
 import evemu
-from event_names import *
+import event_names
 
 def convert_events(lines):
 	event_re = re.compile(r"E: (\d+\.\d*) ([a-fA-f0-9]+) ([a-fA-f0-9]+) (-?\d*)\n")
@@ -27,13 +28,13 @@ def convert_events(lines):
 			value = int(value, 0)
 			print("E: %s %04x %04x %04d\t" % (t, type, code, value))
 			desc = ""
-			if type == ev_map["EV_SYN"]:
+			if type == event_names.ev_map["EV_SYN"]:
 				if code == syn_map["SYN_MT_REPORT"]:
-					print("# ++++++++++++ %s (%d) ++++++++++" % (event_get_code_name(type, code), value))
+					print("# ++++++++++++ %s (%d) ++++++++++" % (event_names.event_get_code_name(type, code), value))
 				else:
-					print("# ------------ %s (%d) ----------" % (event_get_code_name(type, code), value))
+					print("# ------------ %s (%d) ----------" % (event_names.event_get_code_name(type, code), value))
 			else:
-				print("# %s / %-20s %d" % ( event_get_type_name(type), event_get_code_name(type, code), value))
+				print("# %s / %-20s %d" % (event_names.event_get_type_name(type), event_get_code_name(type, code), value))
 		else:
 			print(line)
 

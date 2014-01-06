@@ -1,12 +1,12 @@
 import os
 import unittest
 
-from evemu.testing import result
+import evemu.testing.result
+import evemu.tests
 
 
 def get_test_directory():
-    from evemu import tests
-    return tests.__path__[0]
+    return evemu.tests.__path__[0]
 
 
 class CustomTestRunner(unittest.TextTestRunner):
@@ -14,7 +14,7 @@ class CustomTestRunner(unittest.TextTestRunner):
     This is only needed for Python 2.6 and lower.
     """
     def _makeResult(self):
-        return result.CustomTestResult(
+        return evemu.testing.result.CustomTestResult(
             self.stream, self.descriptions, self.verbosity)
 
 
@@ -46,7 +46,7 @@ def get_runner():
     try:
         # Python 2.7
         runner = unittest.TextTestRunner(
-            verbosity=2, resultclass=result.CustomTestResult)
+            verbosity=2, resultclass=evemu.testing.result.CustomTestResult)
     except TypeError:
         # Python 2.4, 2.5, 2.6
         runner = CustomTestRunner(verbosity=2)

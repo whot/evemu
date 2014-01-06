@@ -7,9 +7,9 @@
 # Make sure the print statement is disabled and the function is used.
 from __future__ import print_function
 
+import argparse
 import re
 import sys
-import argparse
 
 SOURCE_FILE = "/usr/include/linux/input.h"
 

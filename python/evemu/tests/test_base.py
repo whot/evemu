@@ -1,22 +1,22 @@
 import unittest
 
-from evemu import const
-from evemu.base import EvEmuBase
-from evemu.testing import testcase
+import evemu.base
+import evemu.const
+import evemu.testing.testcase
 
 
-class EvEmuBaseTestCase(testcase.BaseTestCase):
+class EvEmuBaseTestCase(evemu.testing.testcase.BaseTestCase):
 
     def test_so_library_found(self):
-        wrapper = EvEmuBase()
+        wrapper = evemu.base.EvEmuBase()
         # Make sure that the library loads
         self.assertNotEqual(
             wrapper._lib._name.find("libevemu"), -1)
 
     def test_c_symbols_found(self):
         # Make sure that the expected functions are present
-        wrapper = EvEmuBase()
-        for function_name in const.API:
+        wrapper = evemu.base.EvEmuBase()
+        for function_name in evemu.const.API:
             function = getattr(wrapper._lib, function_name)
             self.assertTrue(function is not None)
 

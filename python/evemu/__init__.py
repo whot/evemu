@@ -17,15 +17,14 @@ raw events.
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from ctypes.util import find_library
-
 import ctypes
-import evemu.base
-import evemu.const
 import glob
 import os
 import re
 import stat
+
+import evemu.base
+import evemu.const
 
 __all__ = ["Device"]
 

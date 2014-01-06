@@ -1,9 +1,9 @@
 import ctypes
-from ctypes.util import find_library
+import ctypes.util
 import os
 
-from evemu import const
-from evemu import exception
+import evemu.const
+import evemu.exception
 
 
 class EvEmuBase(object):
@@ -11,20 +11,20 @@ class EvEmuBase(object):
     A base wrapper class for the evemu functions, accessed via ctypes.
     """
     def __init__(self):
-        self._lib = ctypes.CDLL(const.LIB, use_errno=True)
-        self._libc = ctypes.CDLL(find_library("c"), use_errno=True)
+        self._lib = ctypes.CDLL(evemu.const.LIB, use_errno=True)
+        self._libc = ctypes.CDLL(ctypes.util.find_library("c"), use_errno=True)
 
     def _call0(self, api_call, *parameters):
         result = api_call(*parameters)
         if result == 0 and self.get_c_errno() != 0:
-            raise exception.ExecutionError("%s: %s" % (
+            raise evemu.exception.ExecutionError("%s: %s" % (
                 api_call.__name__, self.get_c_error()))
         return result
 
     def _call(self, api_call, *parameters):
         result = api_call(*parameters)
         if result < 0 and self.get_c_errno() != 0:
-            raise exception.ExecutionError("%s: %s" % (
+            raise evemu.exception.ExecutionError("%s: %s" % (
                 api_call.__name__, self.get_c_error()))
         return result
 

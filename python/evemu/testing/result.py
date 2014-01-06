@@ -1,4 +1,8 @@
 import unittest
+
+import evemu.tests
+
+
 try:
     # Python 2.7
     from unittest import TextTestResult
@@ -8,8 +12,7 @@ except ImportError:
 
 
 def get_test_directory():
-    from evemu import tests
-    return tests.__path__[0]
+    return evemu.tests.__path__[0]
 
 
 def get_test_module():

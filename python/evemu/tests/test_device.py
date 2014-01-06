@@ -1,12 +1,11 @@
-
-from evemu.testing import testcase
 from multiprocessing import Process, Queue, Event
 
-import evemu
-import os
 import re
 import tempfile
 import unittest
+
+import evemu
+import evemu.testing.testcase
 
 
 def record(recording_started, device_node, q):
@@ -40,7 +39,7 @@ def extract_events(data):
     """
     return [line for line in data if line.startswith("E:")]
 
-class DeviceActionTestCase(testcase.BaseTestCase):
+class DeviceActionTestCase(evemu.testing.testcase.BaseTestCase):
     """
     Verifies the high-level Device functions (create, describe, play, record).
     """
@@ -127,7 +126,7 @@ class DeviceActionTestCase(testcase.BaseTestCase):
             self.assertEquals(lhs.group(1), rhs.group(1))
 
 
-class DevicePropertiesTestCase(testcase.BaseTestCase):
+class DevicePropertiesTestCase(evemu.testing.testcase.BaseTestCase):
     """
     Verifies the workings of the various device property accessors.
     """
