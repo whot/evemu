@@ -47,7 +47,7 @@ class Device(object):
         """
 
         if type(f).__name__ == 'str':
-            self._file = open(f, 'r+b')
+            self._file = open(f)
         elif type(f).__name__ == 'file':
             self._file = f
         else:
@@ -85,7 +85,7 @@ class Device(object):
         self._evemu._call(self._evemu.get_lib().evemu_create,
                           self._evemu_device,
                           self._uinput)
-        return open(self._find_newest_devnode(self.name), 'r+')
+        return open(self._find_newest_devnode(self.name), 'r+b', buffering=0)
 
     def _find_newest_devnode(self, target_name):
         newest_node = (None, float(0))
