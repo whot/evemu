@@ -1,4 +1,6 @@
 #!/bin/sh
 
-PYTHONPATH=@builddir@:@srcdir@ LD_LIBRARY_PATH=@top_builddir@/src/.libs @python@ -m evemu.testing.runner
+PYTHON=${PYTHON:-@python@}
+
+PYTHONPATH=@builddir@:@srcdir@ LD_LIBRARY_PATH=@top_builddir@/src/.libs $PYTHON -m evemu.testing.runner
 
