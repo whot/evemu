@@ -259,9 +259,9 @@ class Device(object):
                                  event_code)
 
     def has_prop(self, event_code):
-        return self._evemu._call(self._evemu.get_lib().evemu_has_prop,
-                                 self._evemu_device,
-                                 event_code)
+        return bool(self._evemu._call(self._evemu.get_lib().evemu_has_prop,
+                                      self._evemu_device,
+                                      event_code))
 
     def has_event(self, event_type, event_code):
         """
@@ -275,8 +275,8 @@ class Device(object):
         used to simulate gestures for a higher number of touches than are
         possible with just 2-touch hardware.
         """
-        return self._evemu._call(self._evemu.get_lib().evemu_has_event,
-                                 self._evemu_device,
-                                 event_type,
-                                 event_code)
+        return bool(self._evemu._call(self._evemu.get_lib().evemu_has_event,
+                                      self._evemu_device,
+                                      event_type,
+                                      event_code))
 

@@ -190,21 +190,21 @@ class DevicePropertiesTestCase(testcase.BaseTestCase):
 
     def test_has_prop(self):
         keys = evemu.const.absolute_axes.values()
-        results = dict((x, bool(self._device.has_prop(x))) for x in keys)
+        results = dict((x, self._device.has_prop(x)) for x in keys)
 
         self.assertEqual(results, self.get_expected_propbits())
 
     def test_has_event_ev_abs(self):
         ev_abs = evemu.const.event_types["EV_ABS"]
         keys = evemu.const.absolute_axes.values()
-        results = dict((x, bool(self._device.has_event(ev_abs, x))) for x in keys)
+        results = dict((x, self._device.has_event(ev_abs, x)) for x in keys)
 
         self.assertEqual(results, self.get_expected_absbits())
 
     def test_has_event_ev_key(self):
         ev_key = evemu.const.event_types["EV_KEY"]
         keys = evemu.const.buttons.values()
-        results = dict((x, bool(self._device.has_event(ev_key, x))) for x in keys)
+        results = dict((x, self._device.has_event(ev_key, x)) for x in keys)
 
         self.assertEqual(results, self.get_expected_keybits())
 
