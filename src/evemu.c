@@ -726,7 +726,7 @@ int evemu_play_one(int fd, const struct input_event *ev)
 {
 	int ret;
 	SYSCALL(ret = write(fd, ev, sizeof(*ev)));
-	return (ret == -1 || (size_t)ret < sizeof(*ev));
+	return (ret == -1 || (size_t)ret < sizeof(*ev)) ? -1 : 0;
 }
 
 static void evemu_warn_about_incompatible_event(struct input_event *ev)

@@ -393,6 +393,8 @@ int evemu_record(FILE *fp, int fd, int ms);
  * evemu_play_one() - play one event to kernel device
  * @fd: file descriptor of kernel device to write to
  * @ev: pointer to the kernel event to be played
+ *
+ * Returns zero if successful, negative error otherwise.
  */
 int evemu_play_one(int fd, const struct input_event *ev);
 
