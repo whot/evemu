@@ -423,6 +423,18 @@ int evemu_play(FILE *fp, int fd);
 int evemu_create(struct evemu_device *dev, int fd);
 
 /**
+ * evemu_create_managed() - create a kernel device from the evemu configuration
+ * @dev: the device in use
+ *
+ * Creates a new device with all the properties of the evemu device.
+ * Compared to evemu_create, evemu will take care of the handling of the uinput
+ * file descriptor.
+ *
+ * Returns zero if successful, negative error otherwise.
+ */
+int evemu_create_managed(struct evemu_device *dev);
+
+/**
  * evemu_get_devnode() - get device node
  * @dev: the device in use
  *

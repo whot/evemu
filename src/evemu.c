@@ -781,6 +781,12 @@ int evemu_create(struct evemu_device *dev, int fd)
 	return libevdev_uinput_create_from_device(dev->evdev, fd, &dev->uidev);
 }
 
+int evemu_create_managed(struct evemu_device *dev)
+{
+	return libevdev_uinput_create_from_device(dev->evdev,
+		LIBEVDEV_UINPUT_OPEN_MANAGED, &dev->uidev);
+}
+
 const char *evemu_get_devnode(struct evemu_device *dev)
 {
 	return libevdev_uinput_get_devnode(dev->uidev);

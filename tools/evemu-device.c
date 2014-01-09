@@ -50,8 +50,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#define UINPUT_NODE "/dev/uinput"
-
 /*
  * Finds the newly created device node and holds it open.
  */
@@ -85,7 +83,6 @@ static int evemu_device(FILE *fp)
 {
 	struct evemu_device *dev;
 	int ret = -ENOMEM;
-	int fd;
 
 	dev = evemu_new(NULL);
 	if (!dev)
@@ -100,18 +97,12 @@ static int evemu_device(FILE *fp)
 		evemu_set_name(dev, name);
 	}
 
-	ret = fd = open(UINPUT_NODE, O_WRONLY);
+	ret = evemu_create_managed(dev);
 	if (ret < 0)
 		goto out;
-
-	ret = evemu_create(dev, fd);
-	if (ret < 0)
-		goto out_close;
 	hold_device(dev);
 	evemu_destroy(dev);
 
-out_close:
-	close(fd);
 out:
 	evemu_delete(dev);
 

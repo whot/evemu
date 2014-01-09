@@ -2,6 +2,7 @@ EVEMU_2.0 {
   global:
     evemu_create;
     evemu_create_event;
+    evemu_create_managed;
     evemu_delete;
     evemu_destroy;
     evemu_extract;
