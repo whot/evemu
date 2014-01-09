@@ -62,19 +62,19 @@ static void hold_device(struct evemu_device *dev)
 	int fd;
 
 	const char *device_node = evemu_get_devnode(dev);
-        if (!device_node)
-        {
-          fprintf(stderr, "can not determine device node\n");
-          return;
-        }
+	if (!device_node)
+	{
+		fprintf(stderr, "can not determine device node\n");
+		return;
+	}
 
-        fd = open(device_node, O_RDONLY);
-        if (fd < 0)
-        {
-          fprintf(stderr, "error %d opening %s: %s\n",
-                  errno, device_node, strerror(errno));
-          return;
-        }
+	fd = open(device_node, O_RDONLY);
+	if (fd < 0)
+	{
+		fprintf(stderr, "error %d opening %s: %s\n",
+			errno, device_node, strerror(errno));
+	  return;
+	}
 	fprintf(stdout, "%s: %s\n", evemu_get_name(dev), device_node);
 	fflush(stdout);
 	while ((ret = read(fd, data, sizeof(data))) > 0);
