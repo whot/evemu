@@ -781,6 +781,11 @@ int evemu_create(struct evemu_device *dev, int fd)
 	return libevdev_uinput_create_from_device(dev->evdev, fd, &dev->uidev);
 }
 
+const char *evemu_get_devnode(struct evemu_device *dev)
+{
+	return libevdev_uinput_get_devnode(dev->uidev);
+}
+
 void evemu_destroy(struct evemu_device *dev)
 {
 	if (dev->uidev) {

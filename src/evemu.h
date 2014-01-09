@@ -423,6 +423,15 @@ int evemu_play(FILE *fp, int fd);
 int evemu_create(struct evemu_device *dev, int fd);
 
 /**
+ * evemu_get_devnode() - get device node
+ * @dev: the device in use
+ *
+ * Returns the input device node of the virtual device. The pointer is owned by
+ * the evemu instance and has evemu scope.
+ */
+const char *evemu_get_devnode(struct evemu_device *dev);
+
+/**
  * evemu_destroy() - destroy all created kernel devices
  * @dev: the device to destroy
  *

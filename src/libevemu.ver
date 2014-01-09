@@ -11,6 +11,7 @@ EVEMU_2.0 {
     evemu_get_abs_maximum;
     evemu_get_abs_minimum;
     evemu_get_abs_resolution;
+    evemu_get_devnode;
     evemu_get_id_bustype;
     evemu_get_id_product;
     evemu_get_id_vendor;
