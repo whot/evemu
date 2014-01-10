@@ -54,6 +54,7 @@ class Device(object):
 
         self._is_propfile = self._check_is_propfile(self._file)
         self._evemu = evemu.base.EvEmuBase()
+        self._libc = evemu.base.LibC()
         self._uinput = None
 
         libevemu_new = self._evemu.get_lib().evemu_new
@@ -61,9 +62,7 @@ class Device(object):
         self._evemu_device = libevemu_new("")
 
         if self._is_propfile:
-            fs = self._evemu._call0(self._evemu.get_c_lib().fdopen,
-                                    self._file.fileno(),
-                                    'r')
+            fs = self._libc.fdopen(self._file.fileno(), b"r")
             self._evemu._call(self._evemu.get_lib().evemu_read,
                               self._evemu_device,
                               fs)
@@ -129,13 +128,11 @@ class Device(object):
         if not hasattr(prop_file, "read"):
             raise TypeError("expected file")
 
-        fs = self._evemu._call0(self._evemu.get_c_lib().fdopen,
-                                prop_file.fileno(),
-                                "w")
+        fs = self._libc.fdopen(prop_file.fileno(), b"w")
         self._evemu._call(self._evemu.get_lib().evemu_write,
                           self._evemu_device,
                           fs)
-        self._evemu.get_c_lib().fflush(fs)
+        self._libc.fflush(fs)
 
     def play(self, events_file):
         """
@@ -148,9 +145,7 @@ class Device(object):
         if not hasattr(events_file, "read"):
             raise TypeError("expected file")
 
-        fs = self._evemu._call0(self._evemu.get_c_lib().fdopen,
-                                events_file.fileno(),
-                                "r")
+        fs = self._libc.fdopen(events_file.fileno(), b"r")
         self._evemu._call(self._evemu.get_lib().evemu_play,
                           fs,
                           self._file.fileno())
@@ -167,14 +162,12 @@ class Device(object):
         if not hasattr(events_file, "read"):
             raise TypeError("expected file")
 
-        fs = self._evemu._call0(self._evemu.get_c_lib().fdopen,
-                                events_file.fileno(),
-                                "w")
+        fs = self._libc.fdopen(events_file.fileno(), b"w")
         self._evemu._call(self._evemu.get_lib().evemu_record,
                           fs,
                           self._file.fileno(),
                           timeout)
-        self._evemu.get_c_lib().fflush(fs)
+        self._libc.fflush(fs)
 
     @property
     def version(self):

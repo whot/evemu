@@ -137,20 +137,35 @@ class LibraryWrapper(object):
         raise NotImplementedError
 
 
+class LibC(LibraryWrapper):
+    """
+    Wrapper for API calls to the C library.
+    """
+
+    @staticmethod
+    def _cdll():
+        return ctypes.CDLL(ctypes.util.find_library("c"), use_errno=True)
+
+    _api_prototypes = {
+        "fdopen": {
+            "argtypes": (c_int, c_char_p),
+            "restype": c_void_p,
+            "errcheck": expect_not_none
+            },
+        "fflush": {
+            "argtypes": (c_void_p,),
+            "restype": c_int,
+            "errcheck": expect_eq_zero
+            },
+        }
+
+
 class EvEmuBase(object):
     """
     A base wrapper class for the evemu functions, accessed via ctypes.
     """
     def __init__(self):
         self._lib = ctypes.CDLL(evemu.const.LIB, use_errno=True)
-        self._libc = ctypes.CDLL(ctypes.util.find_library("c"), use_errno=True)
-
-    def _call0(self, api_call, *parameters):
-        result = api_call(*parameters)
-        if result == 0 and self.get_c_errno() != 0:
-            raise evemu.exception.ExecutionError("%s: %s" % (
-                api_call.__name__, self.get_c_error()))
-        return result
 
     def _call(self, api_call, *parameters):
         result = api_call(*parameters)
@@ -164,9 +179,6 @@ class EvEmuBase(object):
 
     def get_c_error(self):
         return os.strerror(ctypes.get_errno())
-
-    def get_c_lib(self):
-        return self._libc
 
     def get_lib(self):
         return self._lib
