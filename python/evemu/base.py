@@ -160,25 +160,243 @@ class LibC(LibraryWrapper):
         }
 
 
-class EvEmuBase(object):
+class LibEvemu(LibraryWrapper):
     """
-    A base wrapper class for the evemu functions, accessed via ctypes.
+    Wrapper for API calls to the evemu library.
     """
-    def __init__(self):
-        self._lib = ctypes.CDLL(evemu.const.LIB, use_errno=True)
 
-    def _call(self, api_call, *parameters):
-        result = api_call(*parameters)
-        if result < 0 and self.get_c_errno() != 0:
-            raise evemu.exception.ExecutionError("%s: %s" % (
-                api_call.__name__, self.get_c_error()))
-        return result
+    @staticmethod
+    def _cdll():
+        return ctypes.CDLL(evemu.const.LIB, use_errno=True)
 
-    def get_c_errno(self):
-        return ctypes.get_errno()
-
-    def get_c_error(self):
-        return os.strerror(ctypes.get_errno())
-
-    def get_lib(self):
-        return self._lib
+    _api_prototypes = {
+        #struct evemu_device *evemu_new(const char *name);
+        "evemu_new": {
+            "argtypes": (c_char_p,),
+            "restype": c_void_p,
+            "errcheck": expect_not_none
+            },
+        #void evemu_delete(struct evemu_device *dev);
+        "evemu_delete": {
+            "argtypes": (c_void_p,),
+            "restype": None
+            },
+        #unsigned int evemu_get_version(const struct evemu_device *dev);
+        "evemu_get_version": {
+            "argtypes": (c_void_p,),
+            "restype": c_uint,
+            },
+        #const char *evemu_get_name(const struct evemu_device *dev);
+        "evemu_get_name": {
+            "argtypes": (c_void_p,),
+            "restype": c_char_p,
+            "errcheck": expect_not_none
+            },
+        #void evemu_set_name(struct evemu_device *dev, const char *name);
+        "evemu_set_name": {
+            "argtypes": (c_void_p, c_char_p),
+            "restype": None
+            },
+        #unsigned int evemu_get_id_bustype(const struct evemu_device *dev);
+        "evemu_get_id_bustype": {
+            "argtypes": (c_void_p,),
+            "restype": c_uint
+            },
+        #void evemu_set_id_bustype(struct evemu_device *dev,
+        #                          unsigned int bustype);
+        "evemu_set_id_bustype": {
+            "argtypes": (c_void_p, c_uint),
+            "restype": None
+            },
+        #unsigned int evemu_get_id_vendor(const struct evemu_device *dev);
+        "evemu_get_id_vendor": {
+            "argtypes": (c_void_p,),
+            "restype": c_uint
+            },
+        #void evemu_set_id_vendor(struct evemu_device *dev,
+        #                         unsigned int vendor);
+        "evemu_set_id_vendor": {
+            "argtypes": (c_void_p, c_uint),
+            "restype": None
+            },
+        #unsigned int evemu_get_id_product(const struct evemu_device *dev);
+        "evemu_get_id_product": {
+            "argtypes": (c_void_p,),
+            "restype": c_uint
+            },
+        #void evemu_set_id_product(struct evemu_device *dev,
+        #                          unsigned int product);
+        "evemu_set_id_product": {
+            "argtypes": (c_void_p, c_uint),
+            "restype": None
+            },
+        #unsigned int evemu_get_id_version(const struct evemu_device *dev);
+        "evemu_get_id_version": {
+            "argtypes": (c_void_p,),
+            "restype": c_uint
+            },
+        #void evemu_set_id_version(struct evemu_device *dev,
+        #                          unsigned int version);
+        "evemu_set_id_version": {
+            "argtypes": (c_void_p, c_uint),
+            "restype": None
+            },
+        #int evemu_get_abs_current_value(const struct evemu_device *dev,
+        #                                int code);
+        "evemu_get_abs_current_value": {
+            "argtypes": (c_void_p, c_int),
+            "restype": c_int,
+            "errcheck": expect_ge_zero
+            },
+        #int evemu_get_abs_minimum(const struct evemu_device *dev, int code);
+        "evemu_get_abs_minimum": {
+            "argtypes": (c_void_p, c_int),
+            "restype": c_int,
+            "errcheck": expect_ge_zero
+            },
+        #void evemu_set_abs_minimum(struct evemu_device *dev, int code,
+        #                           int min);
+        "evemu_set_abs_minimum": {
+            "argtypes": (c_void_p, c_int, c_int),
+            "restype": None
+            },
+        #int evemu_get_abs_maximum(const struct evemu_device *dev, int code);
+        "evemu_get_abs_maximum": {
+            "argtypes": (c_void_p, c_int),
+            "restype": c_int,
+            "errcheck": expect_ge_zero
+            },
+        #void evemu_set_abs_maximum(struct evemu_device *dev, int code,
+        #                           int max);
+        "evemu_set_abs_maximum": {
+            "argtypes": (c_void_p, c_int, c_int),
+            "restype": None
+            },
+        #int evemu_get_abs_fuzz(const struct evemu_device *dev, int code);
+        "evemu_get_abs_fuzz": {
+            "argtypes": (c_void_p, c_int),
+            "restype": c_int,
+            "errcheck": expect_ge_zero
+            },
+        #void evemu_set_abs_fuzz(struct evemu_device *dev, int code, int fuzz);
+        "evemu_set_abs_fuzz": {
+            "argtypes": (c_void_p, c_int, c_int),
+            "restype": None,
+            },
+        #int evemu_get_abs_flat(const struct evemu_device *dev, int code);
+        "evemu_get_abs_flat": {
+            "argtypes": (c_void_p, c_int),
+            "restype": c_int,
+            "errcheck": expect_ge_zero
+            },
+        #void evemu_set_abs_flat(struct evemu_device *dev, int code, int flat);
+        "evemu_set_abs_flat": {
+            "argtypes": (c_void_p, c_int, c_int),
+            "restype": None
+            },
+        #int evemu_get_abs_resolution(const struct evemu_device *dev,
+        #                             int code);
+        "evemu_get_abs_resolution": {
+            "argtypes": (c_void_p, c_int),
+            "restype": c_int,
+            "errcheck": expect_ge_zero
+            },
+        #void evemu_set_abs_resolution(struct evemu_device *dev, int code,
+        #                              int res);
+        "evemu_set_abs_resolution": {
+            "argtypes": (c_void_p, c_int, c_int),
+            "restype": None
+            },
+        #int evemu_has_prop(const struct evemu_device *dev, int code);
+        "evemu_has_prop": {
+            "argtypes": (c_void_p, c_int),
+            "restype": c_int,
+            "errcheck": expect_ge_zero
+            },
+        #int evemu_has_event(const struct evemu_device *dev, int type,
+        #                    int code);
+        "evemu_has_event": {
+            "argtypes": (c_void_p, c_int, c_int),
+            "restype": c_int,
+            "errcheck": expect_ge_zero
+            },
+        #int evemu_has_bit(const struct evemu_device *dev, int type);
+        "evemu_has_bit": {
+            "argtypes": (c_void_p, c_int),
+            "restype": c_int,
+            "errcheck": expect_ge_zero
+            },
+        #int evemu_extract(struct evemu_device *dev, int fd);
+        "evemu_extract": {
+            "argtypes": (c_void_p, c_int),
+            "restype": c_int,
+            "errcheck": expect_eq_zero
+            },
+        #int evemu_write(const struct evemu_device *dev, FILE *fp);
+        "evemu_write": {
+            "argtypes": (c_void_p, c_void_p),
+            "restype": c_int,
+            "errcheck": expect_eq_zero
+            },
+        #int evemu_read(struct evemu_device *dev, FILE *fp);
+        "evemu_read": {
+            "argtypes": (c_void_p, c_void_p),
+            "restype": c_int,
+            "errcheck": expect_gt_zero
+            },
+        #int evemu_write_event(FILE *fp, const struct input_event *ev);
+        "evemu_write_event": {
+            "argtypes": (c_void_p, c_void_p),
+            "restype": c_int,
+            "errcheck": expect_gt_zero
+            },
+        #int evemu_create_event(struct input_event *ev, int type, int code,
+        #                       int value);
+        "evemu_create_event": {
+            "argtypes": (c_void_p, c_int, c_int, c_int),
+            "restype": c_int,
+            "errcheck": expect_eq_zero
+            },
+        #int evemu_read_event(FILE *fp, struct input_event *ev);
+        "evemu_read_event": {
+            "argtypes": (c_void_p, c_void_p),
+            "restype": c_int,
+            "errcheck": expect_gt_zero
+            },
+        #int evemu_read_event_realtime(FILE *fp, struct input_event *ev,
+        #			      struct timeval *evtime);
+        "evemu_read_event_realtime": {
+            "argtypes": (c_void_p, c_void_p, c_void_p),
+            "restype": c_int,
+            "errcheck": expect_gt_zero
+            },
+        #int evemu_record(FILE *fp, int fd, int ms);
+        "evemu_record": {
+            "argtypes": (c_void_p, c_int, c_int),
+            "restype": c_int,
+            "errcheck": expect_eq_zero
+            },
+        #int evemu_play_one(int fd, const struct input_event *ev);
+        "evemu_play_one": {
+            "argtypes": (c_int, c_void_p),
+            "restype": c_int,
+            "errcheck": expect_eq_zero
+            },
+        #int evemu_play(FILE *fp, int fd);
+        "evemu_play": {
+            "argtypes": (c_void_p, c_int),
+            "restype": c_int,
+            "errcheck": expect_eq_zero
+            },
+        #int evemu_create(struct evemu_device *dev, int fd);
+        "evemu_create": {
+            "argtypes": (c_void_p, c_int),
+            "restype": c_int,
+            "errcheck": expect_eq_zero
+            },
+        #void evemu_destroy(struct evemu_device *dev);
+        "evemu_destroy": {
+            "argtypes": (c_void_p,),
+            "restype": None
+            },
+        }

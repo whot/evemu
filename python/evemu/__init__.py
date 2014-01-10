@@ -53,36 +53,28 @@ class Device(object):
             raise TypeError("expected file or file name")
 
         self._is_propfile = self._check_is_propfile(self._file)
-        self._evemu = evemu.base.EvEmuBase()
         self._libc = evemu.base.LibC()
+        self._libevemu = evemu.base.LibEvemu()
         self._uinput = None
 
-        libevemu_new = self._evemu.get_lib().evemu_new
-        libevemu_new.restype = ctypes.c_void_p
-        self._evemu_device = libevemu_new("")
+        self._evemu_device = self._libevemu.evemu_new(b"")
 
         if self._is_propfile:
             fs = self._libc.fdopen(self._file.fileno(), b"r")
-            self._evemu._call(self._evemu.get_lib().evemu_read,
-                              self._evemu_device,
-                              fs)
+            self._libevemu.evemu_read(self._evemu_device, fs)
             self._uinput = os.open(evemu.const.UINPUT_NODE, os.O_WRONLY)
             self._file = self._create_devnode()
         else:
-            self._evemu._call(self._evemu.get_lib().evemu_extract,
-                             self._evemu_device,
-                             self._file.fileno())
+            self._libevemu.evemu_extract(self._evemu_device,
+                                         self._file.fileno())
 
     def __del__(self):
         if hasattr(self, "_is_propfile") and self._is_propfile:
             self._file.close()
-            self._evemu._call(self._evemu.get_lib().evemu_destroy,
-                              self._evemu_device, self._uinput)
+            self._libevemu.evemu_destroy(self._evemu_device, self._uinput)
 
     def _create_devnode(self):
-        self._evemu._call(self._evemu.get_lib().evemu_create,
-                          self._evemu_device,
-                          self._uinput)
+        self._libevemu.evemu_create(self._evemu_device, self._uinput)
         return open(self._find_newest_devnode(self.name), 'r+b', buffering=0)
 
     def _find_newest_devnode(self, target_name):
@@ -129,9 +121,7 @@ class Device(object):
             raise TypeError("expected file")
 
         fs = self._libc.fdopen(prop_file.fileno(), b"w")
-        self._evemu._call(self._evemu.get_lib().evemu_write,
-                          self._evemu_device,
-                          fs)
+        self._libevemu.evemu_write(self._evemu_device, fs)
         self._libc.fflush(fs)
 
     def play(self, events_file):
@@ -146,9 +136,7 @@ class Device(object):
             raise TypeError("expected file")
 
         fs = self._libc.fdopen(events_file.fileno(), b"r")
-        self._evemu._call(self._evemu.get_lib().evemu_play,
-                          fs,
-                          self._file.fileno())
+        self._libevemu.evemu_play(fs, self._file.fileno())
 
     def record(self, events_file, timeout=10000):
         """
@@ -163,10 +151,7 @@ class Device(object):
             raise TypeError("expected file")
 
         fs = self._libc.fdopen(events_file.fileno(), b"w")
-        self._evemu._call(self._evemu.get_lib().evemu_record,
-                          fs,
-                          self._file.fileno(),
-                          timeout)
+        self._libevemu.evemu_record(fs, self._file.fileno(), timeout)
         self._libc.fflush(fs)
 
     @property
@@ -174,8 +159,7 @@ class Device(object):
         """
         Gets the version of the evemu library used to create the Device.
         """
-        return self._evemu._call(self._evemu.get_lib().evemu_get_version,
-                                 self._evemu_device)
+        return self._libevemu.evemu_get_version(self._evemu_device)
 
     @property
     def devnode(self):
@@ -189,71 +173,60 @@ class Device(object):
         """
         Gets the name of the input device (as reported by the device).
         """
-        func = self._evemu.get_lib().evemu_get_name
-        func.restype = ctypes.c_char_p
-        return self._evemu._call(func, self._evemu_device)
+        result = self._libevemu.evemu_get_name(self._evemu_device)
+        return result.decode(evemu.const.ENCODING)
 
     @property
     def id_bustype(self):
         """
         Identifies the kernel device bustype.
         """
-        return self._evemu._call(self._evemu.get_lib().evemu_get_id_bustype,
-                                 self._evemu_device)
+        return self._libevemu.evemu_get_id_bustype(self._evemu_device)
 
     @property
     def id_vendor(self):
         """
         Identifies the kernel device vendor.
         """
-        return self._evemu._call(self._evemu.get_lib().evemu_get_id_vendor,
-                                 self._evemu_device)
+        return self._libevemu.evemu_get_id_vendor(self._evemu_device)
 
     @property
     def id_product(self):
         """
         Identifies the kernel device product.
         """
-        return self._evemu._call(self._evemu.get_lib().evemu_get_id_product,
-                                 self._evemu_device)
+        return self._libevemu.evemu_get_id_product(self._evemu_device)
 
     @property
     def id_version(self):
         """
         Identifies the kernel device version.
         """
-        return self._evemu._call(self._evemu.get_lib().evemu_get_id_version,
-                                 self._evemu_device)
+        return self._libevemu.evemu_get_id_version(self._evemu_device)
 
     def get_abs_minimum(self, event_code):
-        return self._evemu._call(self._evemu.get_lib().evemu_get_abs_minimum,
-                                 self._evemu_device,
-                                 int(event_code))
+        return self._libevemu.evemu_get_abs_minimum(self._evemu_device,
+                                                    event_code)
 
     def get_abs_maximum(self, event_code):
-        return self._evemu._call(self._evemu.get_lib().evemu_get_abs_maximum,
-                                 self._evemu_device,
-                                 event_code)
+        return self._libevemu.evemu_get_abs_maximum(self._evemu_device,
+                                                    event_code)
 
     def get_abs_fuzz(self, event_code):
-        return self._evemu._call(self._evemu.get_lib().evemu_get_abs_fuzz,
-                                 self._evemu_device,
-                                 event_code)
+        return self._libevemu.evemu_get_abs_fuzz(self._evemu_device,
+                                                 event_code)
 
     def get_abs_flat(self, event_code):
-        return self._evemu._call(self._evemu.get_lib().evemu_get_abs_flat,
-                                 self._evemu_device,
-                                 event_code)
+        return self._libevemu.evemu_get_abs_flat(self._evemu_device,
+                                                 event_code)
 
     def get_abs_resolution(self, event_code):
-        return self._evemu._call(self._evemu.get_lib().evemu_get_abs_resolution,
-                                 self._evemu_device,
-                                 event_code)
+        return self._libevemu.evemu_get_abs_resolution(self._evemu_device,
+                                                       event_code)
 
     def has_prop(self, event_code):
-        return bool(self._evemu._call(self._evemu.get_lib().evemu_has_prop,
-                                      self._evemu_device,
-                                      event_code))
+        result = self._libevemu.evemu_has_prop(self._evemu_device, event_code)
+        return bool(result)
 
     def has_event(self, event_type, event_code):
         """
@@ -267,8 +240,8 @@ class Device(object):
         used to simulate gestures for a higher number of touches than are
         possible with just 2-touch hardware.
         """
-        return bool(self._evemu._call(self._evemu.get_lib().evemu_has_event,
-                                      self._evemu_device,
-                                      event_type,
-                                      event_code))
+        result = self._libevemu.evemu_has_event(self._evemu_device,
+                                                event_type,
+                                                event_code)
+        return bool(result)
 
