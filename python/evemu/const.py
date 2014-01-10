@@ -1,4 +1,5 @@
 LIB = "libevemu.so"
+ENCODING="iso8859-1"
 UINPUT_NODE = "/dev/uinput"
 
 # The following should be examined every release of evemu
