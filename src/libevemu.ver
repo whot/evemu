@@ -19,9 +19,9 @@ EVEMU_2.0 {
     evemu_get_id_version;
     evemu_get_name;
     evemu_get_version;
+    evemu_has_bit;
     evemu_has_event;
     evemu_has_prop;
-    evemu_has_bit;
     evemu_new;
     evemu_play;
     evemu_play_one;
