@@ -1,4 +1,5 @@
-
+<header>
+ <copyright>
 /*****************************************************************************
  * evemu - Kernel device emulation
  *
@@ -14,9 +15,9 @@
  * PURPOSE.  See the GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this library.  If not, see <http://www.gnu.org/licenses/>
+ * along with this library.  If not, see &lt;http://www.gnu.org/licenses/&gt;
  *
- * Copyright (C) 2010 Henrik Rydberg <rydberg@euromail.se>
+ * Copyright (C) 2010 Henrik Rydberg &lt;rydberg@euromail.se&gt;
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -38,26 +39,10 @@
  * DEALINGS IN THE SOFTWARE.
  *
  ****************************************************************************/
-  
-
-
-/** THIS FILE IS GENERATED FROM evemu.xml. DO NOT EDIT */
-
-#ifndef EVEMU_H
-#define EVEMU_H
-
-#include <stdio.h>
-#include <errno.h>
-#include <linux/input.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-    
-#define EVEMU_VERSION 0x00010000
-
-/**
-
+  </copyright>
+  <version version="0x00010000" />
+  <function>
+    <doc>
      evemu_new() - allocate a new evemu device
      @name: wanted input device name (or NULL to leave empty)
 
@@ -66,236 +51,340 @@ extern "C" {
      is sane, it is copied to the device name.
 
      Returns NULL in case of memory failure.
-    
-*/
-struct evemu_device * evemu_new(const char * name);
-
-/**
-
+    </doc>
+    <retval>struct evemu_device *</retval>
+    <name>evemu_new</name>
+    <args>
+      <arg type="const char *" name="name" />
+    </args>
+  </function>
+ <function>
+   <doc>
      evemu_delete() - free and allocated evemu device
      @dev: the device to free
 
      The device pointer is invalidated by this call.
-    
-*/
-void evemu_delete(struct evemu_device * dev);
-
-/**
-
+    </doc>
+    <retval>void</retval>
+    <name>evemu_delete</name>
+    <args>
+      <arg type="struct evemu_device *" name="dev" />
+    </args>
+ </function>
+ <function>
+   <doc>
       evemu_get_version() - get library version
       @dev: the device in use
       *
       Returns the library version used to create this evemu instance. The
       version may differ from the value of EVEMU_VERSION in this header
       file.
-   
-*/
-unsigned int evemu_get_version(const struct evemu_device * dev);
-
-/**
-
+   </doc>
+   <retval>unsigned int</retval>
+   <name>evemu_get_version</name>
+   <args>
+     <arg type="const struct evemu_device *" name="dev"/>
+   </args>
+ </function>
+ <function>
+   <doc>
       evemu_get_name() - get device name
       @dev: the device in use
 
       Returns the name of the device. The pointer is owned by the evemu
       instance and has evemu scope.
-   
-*/
-const char * evemu_get_name(const struct evemu_device * dev);
+   </doc>
+   <retval>const char *</retval>
+   <name>evemu_get_name</name>
+   <args>
+     <arg type="const struct evemu_device *" name="dev" />
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_set_name() - set device name
       @dev: the device in use
 
       Sets the name of the device. If name is non-null and the length is
       sane, it is copied to the device name.
-   
-*/
-void evemu_set_name(struct evemu_device * dev,const char * name);
+   </doc>
+   <retval>void</retval>
+   <name>evemu_set_name</name>
+   <args>
+     <arg type="struct evemu_device *" name="dev" />
+     <arg type="const char *" name="name" />
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_get_id_bustype() - get kernel device bustype
       @dev: the device in use
 
       Returns the kernel bus type used by the device.
-   
-*/
-unsigned int evemu_get_id_bustype(const struct evemu_device * dev);
+   </doc>
+   <retval>unsigned int</retval>
+   <name>evemu_get_id_bustype</name>
+   <args>
+     <arg type="const struct evemu_device *" name="dev" />
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_set_id_bustype() - set kernel bustype
 
       @dev: the device in use
       @bustype: the bustype value to set.
-   
-*/
-void evemu_set_id_bustype(struct evemu_device * dev,unsigned int bustype);
+   </doc>
+   <retval>void</retval>
+   <name>evemu_set_id_bustype</name>
+   <args>
+     <arg type="struct evemu_device *" name="dev" />
+     <arg type="unsigned int" name="bustype"/>
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_get_id_vendor() - get kernel device vendor id
       @dev: the device in use
 
       Returns the kernel vendor id used by the device.
-   
-*/
-unsigned int evemu_get_id_vendor(const struct evemu_device * dev);
+   </doc>
+   <retval>unsigned int</retval>
+   <name>evemu_get_id_vendor</name>
+   <args>
+     <arg type="const struct evemu_device *" name="dev" />
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_set_id_vendor() - set kernel device vendor id
 
       @dev: the device in use
       @vendor: the vendor id value to set.
-   
-*/
-void evemu_set_id_vendor(struct evemu_device * dev,unsigned int vendor);
+   </doc>
+   <retval>void</retval>
+   <name>evemu_set_id_vendor</name>
+   <args>
+     <arg type="struct evemu_device *" name="dev" />
+     <arg type="unsigned int" name="vendor"/>
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_get_id_product() - get kernel device product id
       @dev: the device in use
 
       Returns the kernel product id used by the device.
-   
-*/
-unsigned int evemu_get_id_product(const struct evemu_device * dev);
+   </doc>
+   <retval>unsigned int</retval>
+   <name>evemu_get_id_product</name>
+   <args>
+     <arg type="const struct evemu_device *" name="dev" />
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_set_id_product() - set kernel device product id
 
       @dev: the device in use
       @product: the product id value to set.
-   
-*/
-void evemu_set_id_product(struct evemu_device * dev,unsigned int product);
+   </doc>
+   <retval>void</retval>
+   <name>evemu_set_id_product</name>
+   <args>
+     <arg type="struct evemu_device *" name="dev" />
+     <arg type="unsigned int" name="product"/>
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_get_id_version() - get kernel device id version
       @dev: the device in use
 
       Returns the kernel device id used by the device.
-   
-*/
-unsigned int evemu_get_id_version(const struct evemu_device * dev);
+   </doc>
+   <retval>unsigned int</retval>
+   <name>evemu_get_id_version</name>
+   <args>
+     <arg type="const struct evemu_device *" name="dev" />
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_set_id_version() - set kernel device id version
 
       @dev: the device in use
       @version: the version value to set.
-   
-*/
-void evemu_set_id_version(struct evemu_device * dev,unsigned int version);
+   </doc>
+   <retval>void</retval>
+   <name>evemu_set_id_version</name>
+   <args>
+     <arg type="struct evemu_device *" name="dev" />
+     <arg type="unsigned int" name="version"/>
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_get_abs_minimum() - get kernel minimum value of event type
       @dev: the device in use
       @code: the event type code to query
 
       Returns the range minimum of the specified event type.
-   
-*/
-int evemu_get_abs_minimum(const struct evemu_device * dev,int code);
+   </doc>
+   <retval>int</retval>
+   <name>evemu_get_abs_minimum</name>
+   <args>
+     <arg type="const struct evemu_device *" name="dev" />
+     <arg type="int" name="code"/>
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_set_abs_minimum() - set kernel minimum value of event type
 
       @dev: the device in use
       @code: the event type code to set
       @min: the minimum value to set
-   
-*/
-void evemu_set_abs_minimum(struct evemu_device * dev,int code,int min);
+   </doc>
+   <retval>void</retval>
+   <name>evemu_set_abs_minimum</name>
+   <args>
+     <arg type="struct evemu_device *" name="dev" />
+     <arg type="int" name="code"/>
+     <arg type="int" name="min"/>
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_get_abs_maximum() - get kernel maximum value of event type
       @dev: the device in use
       @code: the event type code to query
 
       Returns the range maximum of the specified event type.
-   
-*/
-int evemu_get_abs_maximum(const struct evemu_device * dev,int code);
+   </doc>
+   <retval>int</retval>
+   <name>evemu_get_abs_maximum</name>
+   <args>
+     <arg type="const struct evemu_device *" name="dev" />
+     <arg type="int" name="code"/>
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_get_abs_current_value() - get kernel current value of event type
       @dev: the device in use
       @code: the event type code to query
 
       Returns the current value of the specified event type.
-   
-*/
-int evemu_get_abs_current_value(const struct evemu_device * dev,int code);
+   </doc>
+   <retval>int</retval>
+   <name>evemu_get_abs_current_value</name>
+   <args>
+     <arg type="const struct evemu_device *" name="dev" />
+     <arg type="int" name="code"/>
+   </args>
+ </function>
 
-/**
 
+ <function>
+   <doc>
       evemu_set_abs_maximum() - set kernel maximum value of event type
 
       @dev: the device in use
       @code: the event type code to set
       @max: the maximum value to set
-   
-*/
-void evemu_set_abs_maximum(struct evemu_device * dev,int code,int max);
+   </doc>
+   <retval>void</retval>
+   <name>evemu_set_abs_maximum</name>
+   <args>
+     <arg type="struct evemu_device *" name="dev" />
+     <arg type="int" name="code"/>
+     <arg type="int" name="max"/>
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_get_abs_maximum() - get kernel filter fuzz of event type
       @dev: the device in use
       @code: the event type code to query
 
       Returns the filter fuzz of the specified event type.
-   
-*/
-int evemu_get_abs_fuzz(const struct evemu_device * dev,int code);
+   </doc>
+   <retval>int</retval>
+   <name>evemu_get_abs_fuzz</name>
+   <args>
+     <arg type="const struct evemu_device *" name="dev" />
+     <arg type="int" name="code"/>
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_set_abs_fuzz() - set kernel filter fuzz of event type
 
       @dev: the device in use
       @code: the event type code to set
       @fuzz: the fuzz value to set
-   
-*/
-void evemu_set_abs_fuzz(struct evemu_device * dev,int code,int fuzz);
+   </doc>
+   <retval>void</retval>
+   <name>evemu_set_abs_fuzz</name>
+   <args>
+     <arg type="struct evemu_device *" name="dev" />
+     <arg type="int" name="code"/>
+     <arg type="int" name="fuzz"/>
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_get_abs_maximum() - get kernel flat value of event type
       @dev: the device in use
       @code: the event type code to query
 
       Returns the flat value of the specified event type. Only used for
       joysticks.
-   
-*/
-int evemu_get_abs_flat(const struct evemu_device * dev,int code);
+   </doc>
+   <retval>int</retval>
+   <name>evemu_get_abs_flat</name>
+   <args>
+     <arg type="const struct evemu_device *" name="dev" />
+     <arg type="int" name="code"/>
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_set_abs_flat() - set kernel filter flat of event type
 
       @dev: the device in use
       @code: the event type code to set
       @flat: the flat value to set
-   
-*/
-void evemu_set_abs_flat(struct evemu_device * dev,int code,int flat);
+   </doc>
+   <retval>void</retval>
+   <name>evemu_set_abs_flat</name>
+   <args>
+     <arg type="struct evemu_device *" name="dev" />
+     <arg type="int" name="code"/>
+     <arg type="int" name="flat"/>
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_get_abs_resolution() - get kernel resolution of event type
       @dev: the device in use
       @code: the event type code to query
@@ -303,12 +392,17 @@ void evemu_set_abs_flat(struct evemu_device * dev,int code,int flat);
       Returns the resolution of the specified event type. Resolution is
       specified in units per millimeter (units/mm), or units per radian
       where appropriate.
-   
-*/
-int evemu_get_abs_resolution(const struct evemu_device * dev,int code);
+   </doc>
+   <retval>int</retval>
+   <name>evemu_get_abs_resolution</name>
+   <args>
+     <arg type="const struct evemu_device *" name="dev" />
+     <arg type="int" name="code"/>
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_set_abs_resolution() - set kernel resolution of event type
       @dev: the device in use
       @code: the event type code to set
@@ -316,79 +410,116 @@ int evemu_get_abs_resolution(const struct evemu_device * dev,int code);
 
       Resolution is specified in units per millimeter (units/mm), or units per
       radian where appropriate.
-   
-*/
-void evemu_set_abs_resolution(struct evemu_device * dev,int code,int res);
+   </doc>
+   <retval>void</retval>
+   <name>evemu_set_abs_resolution</name>
+   <args>
+     <arg type="struct evemu_device *" name="dev" />
+     <arg type="int" name="code"/>
+     <arg type="int" name="res"/>
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_has_prop() - check if device has a certain property
       @dev: the device in use
       @code: the property type code to query
 
       Returns true if the device has the given property.
-   
-*/
-int evemu_has_prop(const struct evemu_device * dev,int code);
+   </doc>
+   <retval>int</retval>
+   <name>evemu_has_prop</name>
+   <args>
+     <arg type="const struct evemu_device *" name="dev" />
+     <arg type="int" name="code"/>
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_has_event() - check if device has a certain event type
       @dev: the device in use
       @code: the event type code to query
 
       Returns true if the event type is supported by the device.
-   
-*/
-int evemu_has_event(const struct evemu_device * dev,int type,int code);
+   </doc>
+   <retval>int</retval>
+   <name>evemu_has_event</name>
+   <args>
+     <arg type="const struct evemu_device *" name="dev" />
+     <arg type="int" name="type"/>
+     <arg type="int" name="code"/>
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_has_bit() - check if a device has a certain EV_* bit set
       @dev: the device in use
       @type: the EV_* bit to query
 
       Returns true if the event bit is supported by the device.
-   
-*/
-int evemu_has_bit(const struct evemu_device * dev,int type);
+   </doc>
+   <retval>int</retval>
+   <name>evemu_has_bit</name>
+   <args>
+     <arg type="const struct evemu_device *" name="dev" />
+     <arg type="int" name="type"/>
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_extract() - configure evemu instance directly from the kernel device
       @dev: the device in use
       @fd: file descriptor of the kernel device to query
 
       Returns zero if successful, negative error otherwise.
-   
-*/
-int evemu_extract(struct evemu_device * dev,int fd);
+   </doc>
+   <retval>int</retval>
+   <name>evemu_extract</name>
+   <args>
+     <arg type="struct evemu_device *" name="dev" />
+     <arg type="int" name="fd"/>
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_write() - write evemu configuration to a file
       @dev: the device in use
       @fp: file pointer to write the evemu configuration to
 
       Returns zero if successful, negative error otherwise.
-   
-*/
-int evemu_write(const struct evemu_device * dev,FILE * fp);
+   </doc>
+   <retval>int</retval>
+   <name>evemu_write</name>
+   <args>
+     <arg type="const struct evemu_device *" name="dev" />
+     <arg type="FILE *" name="fp"/>
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_read() - read evemu configuration from a file
       @dev: the device in use
       @fp: file pointer to read the evemu configuration from
 
       Returns a positive number if successful, zero or negative error
       otherwise.
-   
-*/
-int evemu_read(struct evemu_device * dev,FILE * fp);
+   </doc>
+   <retval>int</retval>
+   <name>evemu_read</name>
+   <args>
+     <arg type="struct evemu_device *" name="dev" />
+     <arg type="FILE *" name="fp"/>
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_write_event() - write kernel event to file
       @fp: file pointer to write the event to
       @ev: pointer to the kernel event to write
@@ -397,23 +528,35 @@ int evemu_read(struct evemu_device * dev,FILE * fp);
 
       Returns a positive number if successful, zero or negative error
       otherwise.
-   
-*/
-int evemu_write_event(FILE * fp,const struct input_event * ev);
+   </doc>
+   <retval>int</retval>
+   <name>evemu_write_event</name>
+   <args>
+     <arg type="FILE *" name="fp"/>
+     <arg type="const struct input_event *" name="ev"/>
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_create_event() - Create a single event
       @ev: pointer to the kernel event to be filled
       @type: the event type to set
       @code: the event code to set
       @value: the event value to set
-   
-*/
-int evemu_create_event(struct input_event * ev,int type,int code,int value);
+   </doc>
+   <retval>int</retval>
+   <name>evemu_create_event</name>
+   <args>
+     <arg type="struct input_event *" name="ev" />
+     <arg type="int" name="type"/>
+     <arg type="int" name="code"/>
+     <arg type="int" name="value"/>
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_read_event() - read kernel event from file
       @fp: file pointer to read the event from
       @ev: pointer to the kernel event to be filled
@@ -422,12 +565,17 @@ int evemu_create_event(struct input_event * ev,int type,int code,int value);
 
       Returns a positive number if successful, zero or negative error
       otherwise.
-   
-*/
-int evemu_read_event(FILE * fp,struct input_event * ev);
+   </doc>
+   <retval>int</retval>
+   <name>evemu_read_event</name>
+   <args>
+     <arg type="FILE *" name="fp"/>
+     <arg type="struct input_event *" name="ev"/>
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_read_event_realtime() - read kernel events in realtime
       @fp: file pointer to read the event from
       @ev: pointer to the kernel event to be filled
@@ -440,12 +588,18 @@ int evemu_read_event(FILE * fp,struct input_event * ev);
 
       Returns a positive number if successful, zero or negative error
       otherwise.
-   
-*/
-int evemu_read_event_realtime(FILE * fp,struct input_event * ev,struct timeval * evtime);
+   </doc>
+   <retval>int</retval>
+   <name>evemu_read_event_realtime</name>
+   <args>
+     <arg type="FILE *" name="fp"/>
+     <arg type="struct input_event *" name="ev"/>
+     <arg type="struct timeval *" name="evtime"/>
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_record() - read events directly from a kernel device
       @fp: file pointer to write the events to
       @fd: file descriptor of kernel device to read from
@@ -456,23 +610,35 @@ int evemu_read_event_realtime(FILE * fp,struct input_event * ev,struct timeval *
       inactivity.
 
       Returns zero if successful, negative error otherwise.
-   
-*/
-int evemu_record(FILE * fp,int fd,int ms);
+   </doc>
+   <retval>int</retval>
+   <name>evemu_record</name>
+   <args>
+     <arg type="FILE *" name="fp"/>
+     <arg type="int" name="fd"/>
+     <arg type="int" name="ms"/>
+   </args>
+ </function>
 
-/**
 
+ <function>
+   <doc>
       evemu_play_one() - play one event to kernel device
       @fd: file descriptor of kernel device to write to
       @ev: pointer to the kernel event to be played
 
       Returns zero if successful, negative error otherwise.
-   
-*/
-int evemu_play_one(int fd,const struct input_event * ev);
+   </doc>
+   <retval>int</retval>
+   <name>evemu_play_one</name>
+   <args>
+     <arg type="int" name="fd"/>
+     <arg type="const struct input_event *" name="ev"/>
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_play() - replay events from file to kernel device in realtime
       @fp: file pointer to read the events from
       @fd: file descriptor of kernel device to write to
@@ -482,12 +648,17 @@ int evemu_play_one(int fd,const struct input_event * ev);
       file has been reached.
 
       Returns zero if successful, negative error otherwise.
-   
-*/
-int evemu_play(FILE * fp,int fd);
+   </doc>
+   <retval>int</retval>
+   <name>evemu_play</name>
+   <args>
+     <arg type="FILE *" name="fp"/>
+     <arg type="int" name="fd"/>
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_create() - create a kernel device from the evemu configuration
       @dev: the device in use
       @fd: file descriptor of the special kernel uinput device
@@ -495,12 +666,17 @@ int evemu_play(FILE * fp,int fd);
       Creates a new device with all the properties of the evemu device.
 
       Returns zero if successful, negative error otherwise.
-   
-*/
-int evemu_create(struct evemu_device * dev,int fd);
+   </doc>
+   <retval>int</retval>
+   <name>evemu_create</name>
+   <args>
+     <arg type="struct evemu_device *" name="dev" />
+     <arg type="int" name="fd"/>
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_create_managed() - create a kernel device from the evemu configuration
       @dev: the device in use
 
@@ -509,34 +685,41 @@ int evemu_create(struct evemu_device * dev,int fd);
       file descriptor.
 
       Returns zero if successful, negative error otherwise.
-   
-*/
-int evemu_create_managed(struct evemu_device * dev);
+   </doc>
+   <retval>int</retval>
+   <name>evemu_create_managed</name>
+   <args>
+     <arg type="struct evemu_device *" name="dev" />
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_get_devnode() - get device node
       @dev: the device in use
 
       Returns the input device node of the virtual device. The pointer is owned by
       the evemu instance and has evemu scope.
-   
-*/
-const char * evemu_get_devnode(struct evemu_device * dev);
+   </doc>
+   <retval>const char *</retval>
+   <name>evemu_get_devnode</name>
+   <args>
+     <arg type="struct evemu_device *" name="dev" />
+   </args>
+ </function>
 
-/**
-
+ <function>
+   <doc>
       evemu_destroy() - destroy all created kernel devices
       @dev: the device to destroy
 
       Destroys all devices created using this file descriptor.
-   
-*/
-void evemu_destroy(struct evemu_device * dev);
+   </doc>
+   <retval>void</retval>
+   <name>evemu_destroy</name>
+   <args>
+     <arg type="struct evemu_device *" name="dev" />
+   </args>
+ </function>
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif
-    
+</header>

@@ -23,6 +23,9 @@ check_SCRIPTS = evemu-test-runner
 
 TESTS = $(check_SCRIPTS)
 
+evemu/abi.py: evemu.python-abi.xslt $(top_srcdir)/src/evemu.xml
+	$(AM_V_GEN)$(XSLTPROC) evemu.python-abi.xslt $(top_srcdir)/src/evemu.xml > $@
+
 evemu-test-runner: evemu-test-runner.in Makefile
 	$(AM_V_GEN)$(SED) \
 	  -e 's,[@]builddir[@],$(builddir),g' \
@@ -32,6 +35,6 @@ evemu-test-runner: evemu-test-runner.in Makefile
 	  $< >$@
 	chmod +x $@
 
-BUILT_SOURCES = evemu-test-runner
+BUILT_SOURCES = evemu-test-runner evemu/abi.py
 EXTRA_DIST =  evemu-test-runner.in $(wildcard evemu/test*)
 CLEANFILES = $(BUILT_SOURCES)

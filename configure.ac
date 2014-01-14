@@ -38,6 +38,7 @@ PKG_CHECK_MODULES([LIBEVDEV], [libevdev >= 0.5])
 # man page generation
 AC_ARG_VAR([XMLTO], [Path to xmlto command])
 AC_PATH_PROG([XMLTO], [xmlto])
+AC_PATH_PROG([XSLTPROC], [xsltproc])
 AC_ARG_VAR([ASCIIDOC], [Path to asciidoc command])
 AC_PATH_PROG([ASCIIDOC], [asciidoc])
 AM_CONDITIONAL([HAVE_DOCTOOLS], [test "x$XMLTO" != "x" && test "x$ASCIIDOC" != "x"])

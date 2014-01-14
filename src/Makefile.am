@@ -10,7 +10,6 @@ libevemu_la_LDFLAGS = \
 libevemu_la_SOURCES = \
 	evemu-impl.h \
 	evemu.c \
-	evemu.h \
 	version.h
 
 libevemu_la_LIBADD = $(LIBEVDEV_LIBS)
@@ -20,9 +19,21 @@ AM_CPPFLAGS = -I$(top_srcdir)/include/ $(LIBEVDEV_CFLAGS)
 libevemuincludedir = $(includedir)
 libevemuinclude_HEADERS = evemu.h
 
+libevemu.ver: evemu.c-libver.xslt evemu.xml
+	$(XSLTPROC) $(srcdir)/evemu.c-libver.xslt evemu.xml > $@
+
+evemu.h: evemu.c-header.xslt evemu.xml
+	$(XSLTPROC) $(srcdir)/evemu.c-header.xslt evemu.xml > $@
+
 event_names.py: Makefile make-event-names.py
 	$(PYTHON) $(srcdir)/make-event-names.py --output=python > $@
 
-EXTRA_DIST = $(version_script) make-event-names.py convert-old-dumps-to-1.1.py
-CLEANFILES = event_names.py event_names.pyc
-BUILT_SOURCES = event_names.py
+EXTRA_DIST = $(version_script) \
+	     make-event-names.py \
+	     convert-old-dumps-to-1.1.py  \
+	     evemu.c-header.xslt \
+	     evemu.c-libver.xslt \
+	     evemu.python-api.xslt \
+	     evemu.xml
+CLEANFILES = event_names.py event_names.pyc evemu.h libevemu.ver
+BUILT_SOURCES = event_names.py evemu.h libevemu.ver
