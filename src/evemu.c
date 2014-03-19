@@ -248,10 +248,8 @@ static void write_prop(FILE * fp, const struct evemu_device *dev)
 	unsigned char mask[max(8, (INPUT_PROP_MAX + 7)/8)] = {0};
 
 	for (i = 0; i < INPUT_PROP_MAX; i ++) {
-		if (evemu_has_prop(dev, i)) {
-		printf("prop bit set for %d\n", i);
+		if (evemu_has_prop(dev, i))
 			set_bit(mask, i);
-			}
 	}
 
 	for (i = 0; i < (INPUT_PROP_MAX + 7)/8; i +=8) {
