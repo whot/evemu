@@ -1,7 +1,7 @@
 # Initialize Autoconf
 AC_PREREQ([2.60])
 AC_INIT([Kernel device emulation],
-        [1.99.1],
+        [2.0.0],
         [],
         [evemu])
 AC_CONFIG_SRCDIR([Makefile.am])
