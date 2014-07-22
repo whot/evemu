@@ -10,6 +10,7 @@ from __future__ import print_function
 import argparse
 import re
 import sys
+import textwrap
 
 SOURCE_FILE = "/usr/include/linux/input.h"
 
@@ -41,6 +42,9 @@ blacklist = [
 		"BTN_WHEEL",
 		"BTN_TRIGGER_HAPPY"
 ]
+
+def p(s):
+	print(textwrap.dedent(s))
 
 def print_bits(bits, prefix):
 	if  not hasattr(bits, prefix):
@@ -87,13 +91,15 @@ def print_python_map(bits):
 	print("")
 
 def print_mapping_table(bits):
-	print("/* THIS FILE IS GENERATED, DO NOT EDIT */")
-	print("")
-	print("#ifndef EVENT_NAMES_H")
-	print("#define EVENT_NAMES_H")
-	print("")
-	print("#define SYN_MAX 3 /* linux/input.h doesn't define that */")
-	print("")
+	p("""
+	/* THIS FILE IS GENERATED, DO NOT EDIT */
+
+	#ifndef EVENT_NAMES_H
+	#define EVENT_NAMES_H
+
+	#define SYN_MAX 3 /* linux/input.h doesn't define that */
+
+	""")
 
 	for prefix in prefixes:
 		if prefix == "BTN_":
@@ -102,19 +108,21 @@ def print_mapping_table(bits):
 
 	print_map(bits)
 
-	print("static const char * event_get_type_name(int type) {")
-	print("	return ev_map[type];")
-	print(" }")
-	print("")
-	print("static const char * event_get_code_name(int type, int code) {")
-	print("	return map[type] ? map[type][code] : NULL;")
-	print("}")
-	print("")
-	print("#endif /* EVENT_NAMES_H */")
+	p("""
+	static const char * event_get_type_name(int type) {
+		return ev_map[type];
+	 }
+
+	static const char * event_get_code_name(int type, int code) {
+		return map[type] ? map[type][code] : NULL;
+	}
+
+	#endif /* EVENT_NAMES_H */
+	""")
 
 def print_python_mapping_table(bits):
-	print("# THIS FILE IS GENERATED, DO NOT EDIT")
-	print("")
+	p("""# THIS FILE IS GENERATED, DO NOT EDIT")
+	""")
 
 	for prefix in prefixes:
 		if prefix == "BTN_":
@@ -123,16 +131,17 @@ def print_python_mapping_table(bits):
 
 	print_python_map(bits)
 
-	print("def event_get_type_name(type):")
-	print("	return ev_map[type]")
-	print("")
-	print("")
-	print("def event_get_code_name(type, code):")
-	print("	try:")
-	print("		return map[type][code]")
-	print("	except KeyError:")
-	print("		return 'UNKNOWN'")
-	print("")
+	p("""
+	def event_get_type_name(type):
+		return ev_map[type]
+
+
+	def event_get_code_name(type, code):
+		try:
+			return map[type][code]
+		except KeyError:
+			return 'UNKNOWN'
+	""")
 
 def parse_define(bits, line):
 	m = re.match(r"^#define\s+(\w+)\s+(\w+)", line)
