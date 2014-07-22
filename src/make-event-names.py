@@ -128,9 +128,10 @@ def print_python_mapping_table(bits):
 	print("")
 	print("")
 	print("def event_get_code_name(type, code):")
-	print("	if map.has_key(type) and map[type].has_key(code):")
+	print("	try:")
 	print("		return map[type][code]")
-	print("	return 'UNKNOWN'")
+	print("	except KeyError:")
+	print("		return 'UNKNOWN'")
 	print("")
 
 def parse_define(bits, line):
