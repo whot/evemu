@@ -71,7 +71,8 @@ class Device(object):
     def __del__(self):
         if hasattr(self, "_is_propfile") and self._is_propfile:
             self._file.close()
-            self._libevemu.evemu_destroy(self._evemu_device, self._uinput)
+            self._libevemu.evemu_destroy(self._evemu_device)
+            self._uinput.close()
 
     def _create_devnode(self):
         self._libevemu.evemu_create(self._evemu_device, self._uinput)
