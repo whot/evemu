@@ -25,9 +25,20 @@ import stat
 
 import evemu.base
 import evemu.const
+import evemu.event_names
 
 __all__ = ["Device"]
 
+
+class InputEvent(object):
+    __slots__ = 'sec', 'usec', 'type', 'code', 'value'
+
+    def __init__(self, sec, usec, type, code, value):
+        self.sec = sec
+        self.usec = usec
+        self.type = type
+        self.code = code
+        self.value = value
 
 class Device(object):
     """
@@ -124,6 +135,22 @@ class Device(object):
         fs = self._libc.fdopen(prop_file.fileno(), b"w")
         self._libevemu.evemu_write(self._evemu_device, fs)
         self._libc.fflush(fs)
+
+    def events(self, events_file=None):
+        """
+        Reads the events from the given file and returns them as a list of
+        dicts.
+        """
+        if events_file:
+            if not hasattr(events_file, "read"):
+                raise TypeError("expected file")
+        else:
+            events_file = self._file
+
+        fs = self._libc.fdopen(events_file.fileno(), b"r")
+        event = evemu.base.InputEvent()
+        while self._libevemu.evemu_read_event(fs, ctypes.byref(event)) > 0:
+            yield InputEvent(event.sec, event.usec, event.type, event.code, event.value)
 
     def play(self, events_file):
         """

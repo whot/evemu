@@ -6,7 +6,7 @@ import ctypes.util
 import os
 
 # Import types directly, so they don't have to be prefixed with "ctypes.".
-from ctypes import c_char_p, c_int, c_uint, c_void_p
+from ctypes import c_char_p, c_int, c_uint, c_void_p, c_long, c_int32, c_uint16
 
 import evemu.const
 import evemu.exception
@@ -360,8 +360,7 @@ class LibEvemu(LibraryWrapper):
         #int evemu_read_event(FILE *fp, struct input_event *ev);
         "evemu_read_event": {
             "argtypes": (c_void_p, c_void_p),
-            "restype": c_int,
-            "errcheck": expect_gt_zero
+            "restype": c_int
             },
         #int evemu_read_event_realtime(FILE *fp, struct input_event *ev,
         #			      struct timeval *evtime);
@@ -406,3 +405,10 @@ class LibEvemu(LibraryWrapper):
             "restype": None
             },
         }
+
+class InputEvent(ctypes.Structure):
+    _fields_ = [("sec", c_long),
+		("usec", c_long),
+		("type", c_uint16),
+		("code", c_uint16),
+		("value", c_int32)]
