@@ -55,14 +55,12 @@ class Device(object):
         self._is_propfile = self._check_is_propfile(self._file)
         self._libc = evemu.base.LibC()
         self._libevemu = evemu.base.LibEvemu()
-        self._uinput = None
 
         self._evemu_device = self._libevemu.evemu_new(b"")
 
         if self._is_propfile:
             fs = self._libc.fdopen(self._file.fileno(), b"r")
             self._libevemu.evemu_read(self._evemu_device, fs)
-            self._uinput = os.open(evemu.const.UINPUT_NODE, os.O_WRONLY)
             self._file = self._create_devnode()
         else:
             self._libevemu.evemu_extract(self._evemu_device,
@@ -72,10 +70,9 @@ class Device(object):
         if hasattr(self, "_is_propfile") and self._is_propfile:
             self._file.close()
             self._libevemu.evemu_destroy(self._evemu_device)
-            self._uinput.close()
 
     def _create_devnode(self):
-        self._libevemu.evemu_create(self._evemu_device, self._uinput)
+        self._libevemu.evemu_create_managed(self._evemu_device)
         return open(self._find_newest_devnode(self.name), 'r+b', buffering=0)
 
     def _find_newest_devnode(self, target_name):

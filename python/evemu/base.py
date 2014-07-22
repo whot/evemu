@@ -394,6 +394,12 @@ class LibEvemu(LibraryWrapper):
             "restype": c_int,
             "errcheck": expect_eq_zero
             },
+        #int evemu_create_managed(struct evemu_device *dev);
+        "evemu_create_managed": {
+            "argtypes": (c_void_p,),
+            "restype": c_int,
+            "errcheck": expect_eq_zero
+            },
         #void evemu_destroy(struct evemu_device *dev);
         "evemu_destroy": {
             "argtypes": (c_void_p,),
