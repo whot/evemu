@@ -20,9 +20,4 @@ AM_CPPFLAGS = -I$(top_srcdir)/include/ $(LIBEVDEV_CFLAGS)
 libevemuincludedir = $(includedir)
 libevemuinclude_HEADERS = evemu.h
 
-event_names.py: Makefile make-event-names.py
-	$(PYTHON) $(srcdir)/make-event-names.py --output=python > $@
-
 EXTRA_DIST = $(version_script) make-event-names.py convert-old-dumps-to-1.1.py
-CLEANFILES = event_names.py event_names.pyc
-BUILT_SOURCES = event_names.py

@@ -3,6 +3,7 @@
 #
 # Parses evemu files with format 1.0 and outputs evemu format 1.1.
 # Command line:
+#   export PYTHONPATH=/path/to/evemu/python
 #   python convert-old-dumps-to-1.1.py myEvent.desc [myEvent.events]
 #
 
@@ -14,7 +15,7 @@ import re
 import sys
 
 import evemu
-import event_names
+import evemu.event_names
 
 def convert_events(lines):
 	event_re = re.compile(r"E: (\d+\.\d*) ([a-fA-f0-9]+) ([a-fA-f0-9]+) (-?\d*)\n")

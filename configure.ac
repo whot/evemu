@@ -52,6 +52,7 @@ AC_SUBST(AM_CFLAGS,
 AC_CONFIG_FILES([Makefile
                  src/Makefile
                  python/Makefile
+                 python/evemu/Makefile
                  tools/Makefile
                  test/Makefile
                  evemu.pc])
