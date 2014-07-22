@@ -51,8 +51,5 @@ if __name__ == "__main__":
 	d.describe(sys.stdout)
 	d = None
 	if len(sys.argv) > 2:
-		print("################################")
-		print("#      Waiting for events      #")
-		print("################################")
 		with open(sys.argv[2]) as f:
 			convert_events(f.readlines())
