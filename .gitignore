@@ -89,3 +89,11 @@ patches
 python/evemu-test-runner
 event_names.py
 *.pyc
+test-suite.log
+*.trs
+*.log
+test-c-compile
+test-cxx-compile
+test-evemu-create
+*.swp
+tags
