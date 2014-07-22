@@ -64,12 +64,26 @@ class DeviceActionTestCase(evemu.testing.testcase.BaseTestCase):
         """
         d = evemu.Device(self.get_device_file())
 
+    def test_construct_from_prop_file_name_no_create(self):
+        """
+        Verifies a device can be constructed from an evemu prop file name,
+        without creating a uinput device.
+        """
+        d = evemu.Device(self.get_device_file(), create=False)
+
     def test_construct_from_prop_file_file(self):
         """
         Verifies a device can be constructed from an evemu prop file file
         object.
         """
         d = evemu.Device(open(self.get_device_file()))
+
+    def test_construct_from_prop_file_file(self):
+        """
+        Verifies a device can be constructed from an evemu prop file file
+        object, without creating a uinput device.
+        """
+        d = evemu.Device(open(self.get_device_file()), create=False)
 
     def test_describe(self):
         """

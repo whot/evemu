@@ -48,7 +48,7 @@ if __name__ == "__main__":
 	if len(sys.argv) < 2:
 		exit(usage(sys.argv))
 	file_desc = sys.argv[1]
-	d = evemu.Device(file_desc)
+	d = evemu.Device(file_desc, create=False)
 	d.describe(sys.stdout)
 	d = None
 	if len(sys.argv) > 2:

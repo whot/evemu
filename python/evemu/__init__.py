@@ -35,7 +35,7 @@ class Device(object):
     reported by the kernel or a pseudodevice as created through a .prop file.
     """
 
-    def __init__(self, f):
+    def __init__(self, f, create=True):
         """
         Initializas an evemu Device.
 
@@ -43,6 +43,8 @@ class Device(object):
         f -- a file object or filename string for either an existing input
         device node (/dev/input/eventNN) or an evemu prop file that can be used
         to create a pseudo-device node.
+        create -- If f points to an evemu prop file, 'create' specifies if a
+        uinput device should be created
         """
 
         if type(f) == str:
@@ -61,7 +63,8 @@ class Device(object):
         if self._is_propfile:
             fs = self._libc.fdopen(self._file.fileno(), b"r")
             self._libevemu.evemu_read(self._evemu_device, fs)
-            self._file = self._create_devnode()
+            if create:
+                self._file = self._create_devnode()
         else:
             self._libevemu.evemu_extract(self._evemu_device,
                                          self._file.fileno())
