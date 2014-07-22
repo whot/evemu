@@ -34,7 +34,7 @@ def convert_events(lines):
 				else:
 					print("# ------------ %s (%d) ----------" % (event_names.event_get_code_name(type, code), value))
 			else:
-				print("# %s / %-20s %d" % (event_names.event_get_type_name(type), event_get_code_name(type, code), value))
+				print("# %s / %-20s %d" % (event_names.event_get_type_name(type), event_names.event_get_code_name(type, code), value))
 		else:
 			print(line)
 
