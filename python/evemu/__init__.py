@@ -22,6 +22,7 @@ import glob
 import os
 import re
 import stat
+import tempfile
 
 import evemu.base
 import evemu.const
@@ -41,17 +42,22 @@ class InputEvent(object):
         self.value = value
 
     def __str__(self):
-        type, code, value = self.type, self.code, self.value
+        f = tempfile.TemporaryFile()
+        libc = evemu.base.LibC()
+        fp = libc.fdopen(f.fileno(), b"w+")
 
-        s = "E: %d.%d %04x %04x %04d\t" % (self.sec, self.usec, type, code, value)
-        if type == event_names.ev_map["EV_SYN"]:
-            if code == event_names.syn_map["SYN_MT_REPORT"]:
-                s += "# ++++++++++++ %s (%d) ++++++++++" % (event_names.event_get_code_name(type, code), value)
-            else:
-                s += "# ------------ %s (%d) ----------" % (event_names.event_get_code_name(type, code), value)
-        else:
-            s += "# %s / %-20s %d" % (event_names.event_get_type_name(type), event_names.event_get_code_name(type, code), value)
-        return s
+        event = evemu.base.InputEvent()
+        event.sec = self.sec
+        event.usec = self.usec
+        event.type = self.type
+        event.code = self.code
+        event.value = self.value
+
+        libevemu = evemu.base.LibEvemu()
+        libevemu.evemu_write_event(fp, ctypes.byref(event))
+        libc.fflush(fp)
+        f.seek(0)
+        return f.readline().rstrip()
 
 class Device(object):
     """
