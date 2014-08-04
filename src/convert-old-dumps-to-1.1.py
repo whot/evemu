@@ -17,32 +17,9 @@ import sys
 import evemu
 import evemu.event_names
 
-def convert_events(lines):
-	event_re = re.compile(r"E: (\d+\.\d*) ([a-fA-f0-9]+) ([a-fA-f0-9]+) (-?\d*)\n")
-
-	for line in lines:
-		m = event_re.match(line)
-		if m:
-			t, type, code, value = m.groups()
-			type = int(type, 16)
-			code = int(code, 16)
-			value = int(value, 0)
-			print("E: %s %04x %04x %04d\t" % (t, type, code, value))
-			desc = ""
-			if type == event_names.ev_map["EV_SYN"]:
-				if code == syn_map["SYN_MT_REPORT"]:
-					print("# ++++++++++++ %s (%d) ++++++++++" % (event_names.event_get_code_name(type, code), value))
-				else:
-					print("# ------------ %s (%d) ----------" % (event_names.event_get_code_name(type, code), value))
-			else:
-				print("# %s / %-20s %d" % (event_names.event_get_type_name(type), event_names.event_get_code_name(type, code), value))
-		else:
-			print(line)
-
 def usage(args):
 	print("%s mydev.desc [mydev.events]" % os.path.basename(args[0]))
 	return 1
-
 
 if __name__ == "__main__":
 	if len(sys.argv) < 2:
@@ -50,7 +27,7 @@ if __name__ == "__main__":
 	file_desc = sys.argv[1]
 	d = evemu.Device(file_desc, create=False)
 	d.describe(sys.stdout)
-	d = None
 	if len(sys.argv) > 2:
 		with open(sys.argv[2]) as f:
-			convert_events(f.readlines())
+			for e in d.events(f):
+				print(e)

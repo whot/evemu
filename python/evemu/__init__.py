@@ -40,6 +40,19 @@ class InputEvent(object):
         self.code = code
         self.value = value
 
+    def __str__(self):
+        type, code, value = self.type, self.code, self.value
+
+        s = "E: %d.%d %04x %04x %04d\t" % (self.sec, self.usec, type, code, value)
+        if type == event_names.ev_map["EV_SYN"]:
+            if code == event_names.syn_map["SYN_MT_REPORT"]:
+                s += "# ++++++++++++ %s (%d) ++++++++++" % (event_names.event_get_code_name(type, code), value)
+            else:
+                s += "# ------------ %s (%d) ----------" % (event_names.event_get_code_name(type, code), value)
+        else:
+            s += "# %s / %-20s %d" % (event_names.event_get_type_name(type), event_names.event_get_code_name(type, code), value)
+        return s
+
 class Device(object):
     """
     Encapsulates a raw kernel input event device, either an existing one as
