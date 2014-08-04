@@ -586,30 +586,36 @@ out:
 	return rc;
 }
 
-static void write_event_desc(FILE *fp, const struct input_event *ev)
+static int write_event_desc(FILE *fp, const struct input_event *ev)
 {
+	int rc;
+
 	if (ev->type == EV_SYN) {
 		if (ev->code == SYN_MT_REPORT)
-			fprintf(fp, "# ++++++++++++ %s (%d) ++++++++++\n",
-				libevdev_event_code_get_name(ev->type, ev->code),
-				ev->value);
+			rc = fprintf(fp, "# ++++++++++++ %s (%d) ++++++++++\n",
+				     libevdev_event_code_get_name(ev->type, ev->code),
+				     ev->value);
 		else
-			fprintf(fp, "# ------------ %s (%d) ----------\n",
-				libevdev_event_code_get_name(ev->type, ev->code),
-				ev->value);
+			rc = fprintf(fp, "# ------------ %s (%d) ----------\n",
+				     libevdev_event_code_get_name(ev->type, ev->code),
+				     ev->value);
 	} else {
-		fprintf(fp, "# %s / %-20s %d\n",
-			libevdev_event_type_get_name(ev->type),
-			libevdev_event_code_get_name(ev->type, ev->code),
-			ev->value);
+		rc = fprintf(fp, "# %s / %-20s %d\n",
+			     libevdev_event_type_get_name(ev->type),
+			     libevdev_event_code_get_name(ev->type, ev->code),
+			     ev->value);
 	}
+	return rc;
 }
 
 int evemu_write_event(FILE *fp, const struct input_event *ev)
 {
-	return fprintf(fp, "E: %lu.%06u %04x %04x %04d	",
-		       ev->time.tv_sec, (unsigned)ev->time.tv_usec,
-		       ev->type, ev->code, ev->value);
+	int rc;
+	rc = fprintf(fp, "E: %lu.%06u %04x %04x %04d	",
+		     ev->time.tv_sec, (unsigned)ev->time.tv_usec,
+		     ev->type, ev->code, ev->value);
+	rc += write_event_desc(fp, ev);
+	return rc;
 }
 
 static inline long time_to_long(const struct timeval *tv) {
@@ -643,7 +649,6 @@ int evemu_record(FILE *fp, int fd, int ms)
 			time = time_to_long(&ev.time);
 			ev.time = long_to_time(time - offset);
 			evemu_write_event(fp, &ev);
-			write_event_desc(fp, &ev);
 			fflush(fp);
 		}
 	}
