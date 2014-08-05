@@ -67,7 +67,7 @@ class Device(object):
 
     def __init__(self, f, create=True):
         """
-        Initializas an evemu Device.
+        Initialize an evemu Device.
 
         args:
         f -- a file object or filename string for either an existing input
