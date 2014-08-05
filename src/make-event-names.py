@@ -99,6 +99,8 @@ def parse_define(bits, line):
 
 	if name in blacklist:
 		return
+	if name.startswith("EVIOC"):
+		return
 
 	try:
 		value = int(m.group(2), 0)
