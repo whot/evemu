@@ -4,6 +4,7 @@ raw events.
 """
 
 # Copyright 2011-2012 Canonical Ltd.
+# Copyright 2014 Red Hat, Inc.
 #
 # This library is free software: you can redistribute it and/or modify it 
 # under the terms of the GNU Lesser General Public License version 3 
@@ -30,6 +31,25 @@ import evemu.event_names
 
 __all__ = ["Device"]
 
+def event_get_value(event_type, event_code = None):
+    """
+    Return the integer-value for the given event type and/or code string
+    e.g. "EV_ABS" returns 0x03, ("EV_ABS", "ABS_Y") returns 0x01
+
+    If an event code is passed, the event type may be given as integer or
+    string.
+    """
+    return evemu.event_names.event_get_value(event_type, event_code)
+
+def event_get_name(event_type, event_code = None):
+    """
+    Return the string-value for the given event type and/or code value
+    e.g. 0x03 returns "EV_ABS", ("EV_ABS", 0x01) returns "ABS_Y"
+
+    If an event code is passed, the event type may be given as integer or
+    string.
+    """
+    return evemu.event_names.event_get_name(event_type, event_code)
 
 class InputEvent(object):
     __slots__ = 'sec', 'usec', 'type', 'code', 'value'
