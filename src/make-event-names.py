@@ -46,6 +46,9 @@ oneway = [
 		"BTN_TRIGGER_HAPPY"
 ]
 
+# As above, but input.h defines them as aliases instead of int values
+aliases = {}
+
 def p(s):
 	print(textwrap.dedent(s))
 
@@ -59,6 +62,17 @@ def print_python_bits(bits, prefix):
 			print("	\"%s\" : %d," % (val, name))
 		else:
 			print("	%d : \"%s\", \"%s\" : %d," % (val, name, name, val))
+
+	for alias, mapping in aliases.items():
+		if prefix == "key" and alias.lower().startswith("btn"):
+			pass
+		elif not alias.lower().startswith(prefix):
+			continue
+		for val, name in getattr(bits, prefix).items():
+			if name == mapping:
+				print("	\"%s\" : %d," % (alias, val))
+				break
+
 	print("}")
 	print("")
 
@@ -112,6 +126,7 @@ def parse_define(bits, line):
 	try:
 		value = int(m.group(2), 0)
 	except ValueError:
+		aliases[name] = m.group(2)
 		return
 
 	for prefix in prefixes:
