@@ -272,26 +272,38 @@ class Device(object):
         return self._libevemu.evemu_get_id_version(self._evemu_device)
 
     def get_abs_minimum(self, event_code):
+        if type(event_code) == str:
+            event_code = evemu.event_get_value("EV_ABS", event_code)
         return self._libevemu.evemu_get_abs_minimum(self._evemu_device,
                                                     event_code)
 
     def get_abs_maximum(self, event_code):
+        if type(event_code) == str:
+            event_code = evemu.event_get_value("EV_ABS", event_code)
         return self._libevemu.evemu_get_abs_maximum(self._evemu_device,
                                                     event_code)
 
     def get_abs_fuzz(self, event_code):
+        if type(event_code) == str:
+            event_code = evemu.event_get_value("EV_ABS", event_code)
         return self._libevemu.evemu_get_abs_fuzz(self._evemu_device,
                                                  event_code)
 
     def get_abs_flat(self, event_code):
+        if type(event_code) == str:
+            event_code = evemu.event_get_value("EV_ABS", event_code)
         return self._libevemu.evemu_get_abs_flat(self._evemu_device,
                                                  event_code)
 
     def get_abs_resolution(self, event_code):
+        if type(event_code) == str:
+            event_code = evemu.event_get_value("EV_ABS", event_code)
         return self._libevemu.evemu_get_abs_resolution(self._evemu_device,
                                                        event_code)
 
     def has_prop(self, event_code):
+        if type(event_code) == str:
+            event_code = evemu.event_get_value("EV_ABS", event_code)
         result = self._libevemu.evemu_has_prop(self._evemu_device, event_code)
         return bool(result)
 
@@ -307,6 +319,10 @@ class Device(object):
         used to simulate gestures for a higher number of touches than are
         possible with just 2-touch hardware.
         """
+        if type(event_type) == str:
+            event_type = evemu.event_get_value(event_type)
+        if type(event_code) == str:
+            event_code = evemu.event_get_value(event_type, event_code)
         result = self._libevemu.evemu_has_event(self._evemu_device,
                                                 event_type,
                                                 event_code)

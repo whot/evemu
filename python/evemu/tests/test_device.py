@@ -183,9 +183,19 @@ class DevicePropertiesTestCase(evemu.testing.testcase.BaseTestCase):
 
         self.assertEqual(results, self.get_expected_abs("min"))
 
+        keys = evemu.const.absolute_axes.keys()
+        results = dict((evemu.event_get_value("EV_ABS", x), self._device.get_abs_minimum(x)) for x in keys)
+
+        self.assertEqual(results, self.get_expected_abs("min"))
+
     def test_get_abs_maximum(self):
         keys = evemu.const.absolute_axes.values()
         results = dict((x, self._device.get_abs_maximum(x)) for x in keys)
+
+        self.assertEqual(results, self.get_expected_abs("max"))
+
+        keys = evemu.const.absolute_axes.keys()
+        results = dict((evemu.event_get_value("EV_ABS", x), self._device.get_abs_maximum(x)) for x in keys)
 
         self.assertEqual(results, self.get_expected_abs("max"))
 
@@ -195,9 +205,19 @@ class DevicePropertiesTestCase(evemu.testing.testcase.BaseTestCase):
 
         self.assertEqual(results, self.get_expected_abs("fuzz"))
 
+        keys = evemu.const.absolute_axes.keys()
+        results = dict((evemu.event_get_value("EV_ABS", x), self._device.get_abs_fuzz(x)) for x in keys)
+
+        self.assertEqual(results, self.get_expected_abs("fuzz"))
+
     def test_get_abs_flat(self):
         keys = evemu.const.absolute_axes.values()
         results = dict((x, self._device.get_abs_flat(x)) for x in keys)
+
+        self.assertEqual(results, self.get_expected_abs("flat"))
+
+        keys = evemu.const.absolute_axes.keys()
+        results = dict((evemu.event_get_value("EV_ABS", x), self._device.get_abs_flat(x)) for x in keys)
 
         self.assertEqual(results, self.get_expected_abs("flat"))
 
@@ -207,9 +227,20 @@ class DevicePropertiesTestCase(evemu.testing.testcase.BaseTestCase):
 
         self.assertEqual(results, self.get_expected_abs("res"))
 
+        keys = evemu.const.absolute_axes.keys()
+        results = dict((evemu.event_get_value("EV_ABS", x), self._device.get_abs_resolution(x)) for x in keys)
+
+        self.assertEqual(results, self.get_expected_abs("res"))
+
+
     def test_has_prop(self):
         keys = evemu.const.absolute_axes.values()
         results = dict((x, self._device.has_prop(x)) for x in keys)
+
+        self.assertEqual(results, self.get_expected_propbits())
+
+        keys = evemu.const.absolute_axes.keys()
+        results = dict((evemu.event_get_value("EV_ABS", x), self._device.has_prop(x)) for x in keys)
 
         self.assertEqual(results, self.get_expected_propbits())
 
@@ -227,6 +258,10 @@ class DevicePropertiesTestCase(evemu.testing.testcase.BaseTestCase):
 
         self.assertEqual(results, self.get_expected_keybits())
 
+        keys = evemu.const.buttons.keys()
+        results = dict((evemu.event_get_value("EV_KEY", x), self._device.has_event("EV_KEY", x)) for x in keys)
+
+        self.assertEqual(results, self.get_expected_keybits())
 
 if __name__ == "__main__":
     unittest.main()
