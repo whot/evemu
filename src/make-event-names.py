@@ -33,6 +33,10 @@ prefixes = [
 
 blacklist = [
 		"EV_VERSION",
+]
+
+# These defines only work from string->value, not the other way round
+oneway = [
 		"BTN_MISC",
 		"BTN_MOUSE",
 		"BTN_JOYSTICK",
@@ -51,7 +55,10 @@ def print_python_bits(bits, prefix):
 
 	print("%s_map = {" % (prefix))
 	for val, name in getattr(bits, prefix).items():
-		print("	%d : \"%s\", \"%s\" : %d," % (val, name, name, val))
+		if val in oneway:
+			print("	\"%s\" : %d," % (val, name))
+		else:
+			print("	%d : \"%s\", \"%s\" : %d," % (val, name, name, val))
 	print("}")
 	print("")
 
@@ -118,7 +125,10 @@ def parse_define(bits, line):
 		if not hasattr(bits, attrname):
 			setattr(bits, attrname, {})
 		b = getattr(bits, attrname)
-		b[value] = name
+		if name in oneway:
+			b[name] = value
+		else:
+			b[value] = name
 
 def parse(path):
 	fp = open(path)
