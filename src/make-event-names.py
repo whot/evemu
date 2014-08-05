@@ -84,6 +84,7 @@ def print_python_map(bits):
 		if name == "REP" or name == "PWR"  or name == "FF_STATUS"  or name == "MAX":
 			continue
 		print("	%d : %s_map," % (val, name.lower()))
+		print("	\"EV_%s\" : %s_map," % (name, name.lower()))
 
 	print("}")
 	print("")
