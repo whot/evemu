@@ -101,15 +101,33 @@ def print_python_mapping_table(bits):
 	print_python_map(bits)
 
 	p("""
-	def event_get_type_name(type):
-		return ev_map[type]
+	def event_get_name(event_type, event_code = None):
+		'''
+		Returns the event type or code name.
+		'''
+		if event_code == None:
+			if type(event_type) != int:
+				raise TypeError("expected an int")
+			return ev_map[event_type]
 
+		if type(event_code) != int:
+			raise TypeError("expected an int")
 
-	def event_get_code_name(type, code):
-		try:
-			return map[type][code]
-		except KeyError:
-			return 'UNKNOWN'
+		return map[event_type][event_code]
+
+	def event_get_value(event_type, event_code = None):
+		'''
+		Returns the event type or code value.
+		'''
+		if event_code == None:
+			if type(event_type) != str:
+				raise TypeError("expected a string")
+			return ev_map[event_type]
+
+		if type(event_code) != str:
+			raise TypeError("expected a string")
+
+		return map[event_type][event_code]
 	""")
 
 def parse_define(bits, line):
