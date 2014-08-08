@@ -20,4 +20,4 @@ AM_CPPFLAGS = -I$(top_srcdir)/include/ $(LIBEVDEV_CFLAGS)
 libevemuincludedir = $(includedir)
 libevemuinclude_HEADERS = evemu.h
 
-EXTRA_DIST = $(version_script) make-event-names.py convert-old-dumps-to-1.1.py
+EXTRA_DIST = $(version_script) convert-old-dumps-to-1.1.py
