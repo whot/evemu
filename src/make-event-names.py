@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # Parses linux/input.h scanning for #define KEY_FOO 134
-# Prints a C header file or a Python file that can be used as
-# mapping table
+# Prints a Python file that can be used as mapping table
 #
 
 # Make sure the print statement is disabled and the function is used.
@@ -46,16 +45,6 @@ blacklist = [
 def p(s):
 	print(textwrap.dedent(s))
 
-def print_bits(bits, prefix):
-	if  not hasattr(bits, prefix):
-		return
-	print("static const char * const %s_map[%s_MAX + 1] = {" % (prefix, prefix.upper()))
-	print("	[0 ... %s_MAX] = NULL," % prefix.upper())
-	for val, name in getattr(bits, prefix).items():
-		print("	[%s] = \"%s\"," % (name, name))
-	print("};")
-	print("")
-
 def print_python_bits(bits, prefix):
 	if  not hasattr(bits, prefix):
 		return
@@ -64,18 +53,6 @@ def print_python_bits(bits, prefix):
 	for val, name in getattr(bits, prefix).items():
 		print("	%d : \"%s\", \"%s\" : %d," % (val, name, name, val))
 	print("}")
-	print("")
-
-def print_map(bits):
-	print("static const char * const * const map[EV_MAX + 1] = {")
-	print("	[0 ... EV_MAX] = NULL,")
-
-	for prefix in prefixes:
-		if prefix == "BTN_" or prefix == "EV_" or prefix == "INPUT_PROP_":
-			continue
-		print("	[EV_%s] = %s_map," % (prefix[:-1], prefix[:-1].lower()))
-
-	print("};")
 	print("")
 
 def print_python_map(bits):
@@ -89,36 +66,6 @@ def print_python_map(bits):
 
 	print("}")
 	print("")
-
-def print_mapping_table(bits):
-	p("""
-	/* THIS FILE IS GENERATED, DO NOT EDIT */
-
-	#ifndef EVENT_NAMES_H
-	#define EVENT_NAMES_H
-
-	#define SYN_MAX 3 /* linux/input.h doesn't define that */
-
-	""")
-
-	for prefix in prefixes:
-		if prefix == "BTN_":
-			continue
-		print_bits(bits, prefix[:-1].lower())
-
-	print_map(bits)
-
-	p("""
-	static const char * event_get_type_name(int type) {
-		return ev_map[type];
-	 }
-
-	static const char * event_get_code_name(int type, int code) {
-		return map[type] ? map[type][code] : NULL;
-	}
-
-	#endif /* EVENT_NAMES_H */
-	""")
 
 def print_python_mapping_table(bits):
 	p("""# THIS FILE IS GENERATED, DO NOT EDIT")
@@ -186,11 +133,4 @@ def parse(path):
 
 if __name__ == "__main__":
 	bits = parse(SOURCE_FILE)
-	parser = argparse.ArgumentParser()
-	parser.add_argument("--output", default="c")
-
-	args = parser.parse_args(sys.argv[1:])
-	if args.output == "python":
-		print_python_mapping_table(bits)
-	else:
-		print_mapping_table(bits)
+	print_python_mapping_table(bits)
