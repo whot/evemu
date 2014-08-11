@@ -1,7 +1,6 @@
 import unittest
 
 import evemu.base
-import evemu.const
 import evemu.testing.testcase
 
 

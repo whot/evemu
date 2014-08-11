@@ -1,8 +1,8 @@
 import os
 import unittest
 
-import evemu.const
 import evemu.exception
+from evemu import event_get_name, event_get_value, input_prop_get_value, input_prop_get_name
 
 def get_top_directory():
     import evemu
@@ -61,52 +61,60 @@ class BaseTestCase(unittest.TestCase):
 
     _expected_abs_ntrig_dell_xt2 = {
             # A: 00 0 9600 75 0 0
-            evemu.const.absolute_axes["ABS_X"]:
+            evemu.event_get_value("EV_ABS", "ABS_X"):
                 {"min": 0, "max": 9600, "fuzz": 75, "flat": 0, "res": 0},
             # A: 01 0 7200 78 0 0
-            evemu.const.absolute_axes["ABS_Y"]:
+            evemu.event_get_value("EV_ABS", "ABS_Y"):
                 {"min": 0, "max": 7200, "fuzz": 78, "flat": 0, "res": 0},
             # A: 30 0 9600 200 0 0
-            evemu.const.absolute_axes["ABS_MT_TOUCH_MAJOR"]:
+            evemu.event_get_value("EV_ABS", "ABS_MT_TOUCH_MAJOR"):
                 {"min": 0, "max": 9600, "fuzz": 200, "flat": 0, "res": 0},
             # A: 31 0 7200 150 0 0
-            evemu.const.absolute_axes["ABS_MT_TOUCH_MINOR"]:
+            evemu.event_get_value("EV_ABS", "ABS_MT_TOUCH_MINOR"):
                 {"min": 0, "max": 7200, "fuzz": 150, "flat": 0, "res": 0},
             # A: 34 0 1 0 0 0
-            evemu.const.absolute_axes["ABS_MT_ORIENTATION"]:
+            evemu.event_get_value("EV_ABS", "ABS_MT_ORIENTATION"):
                 {"min": 0, "max": 1, "fuzz": 0, "flat": 0, "res": 0},
             # A: 35 0 9600 75 0 0
-            evemu.const.absolute_axes["ABS_MT_POSITION_X"]:
+            evemu.event_get_value("EV_ABS", "ABS_MT_POSITION_X"):
                 {"min": 0, "max": 9600, "fuzz": 75, "flat": 0, "res": 0},
             # A: 36 0 7200 78 0 0
-            evemu.const.absolute_axes["ABS_MT_POSITION_Y"]:
+            evemu.event_get_value("EV_ABS", "ABS_MT_POSITION_Y"):
                 {"min": 0, "max": 7200, "fuzz": 78,  "flat": 0, "res": 0}
             }
     _expected_key_ntrig_dell_xt2 = {
-            evemu.const.buttons["BTN_TOUCH"]: True
+            evemu.event_get_value("EV_KEY", "BTN_TOUCH"): True
             }
 
     def get_expected_abs(self, sub_key):
         expected_items = self._expected_abs_ntrig_dell_xt2.items()
-        expected = dict.fromkeys(evemu.const.absolute_axes.values(), 0)
+
+        absmax = event_get_value("EV_ABS", "ABS_MAX")
+        expected = dict.fromkeys(range(0, absmax + 1), 0)
         expected.update((k, v[sub_key]) for (k, v) in expected_items)
 
         return expected
 
     def get_expected_absbits(self):
         expected_keys = self._expected_abs_ntrig_dell_xt2.keys()
-        expected = dict.fromkeys(evemu.const.absolute_axes.values(), False)
+
+        absmax = event_get_value("EV_ABS", "ABS_MAX")
+        expected = dict.fromkeys(range(0, absmax + 1), False)
         expected.update((k, True) for k in expected_keys)
 
         return expected
 
     def get_expected_keybits(self):
         expected_keys = self._expected_key_ntrig_dell_xt2.keys()
-        expected = dict.fromkeys(evemu.const.buttons.values(), False)
+        keymax = event_get_value("EV_KEY", "KEY_MAX")
+        expected = dict.fromkeys(range(0, keymax + 1), False)
         expected.update((k, True) for k in expected_keys)
 
         return expected
 
     def get_expected_propbits(self):
-        # no props for N-Trig-MultiTouch-Virtual-Device
-        return dict.fromkeys(evemu.const.absolute_axes.values(), False)
+        # no props for N-Trig-MultiTouch-Virtual-Device, so we
+        # return a dict with all keys on False
+        propmax = input_prop_get_value("INPUT_PROP_MAX")
+        keys = range(0, propmax + 1)
+        return dict.fromkeys(keys, False)
