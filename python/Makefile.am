@@ -21,6 +21,7 @@ SUBDIRS = evemu
 nobase_python_PYTHON = \
 	$(wildcard evemu/*.py)
 
+if BUILD_TESTS
 check_SCRIPTS = evemu-test-runner
 
 TESTS = $(check_SCRIPTS)
@@ -35,5 +36,7 @@ evemu-test-runner: evemu-test-runner.in Makefile
 	chmod +x $@
 
 BUILT_SOURCES = evemu-test-runner
+endif
+
 EXTRA_DIST =  evemu-test-runner.in $(wildcard evemu/test*)
 CLEANFILES = $(BUILT_SOURCES)

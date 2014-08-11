@@ -45,6 +45,16 @@ if test "x$XMLTO" = "x" || test "x$ASCIIDOC" = "x"; then
 	AC_MSG_WARN([xmlto or asciidoc not found - cannot create man pages without it])
 fi
 
+AC_ARG_ENABLE([tests],
+	AS_HELP_STRING([--disable-tests], [disable building of tests]),
+	[case "${enableval}" in
+	  yes) enable_tests=yes ;;
+	  no)  enable_tests=no ;;
+	  *) AC_MSG_ERROR([bad value ${enableval} for --disable-tests]) ;;
+	esac],[enable_tests=yes])
+
+AM_CONDITIONAL(BUILD_TESTS, [test "x$enable_tests" = "xyes"])
+
 AC_SUBST(AM_CFLAGS,
          "-Wall -Wextra")
 
