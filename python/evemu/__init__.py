@@ -331,9 +331,10 @@ class Device(object):
         return self._libevemu.evemu_get_abs_resolution(self._evemu_device,
                                                        event_code)
 
+    # don't change 'event_code' to prop, it breaks API
     def has_prop(self, event_code):
         if type(event_code) == str:
-            event_code = evemu.event_get_value("EV_ABS", event_code)
+            event_code = evemu.input_prop_get_value(event_code)
         result = self._libevemu.evemu_has_prop(self._evemu_device, event_code)
         return bool(result)
 
