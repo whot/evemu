@@ -1,3 +1,7 @@
+# UNUSED AND DEPRECATED. DO NOT EDIT
+#
+# This file won't be updated and is left here merely to avoid breakage
+# in old code.
 LIB = "libevemu.so"
 ENCODING="iso8859-1"
 UINPUT_NODE = "/dev/uinput"
