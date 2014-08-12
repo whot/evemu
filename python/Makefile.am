@@ -18,6 +18,7 @@
 
 SUBDIRS = evemu
 
+if BUILD_PYTHON_BINDINGS
 nobase_python_PYTHON = \
 	$(wildcard evemu/*.py)
 
@@ -36,6 +37,7 @@ evemu-test-runner: evemu-test-runner.in Makefile
 	chmod +x $@
 
 BUILT_SOURCES = evemu-test-runner
+endif
 endif
 
 EXTRA_DIST =  evemu-test-runner.in $(wildcard evemu/test*)

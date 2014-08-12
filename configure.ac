@@ -45,6 +45,16 @@ if test "x$XMLTO" = "x" || test "x$ASCIIDOC" = "x"; then
 	AC_MSG_WARN([xmlto or asciidoc not found - cannot create man pages without it])
 fi
 
+AC_ARG_ENABLE([python-bindings],
+	AS_HELP_STRING([--disable-python-bindings], [disable generation of python bindings]),
+	[case "${enableval}" in
+	  yes) python_bindings=yes ;;
+	  no)  python_bindings=no ;;
+	  *) AC_MSG_ERROR([bad value ${enableval} for --disable-python-bindings]) ;;
+	esac],[python_bindings=yes])
+
+AM_CONDITIONAL(BUILD_PYTHON_BINDINGS, [test "x$python_bindings" = "xyes"])
+
 AC_ARG_ENABLE([tests],
 	AS_HELP_STRING([--disable-tests], [disable building of tests]),
 	[case "${enableval}" in
