@@ -8,7 +8,6 @@ import os
 # Import types directly, so they don't have to be prefixed with "ctypes.".
 from ctypes import c_char_p, c_int, c_uint, c_void_p, c_long, c_int32, c_uint16
 
-import evemu.const
 import evemu.exception
 
 
@@ -165,9 +164,11 @@ class LibEvemu(LibraryWrapper):
     Wrapper for API calls to the evemu library.
     """
 
+    _LIBNAME = "libevemu.so"
+
     @staticmethod
     def _cdll():
-        return ctypes.CDLL(evemu.const.LIB, use_errno=True)
+        return ctypes.CDLL(LibEvemu._LIBNAME, use_errno=True)
 
     _api_prototypes = {
         #struct evemu_device *evemu_new(const char *name);
