@@ -29,7 +29,10 @@ import evemu.base
 import evemu.const
 import evemu.event_names
 
-__all__ = ["Device"]
+__all__ = ["Device",
+           "InputEvent",
+           "event_get_value",
+           "event_get_name"]
 
 def event_get_value(event_type, event_code = None):
     """
