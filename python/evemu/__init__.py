@@ -26,7 +26,6 @@ import stat
 import tempfile
 
 import evemu.base
-import evemu.const
 import evemu.event_names
 
 __all__ = ["Device",
@@ -272,7 +271,7 @@ class Device(object):
         Gets the name of the input device (as reported by the device).
         """
         result = self._libevemu.evemu_get_name(self._evemu_device)
-        return result.decode(evemu.const.ENCODING)
+        return result.decode("iso8859-1")
 
     @property
     def id_bustype(self):

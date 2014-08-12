@@ -26,7 +26,7 @@ def raise_error_if(raise_error, result, func, args):
         for (num, arg) in enumerate(func.argtypes):
             # convert args to str for readable output
             if arg == c_char_p:
-                strargs.append('"%s"' % args[num].decode(evemu.const.ENCODING))
+                strargs.append('"%s"' % args[num].decode("iso8859-1"))
             elif arg == c_void_p:
                 strargs.append(hex(int(args[num])))
             else:
