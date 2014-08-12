@@ -17,12 +17,14 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 if BUILD_PYTHON_BINDINGS
-nobase_python_PYTHON = \
+python_sources = \
 	evemu/__init__.py \
 	evemu/base.py \
 	evemu/const.py \
 	evemu/exception.py \
 	evemu/event_names.py # generated!
+
+nobase_python_PYTHON = $(python_sources)
 
 test_sources = \
 	       evemu/testing/__init__.py \
@@ -59,4 +61,12 @@ endif
 endif
 
 EXTRA_DIST =  evemu-test-runner.in $(test_sources) $(srcdir)/evemu/make-event-names.py
-CLEANFILES = $(BUILT_SOURCES)
+
+python3_pyc = \
+		evemu/__pycache__/ \
+		evemu/testing/__pycache__ \
+		evemu/tests/__pycache
+
+python2_pyc = $(test_sources:.py=.pyc) $(python_sources:.py=.pyc)
+
+CLEANFILES = $(BUILT_SOURCES) $(python2_pyc) $(python3_pyc)
