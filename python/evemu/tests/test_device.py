@@ -284,5 +284,12 @@ class DevicePropertiesTestCase(evemu.testing.testcase.BaseTestCase):
         self.assertEqual(evemu.event_get_name("EV_ABS", 0x00), "ABS_X")
         self.assertEqual(evemu.event_get_name("EV_ABS", 0xFFFF), None)
 
+    def test_prop_names(self):
+        self.assertEqual(evemu.input_prop_get_value("INPUT_PROP_POINTER"), 0x00)
+        self.assertEqual(evemu.input_prop_get_value("INPUT_PROP_DIRECT"), 0x01)
+
+        self.assertEqual(evemu.input_prop_get_name(0x00), "INPUT_PROP_POINTER")
+        self.assertEqual(evemu.input_prop_get_name(0x01), "INPUT_PROP_DIRECT")
+
 if __name__ == "__main__":
     unittest.main()

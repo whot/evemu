@@ -130,6 +130,22 @@ def print_python_mapping_table(bits):
 			raise TypeError("expected a string")
 
 		return _type_map[event_type][event_code]
+
+	def _input_prop_get_name(prop):
+		'''
+		Returns the name of the input property.
+		'''
+		if type(prop) != int:
+			raise TypeError("expected an int")
+		return _input_prop_map[prop]
+
+	def _input_prop_get_value(prop):
+		'''
+		Returns the value of the input property.
+		'''
+		if type(prop) != str:
+			raise TypeError("expected a string")
+		return _input_prop_map[prop]
 	""")
 
 def parse_define(bits, line):

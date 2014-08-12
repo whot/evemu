@@ -32,7 +32,9 @@ import evemu.event_names
 __all__ = ["Device",
            "InputEvent",
            "event_get_value",
-           "event_get_name"]
+           "event_get_name",
+           "input_prop_get_value",
+           "input_prop_get_name"]
 
 def event_get_value(event_type, event_code = None):
     """
@@ -59,6 +61,24 @@ def event_get_name(event_type, event_code = None):
     """
     try:
         return evemu.event_names._event_get_name(event_type, event_code)
+    except KeyError:
+        return None
+
+def input_prop_get_name(prop):
+    """
+    Return the name of the input property, or None if undefined.
+    """
+    try:
+        return evemu.event_names._input_prop_get_name(prop)
+    except KeyError:
+        return None
+
+def input_prop_get_value(prop):
+    """
+    Return the name of the input property, or None if undefined.
+    """
+    try:
+        return evemu.event_names._input_prop_get_value(prop)
     except KeyError:
         return None
 
