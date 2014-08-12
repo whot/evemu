@@ -90,7 +90,9 @@ def print_python_map(bits):
 	print("")
 
 def print_python_mapping_table(bits):
-	p("""# THIS FILE IS GENERATED, DO NOT EDIT
+	p("""	# THIS FILE IS GENERATED, DO NOT EDIT
+	# This is module-internal API and subject to change at any time.
+	# Use evemu.event_get_value() and evemu.event_get_name() instead.
 	""")
 
 	for prefix in prefixes:
