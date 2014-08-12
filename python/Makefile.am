@@ -20,7 +20,21 @@ SUBDIRS = evemu
 
 if BUILD_PYTHON_BINDINGS
 nobase_python_PYTHON = \
-	$(wildcard evemu/*.py)
+	evemu/__init__.py \
+	evemu/base.py \
+	evemu/const.py \
+	evemu/exception.py \
+	evemu/event_names.py # generated!
+
+test_sources = \
+	       evemu/testing/__init__.py \
+	       evemu/testing/mocker.py \
+	       evemu/testing/result.py \
+	       evemu/testing/runner.py \
+	       evemu/testing/testcase.py \
+	       evemu/tests/__init__.py \
+	       evemu/tests/test_base.py \
+	       evemu/tests/test_device.py
 
 if BUILD_TESTS
 check_SCRIPTS = evemu-test-runner
@@ -40,5 +54,5 @@ BUILT_SOURCES = evemu-test-runner
 endif
 endif
 
-EXTRA_DIST =  evemu-test-runner.in $(wildcard evemu/test*)
+EXTRA_DIST =  evemu-test-runner.in $(test_sources)
 CLEANFILES = $(BUILT_SOURCES)
