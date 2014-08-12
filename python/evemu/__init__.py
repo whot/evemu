@@ -39,7 +39,7 @@ def event_get_value(event_type, event_code = None):
     If an event code is passed, the event type may be given as integer or
     string.
     """
-    return evemu.event_names.event_get_value(event_type, event_code)
+    return evemu.event_names._event_get_value(event_type, event_code)
 
 def event_get_name(event_type, event_code = None):
     """
@@ -49,7 +49,7 @@ def event_get_name(event_type, event_code = None):
     If an event code is passed, the event type may be given as integer or
     string.
     """
-    return evemu.event_names.event_get_name(event_type, event_code)
+    return evemu.event_names._event_get_name(event_type, event_code)
 
 class InputEvent(object):
     __slots__ = 'sec', 'usec', 'type', 'code', 'value'

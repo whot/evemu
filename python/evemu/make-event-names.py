@@ -56,7 +56,7 @@ def print_python_bits(bits, prefix):
 	if  not hasattr(bits, prefix):
 		return
 
-	print("%s_map = {" % (prefix))
+	print("_%s_map = {" % (prefix))
 	for val, name in getattr(bits, prefix).items():
 		if val in oneway:
 			print("	\"%s\" : %d," % (val, name))
@@ -77,14 +77,14 @@ def print_python_bits(bits, prefix):
 	print("")
 
 def print_python_map(bits):
-	print("map = {")
+	print("_map = {")
 
 	for val, name in getattr(bits, "ev").items():
 		name = name[3:]
 		if name == "REP" or name == "PWR"  or name == "FF_STATUS"  or name == "MAX":
 			continue
-		print("	%d : %s_map," % (val, name.lower()))
-		print("	\"EV_%s\" : %s_map," % (name, name.lower()))
+		print("	%d : _%s_map," % (val, name.lower()))
+		print("	\"EV_%s\" : _%s_map," % (name, name.lower()))
 
 	print("}")
 	print("")
@@ -101,33 +101,33 @@ def print_python_mapping_table(bits):
 	print_python_map(bits)
 
 	p("""
-	def event_get_name(event_type, event_code = None):
+	def _event_get_name(event_type, event_code = None):
 		'''
 		Returns the event type or code name.
 		'''
 		if event_code == None:
 			if type(event_type) != int:
 				raise TypeError("expected an int")
-			return ev_map[event_type]
+			return _ev_map[event_type]
 
 		if type(event_code) != int:
 			raise TypeError("expected an int")
 
-		return map[event_type][event_code]
+		return _map[event_type][event_code]
 
-	def event_get_value(event_type, event_code = None):
+	def _event_get_value(event_type, event_code = None):
 		'''
 		Returns the event type or code value.
 		'''
 		if event_code == None:
 			if type(event_type) != str:
 				raise TypeError("expected a string")
-			return ev_map[event_type]
+			return _ev_map[event_type]
 
 		if type(event_code) != str:
 			raise TypeError("expected a string")
 
-		return map[event_type][event_code]
+		return _map[event_type][event_code]
 	""")
 
 def parse_define(bits, line):
