@@ -90,7 +90,7 @@ def print_python_map(bits):
 	print("")
 
 def print_python_mapping_table(bits):
-	p("""# THIS FILE IS GENERATED, DO NOT EDIT")
+	p("""# THIS FILE IS GENERATED, DO NOT EDIT
 	""")
 
 	for prefix in prefixes:
