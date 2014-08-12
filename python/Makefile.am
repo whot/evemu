@@ -16,8 +16,6 @@
 # You should have received a copy of the GNU General Public License along 
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-SUBDIRS = evemu
-
 if BUILD_PYTHON_BINDINGS
 nobase_python_PYTHON = \
 	evemu/__init__.py \
@@ -36,6 +34,12 @@ test_sources = \
 	       evemu/tests/test_base.py \
 	       evemu/tests/test_device.py
 
+$(builddir)/evemu/event_names.py: Makefile $(srcdir)/evemu/make-event-names.py
+	$(MKDIR_P) evemu/
+	$(PYTHON) $(srcdir)/evemu/make-event-names.py > $@
+
+BUILT_SOURCES = $(builddir)/evemu/event_names.py
+
 if BUILD_TESTS
 check_SCRIPTS = evemu-test-runner
 
@@ -50,9 +54,9 @@ evemu-test-runner: evemu-test-runner.in Makefile
 	  $< >$@
 	chmod +x $@
 
-BUILT_SOURCES = evemu-test-runner
+BUILT_SOURCES += evemu-test-runner
 endif
 endif
 
-EXTRA_DIST =  evemu-test-runner.in $(test_sources)
+EXTRA_DIST =  evemu-test-runner.in $(test_sources) $(srcdir)/evemu/make-event-names.py
 CLEANFILES = $(BUILT_SOURCES)

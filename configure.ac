@@ -31,6 +31,7 @@ AC_PROG_LIBTOOL
 AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_INSTALL
+AC_PROG_MKDIR_P
 AM_PATH_PYTHON([2.6])
 
 PKG_CHECK_MODULES([LIBEVDEV], [libevdev >= 0.5])
@@ -72,7 +73,6 @@ AC_SUBST(AM_CFLAGS,
 AC_CONFIG_FILES([Makefile
                  src/Makefile
                  python/Makefile
-                 python/evemu/Makefile
                  tools/Makefile
                  test/Makefile
                  evemu.pc])
