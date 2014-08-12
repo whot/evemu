@@ -263,5 +263,26 @@ class DevicePropertiesTestCase(evemu.testing.testcase.BaseTestCase):
 
         self.assertEqual(results, self.get_expected_keybits())
 
+    def test_event_names(self):
+        self.assertEqual(evemu.event_get_value("EV_SYN"), 0x00)
+        self.assertEqual(evemu.event_get_value("EV_KEY"), 0x01)
+        self.assertEqual(evemu.event_get_value("EV_ABS"), 0x03)
+        self.assertEqual(evemu.event_get_value("EV_FOO"), None)
+
+        self.assertEqual(evemu.event_get_value("EV_SYN", "SYN_REPORT"), 0x00)
+        self.assertEqual(evemu.event_get_value("EV_KEY", "KEY_Z"), 44)
+        self.assertEqual(evemu.event_get_value("EV_ABS", "ABS_X"), 0x00)
+        self.assertEqual(evemu.event_get_value("EV_ABS", "ABS_FOO"), None)
+
+        self.assertEqual(evemu.event_get_name(0x00), "EV_SYN")
+        self.assertEqual(evemu.event_get_name(0x01), "EV_KEY")
+        self.assertEqual(evemu.event_get_name(0x03), "EV_ABS")
+        self.assertEqual(evemu.event_get_name(0xFFFF), None)
+
+        self.assertEqual(evemu.event_get_name("EV_SYN", 0x00), "SYN_REPORT")
+        self.assertEqual(evemu.event_get_name("EV_REL", 0x01), "REL_Y")
+        self.assertEqual(evemu.event_get_name("EV_ABS", 0x00), "ABS_X")
+        self.assertEqual(evemu.event_get_name("EV_ABS", 0xFFFF), None)
+
 if __name__ == "__main__":
     unittest.main()

@@ -34,22 +34,30 @@ __all__ = ["Device"]
 def event_get_value(event_type, event_code = None):
     """
     Return the integer-value for the given event type and/or code string
-    e.g. "EV_ABS" returns 0x03, ("EV_ABS", "ABS_Y") returns 0x01
+    e.g. "EV_ABS" returns 0x03, ("EV_ABS", "ABS_Y") returns 0x01.
+    Unknown event types or type/code combinations return None.
 
     If an event code is passed, the event type may be given as integer or
     string.
     """
-    return evemu.event_names._event_get_value(event_type, event_code)
+    try:
+        return evemu.event_names._event_get_value(event_type, event_code)
+    except KeyError:
+        return None
 
 def event_get_name(event_type, event_code = None):
     """
     Return the string-value for the given event type and/or code value
     e.g. 0x03 returns "EV_ABS", ("EV_ABS", 0x01) returns "ABS_Y"
+    Unknown event types or type/code combinations return None.
 
     If an event code is passed, the event type may be given as integer or
     string.
     """
-    return evemu.event_names._event_get_name(event_type, event_code)
+    try:
+        return evemu.event_names._event_get_name(event_type, event_code)
+    except KeyError:
+        return None
 
 class InputEvent(object):
     __slots__ = 'sec', 'usec', 'type', 'code', 'value'
