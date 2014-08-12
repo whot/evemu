@@ -77,7 +77,7 @@ def print_python_bits(bits, prefix):
 	print("")
 
 def print_python_map(bits):
-	print("_map = {")
+	print("_type_map = {")
 
 	for val, name in getattr(bits, "ev").items():
 		name = name[3:]
@@ -113,7 +113,7 @@ def print_python_mapping_table(bits):
 		if type(event_code) != int:
 			raise TypeError("expected an int")
 
-		return _map[event_type][event_code]
+		return _type_map[event_type][event_code]
 
 	def _event_get_value(event_type, event_code = None):
 		'''
@@ -127,7 +127,7 @@ def print_python_mapping_table(bits):
 		if type(event_code) != str:
 			raise TypeError("expected a string")
 
-		return _map[event_type][event_code]
+		return _type_map[event_type][event_code]
 	""")
 
 def parse_define(bits, line):
