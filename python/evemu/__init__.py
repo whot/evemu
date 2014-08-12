@@ -74,7 +74,7 @@ def input_prop_get_name(prop):
 
 def input_prop_get_value(prop):
     """
-    Return the name of the input property, or None if undefined.
+    Return the value of the input property, or None if undefined.
     """
     try:
         return evemu.event_names._input_prop_get_value(prop)
