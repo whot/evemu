@@ -33,7 +33,7 @@ def get_suite(loader, top_level_directory):
         # walk the directory
         for dirpath, dirnames, filenames in os.walk(top_level_directory):
             modules = [
-                _path_to_module(os.path.join(dirpath, x)) for x in filenames 
+                _path_to_module(os.path.join(dirpath, x)) for x in filenames
                     if x.startswith("test_") and x.endswith(".py")]
             if not modules:
                 continue
