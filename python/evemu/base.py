@@ -158,6 +158,47 @@ class LibC(LibraryWrapper):
             },
         }
 
+class LibEvdev(LibraryWrapper):
+    """
+    Wrapper for API calls to libevdev
+    """
+
+    @staticmethod
+    def _cdll():
+        return ctypes.CDLL("libevdev.so", use_errno=True)
+
+    _api_prototypes = {
+        #const char *libevdev_event_type_get_name(unsigned int type);
+        "libevdev_event_type_get_name": {
+            "argtypes": (c_uint,),
+            "restype": c_char_p
+            },
+        #int libevdev_event_type_from_name(const char *name);
+        "libevdev_event_type_from_name": {
+            "argtypes": (c_char_p,),
+            "restype": c_int
+            },
+        #const char *libevdev_event_code_get_name(unsigned int type, unsigned int code);
+        "libevdev_event_code_get_name": {
+            "argtypes": (c_uint, c_uint,),
+            "restype": c_char_p
+            },
+        #int libevdev_event_code_from_name(unsigned int type, const char *name);
+        "libevdev_event_code_from_name": {
+            "argtypes": (c_uint, c_char_p,),
+            "restype": c_int
+            },
+        #const char *libevdev_property_get_name(unsigned int prop);
+        "libevdev_property_get_name": {
+            "argtypes": (c_uint,),
+            "restype": c_char_p
+            },
+        #int libevdev_property_from_name(const char *name);
+        "libevdev_property_from_name": {
+            "argtypes": (c_char_p,),
+            "restype": c_int
+            },
+        }
 
 class LibEvemu(LibraryWrapper):
     """
