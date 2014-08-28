@@ -35,6 +35,8 @@ __all__ = ["Device",
            "input_prop_get_value",
            "input_prop_get_name"]
 
+_libevdev = evemu.base.LibEvdev()
+
 def event_get_value(event_type, event_code = None):
     """
     Return the integer-value for the given event type and/or code string
@@ -44,10 +46,27 @@ def event_get_value(event_type, event_code = None):
     If an event code is passed, the event type may be given as integer or
     string.
     """
-    try:
-        return evemu.event_names._event_get_value(event_type, event_code)
-    except KeyError:
-        return None
+    t = -1
+    c = -1
+
+    if isinstance(event_type, int):
+        event_type = _libevdev.libevdev_event_type_get_name(event_type)
+        if event_type == 0: # NULL
+            return None
+
+    t = _libevdev.libevdev_event_type_from_name(str(event_type))
+
+    if event_code == None:
+        return None if t < 0 else t
+
+    if isinstance(event_code, int):
+        event_code = _libevdev.libevdev_event_code_get_name(t, event_code)
+        if event_code == 0: # NULL
+            return None
+
+    c = _libevdev.libevdev_event_code_from_name(t, str(event_code))
+
+    return None if c < 0 else c
 
 def event_get_name(event_type, event_code = None):
     """
@@ -58,10 +77,25 @@ def event_get_name(event_type, event_code = None):
     If an event code is passed, the event type may be given as integer or
     string.
     """
-    try:
-        return evemu.event_names._event_get_name(event_type, event_code)
-    except KeyError:
+    if not isinstance(event_type, int):
+        event_type = event_get_value(event_type)
+
+    if event_type == None:
         return None
+
+    if event_code == None:
+        type_name = _libevdev.libevdev_event_type_get_name(event_type)
+        return None if type_name == 0 else type_name
+
+    if not isinstance(event_code, int):
+        event_code = event_get_value(event_type, event_code)
+
+    if event_code == None:
+        return None
+
+    code_name = _libevdev.libevdev_event_code_get_name(event_type, event_code)
+
+    return None if code_name == 0 else code_name
 
 def input_prop_get_name(prop):
     """
