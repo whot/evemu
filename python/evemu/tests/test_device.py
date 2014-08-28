@@ -278,5 +278,45 @@ class DevicePropertiesTestCase(evemu.testing.testcase.BaseTestCase):
         self.assertEqual(evemu.input_prop_get_name("foo"), None)
         self.assertEqual(evemu.input_prop_get_name(None), None)
 
+    def test_event_matching(self):
+        e = evemu.InputEvent(0, 0, 0x01, 44, 0)
+        self.assertTrue(e.matches("EV_KEY"))
+        self.assertTrue(e.matches("EV_KEY", "KEY_Z"))
+        self.assertTrue(e.matches(0x01))
+        self.assertTrue(e.matches(0x01, 44))
+        self.assertTrue(e.matches("EV_KEY", 44))
+        self.assertTrue(e.matches(0x01, "KEY_Z"))
+
+        for t in range(-1, 0xff):
+            for c in range(-1, 0xff):
+                if t != e.type or c != e.code:
+                    self.assertFalse(e.matches(t, c))
+
+        e = evemu.InputEvent(0, 0, 0x02, 0x01, 0)
+        self.assertTrue(e.matches("EV_REL"))
+        self.assertTrue(e.matches("EV_REL", "REL_Y"))
+        self.assertTrue(e.matches(0x02))
+        self.assertTrue(e.matches(0x02, 0x01))
+        self.assertTrue(e.matches("EV_REL", 0x01))
+        self.assertTrue(e.matches(0x02, "REL_Y"))
+
+        for t in range(-1, 0xff):
+            for c in range(-1, 0xff):
+                if t != e.type or c != e.code:
+                    self.assertFalse(e.matches(t, c))
+
+        e = evemu.InputEvent(0, 0, 0x03, 0x00, 0)
+        self.assertTrue(e.matches("EV_ABS"))
+        self.assertTrue(e.matches("EV_ABS", "ABS_X"))
+        self.assertTrue(e.matches(0x03))
+        self.assertTrue(e.matches(0x03, 0x00))
+        self.assertTrue(e.matches("EV_ABS", 0x00))
+        self.assertTrue(e.matches(0x03, "ABS_X"))
+
+        for t in range(-1, 0xff):
+            for c in range(-1, 0xff):
+                if t != e.type or c != e.code:
+                    self.assertFalse(e.matches(t, c))
+
 if __name__ == "__main__":
     unittest.main()

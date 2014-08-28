@@ -133,6 +133,15 @@ class InputEvent(object):
         self.code = code
         self.value = value
 
+    def matches(self, type, code = None):
+        if event_get_value(type) != self.type:
+            return False
+
+        if code != None and event_get_value(self.type, code) != self.code:
+            return False
+
+        return True
+
     def __str__(self):
         f = tempfile.TemporaryFile()
         libc = evemu.base.LibC()
