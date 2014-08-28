@@ -143,7 +143,7 @@ class LibC(LibraryWrapper):
 
     @staticmethod
     def _cdll():
-        return ctypes.CDLL(ctypes.util.find_library("c"), use_errno=True)
+        return ctypes.CDLL("libc.so.6", use_errno=True)
 
     _api_prototypes = {
         "fdopen": {
