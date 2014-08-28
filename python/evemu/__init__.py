@@ -101,19 +101,27 @@ def input_prop_get_name(prop):
     """
     Return the name of the input property, or None if undefined.
     """
-    try:
-        return evemu.event_names._input_prop_get_name(prop)
-    except KeyError:
+    if not isinstance(prop, int):
+        prop = input_prop_get_value(prop)
+
+    if prop == None:
         return None
+
+    prop = _libevdev.libevdev_property_get_name(prop)
+    return None if prop == 0 else prop
 
 def input_prop_get_value(prop):
     """
     Return the value of the input property, or None if undefined.
     """
-    try:
-        return evemu.event_names._input_prop_get_value(prop)
-    except KeyError:
+    if isinstance(prop, int):
+        prop = input_prop_get_name(prop)
+
+    if prop == None:
         return None
+
+    prop = _libevdev.libevdev_property_from_name(str(prop))
+    return None if prop < 0 else prop
 
 class InputEvent(object):
     __slots__ = 'sec', 'usec', 'type', 'code', 'value'
