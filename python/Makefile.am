@@ -21,8 +21,7 @@ python_sources = \
 	evemu/__init__.py \
 	evemu/base.py \
 	evemu/const.py \
-	evemu/exception.py \
-	evemu/event_names.py # generated!
+	evemu/exception.py
 
 nobase_python_PYTHON = $(python_sources)
 
@@ -35,12 +34,6 @@ test_sources = \
 	       evemu/tests/__init__.py \
 	       evemu/tests/test_base.py \
 	       evemu/tests/test_device.py
-
-$(builddir)/evemu/event_names.py: Makefile $(srcdir)/evemu/make-event-names.py
-	$(MKDIR_P) evemu/
-	$(PYTHON) $(srcdir)/evemu/make-event-names.py > $@
-
-BUILT_SOURCES = $(builddir)/evemu/event_names.py
 
 if BUILD_TESTS
 check_SCRIPTS = evemu-test-runner
@@ -56,11 +49,11 @@ evemu-test-runner: evemu-test-runner.in Makefile
 	  $< >$@
 	chmod +x $@
 
-BUILT_SOURCES += evemu-test-runner
+BUILT_SOURCES = evemu-test-runner
 endif
 endif
 
-EXTRA_DIST =  evemu-test-runner.in $(test_sources) $(srcdir)/evemu/make-event-names.py
+EXTRA_DIST =  evemu-test-runner.in $(test_sources)
 
 python3_pyc = \
 		evemu/__pycache__/ \

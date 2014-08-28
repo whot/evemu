@@ -15,7 +15,6 @@ import re
 import sys
 
 import evemu
-import evemu.event_names
 
 def usage(args):
 	print("%s mydev.desc [mydev.events]" % os.path.basename(args[0]))
