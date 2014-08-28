@@ -238,28 +238,45 @@ class DevicePropertiesTestCase(evemu.testing.testcase.BaseTestCase):
         self.assertEqual(evemu.event_get_value("EV_KEY"), 0x01)
         self.assertEqual(evemu.event_get_value("EV_ABS"), 0x03)
         self.assertEqual(evemu.event_get_value("EV_FOO"), None)
+        self.assertEqual(evemu.event_get_value(1), 1)
+        self.assertEqual(evemu.event_get_value(100), None)
 
         self.assertEqual(evemu.event_get_value("EV_SYN", "SYN_REPORT"), 0x00)
         self.assertEqual(evemu.event_get_value("EV_KEY", "KEY_Z"), 44)
         self.assertEqual(evemu.event_get_value("EV_ABS", "ABS_X"), 0x00)
         self.assertEqual(evemu.event_get_value("EV_ABS", "ABS_FOO"), None)
+        self.assertEqual(evemu.event_get_value(1), 1)
+        self.assertEqual(evemu.event_get_value(100), None)
 
         self.assertEqual(evemu.event_get_name(0x00), "EV_SYN")
         self.assertEqual(evemu.event_get_name(0x01), "EV_KEY")
         self.assertEqual(evemu.event_get_name(0x03), "EV_ABS")
         self.assertEqual(evemu.event_get_name(0xFFFF), None)
+        self.assertEqual(evemu.event_get_name("foo"), None)
+        self.assertEqual(evemu.event_get_name("EV_SYN"), "EV_SYN")
 
         self.assertEqual(evemu.event_get_name("EV_SYN", 0x00), "SYN_REPORT")
         self.assertEqual(evemu.event_get_name("EV_REL", 0x01), "REL_Y")
         self.assertEqual(evemu.event_get_name("EV_ABS", 0x00), "ABS_X")
         self.assertEqual(evemu.event_get_name("EV_ABS", 0xFFFF), None)
+        self.assertEqual(evemu.event_get_name("EV_ABS", "foo"), None)
+        self.assertEqual(evemu.event_get_name("EV_ABS", "ABS_X"), "ABS_X")
+
+        self.assertEqual(evemu.event_get_name(None), None)
+        self.assertEqual(evemu.event_get_name(None, None), None)
 
     def test_prop_names(self):
         self.assertEqual(evemu.input_prop_get_value("INPUT_PROP_POINTER"), 0x00)
         self.assertEqual(evemu.input_prop_get_value("INPUT_PROP_DIRECT"), 0x01)
+        self.assertEqual(evemu.input_prop_get_value("INPUT_PROP_FOO"), None)
+        self.assertEqual(evemu.input_prop_get_value(1), 1)
+        self.assertEqual(evemu.input_prop_get_value(None), None)
 
         self.assertEqual(evemu.input_prop_get_name(0x00), "INPUT_PROP_POINTER")
         self.assertEqual(evemu.input_prop_get_name(0x01), "INPUT_PROP_DIRECT")
+        self.assertEqual(evemu.input_prop_get_name(-1), None)
+        self.assertEqual(evemu.input_prop_get_name("foo"), None)
+        self.assertEqual(evemu.input_prop_get_name(None), None)
 
 if __name__ == "__main__":
     unittest.main()
