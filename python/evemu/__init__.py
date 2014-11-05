@@ -26,7 +26,6 @@ import stat
 import tempfile
 
 import evemu.base
-import evemu.event_names
 
 __all__ = ["Device",
            "InputEvent",
