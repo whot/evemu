@@ -352,46 +352,46 @@ class Device(object):
         return self._libevemu.evemu_get_id_version(self._evemu_device)
 
     def get_abs_minimum(self, event_code):
-        if type(event_code) == str:
+        if not isinstance(event_code, int):
             event_code = evemu.event_get_value("EV_ABS", event_code)
         return self._libevemu.evemu_get_abs_minimum(self._evemu_device,
                                                     event_code)
 
     def get_abs_maximum(self, event_code):
-        if type(event_code) == str:
+        if not isinstance(event_code, int):
             event_code = evemu.event_get_value("EV_ABS", event_code)
         return self._libevemu.evemu_get_abs_maximum(self._evemu_device,
                                                     event_code)
 
     def get_abs_fuzz(self, event_code):
-        if type(event_code) == str:
+        if not isinstance(event_code, int):
             event_code = evemu.event_get_value("EV_ABS", event_code)
         return self._libevemu.evemu_get_abs_fuzz(self._evemu_device,
                                                  event_code)
 
     def get_abs_flat(self, event_code):
-        if type(event_code) == str:
+        if not isinstance(event_code, int):
             event_code = evemu.event_get_value("EV_ABS", event_code)
         return self._libevemu.evemu_get_abs_flat(self._evemu_device,
                                                  event_code)
 
     def get_abs_resolution(self, event_code):
-        if type(event_code) == str:
+        if not isinstance(event_code, int):
             event_code = evemu.event_get_value("EV_ABS", event_code)
         return self._libevemu.evemu_get_abs_resolution(self._evemu_device,
                                                        event_code)
 
     # don't change 'event_code' to prop, it breaks API
     def has_prop(self, event_code):
-        if type(event_code) == str:
+        if not isinstance(event_code, int):
             event_code = evemu.input_prop_get_value(event_code)
         result = self._libevemu.evemu_has_prop(self._evemu_device, event_code)
         return bool(result)
 
     def has_event(self, event_type, event_code):
-        if type(event_type) == str:
+        if not isinstance(event_type, int):
             event_type = evemu.event_get_value(event_type)
-        if type(event_code) == str:
+        if not isinstance(event_code, int):
             event_code = evemu.event_get_value(event_type, event_code)
         result = self._libevemu.evemu_has_event(self._evemu_device,
                                                 event_type,
