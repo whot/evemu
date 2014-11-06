@@ -389,17 +389,6 @@ class Device(object):
         return bool(result)
 
     def has_event(self, event_type, event_code):
-        """
-        This method's 'even_type' parameter is expected to mostly take the
-        value for EV_ABS (i.e., 0x03), but may on occasion EV_KEY (i.e., 0x01).
-        If the former, then the even_code parameter will take the same values
-        as the methods above (ABS_*). However, if the latter, then the legal
-        values will be BTN_*.
-
-        The reason for including the button data, is that buttons are sometimes
-        used to simulate gestures for a higher number of touches than are
-        possible with just 2-touch hardware.
-        """
         if type(event_type) == str:
             event_type = evemu.event_get_value(event_type)
         if type(event_code) == str:
