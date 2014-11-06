@@ -133,6 +133,13 @@ class InputEvent(object):
         self.value = value
 
     def matches(self, type, code = None):
+        """
+        If code is None, return True if the event matches the given event
+        type. If code is not None, return True if the event matches the
+        given type/code pair.
+
+        type and code may be ints or string-like ("EV_ABS", "ABS_X").
+        """
         if event_get_value(type) != self.type:
             return False
 
@@ -352,30 +359,55 @@ class Device(object):
         return self._libevemu.evemu_get_id_version(self._evemu_device)
 
     def get_abs_minimum(self, event_code):
+        """
+        Return the axis minimum for the given EV_ABS value.
+
+        event_code may be an int or string-like ("ABS_X").
+        """
         if not isinstance(event_code, int):
             event_code = evemu.event_get_value("EV_ABS", event_code)
         return self._libevemu.evemu_get_abs_minimum(self._evemu_device,
                                                     event_code)
 
     def get_abs_maximum(self, event_code):
+        """
+        Return the axis maximum for the given EV_ABS value.
+
+        event_code may be an int or string-like ("ABS_X").
+        """
         if not isinstance(event_code, int):
             event_code = evemu.event_get_value("EV_ABS", event_code)
         return self._libevemu.evemu_get_abs_maximum(self._evemu_device,
                                                     event_code)
 
     def get_abs_fuzz(self, event_code):
+        """
+        Return the abs fuzz for the given EV_ABS value.
+
+        event_code may be an int or string-like ("ABS_X").
+        """
         if not isinstance(event_code, int):
             event_code = evemu.event_get_value("EV_ABS", event_code)
         return self._libevemu.evemu_get_abs_fuzz(self._evemu_device,
                                                  event_code)
 
     def get_abs_flat(self, event_code):
+        """
+        Return the abs flat for the given EV_ABS value.
+
+        event_code may be an int or string-like ("ABS_X").
+        """
         if not isinstance(event_code, int):
             event_code = evemu.event_get_value("EV_ABS", event_code)
         return self._libevemu.evemu_get_abs_flat(self._evemu_device,
                                                  event_code)
 
     def get_abs_resolution(self, event_code):
+        """
+        Return the resolution for the given EV_ABS value.
+
+        event_code may be an int or string-like ("ABS_X").
+        """
         if not isinstance(event_code, int):
             event_code = evemu.event_get_value("EV_ABS", event_code)
         return self._libevemu.evemu_get_abs_resolution(self._evemu_device,
@@ -383,12 +415,25 @@ class Device(object):
 
     # don't change 'event_code' to prop, it breaks API
     def has_prop(self, event_code):
+        """
+        Return True if the device supports the given input property,
+        or False otherwise.
+
+        event_code may be an int or string-like ("INPUT_PROP_DIRECT").
+        """
         if not isinstance(event_code, int):
             event_code = evemu.input_prop_get_value(event_code)
         result = self._libevemu.evemu_has_prop(self._evemu_device, event_code)
         return bool(result)
 
     def has_event(self, event_type, event_code):
+        """
+        Return True if the device supports the given event type/code
+        pair, or False otherwise.
+
+        event_type and event_code may be ints or string-like ("EV_REL",
+        "REL_X").
+        """
         if not isinstance(event_type, int):
             event_type = evemu.event_get_value(event_type)
         if not isinstance(event_code, int):
