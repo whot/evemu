@@ -253,7 +253,8 @@ class Device(object):
         to prop_file. This information can be parsed later when constructing
         a Device to create a virtual input device with the same properties.
 
-        Scripts that use this method need to be run as root.
+        You need the required permissions to access the device file to
+        succeed (usually root).
         """
         if not hasattr(prop_file, "read"):
             raise TypeError("expected file")
@@ -284,7 +285,8 @@ class Device(object):
         through the input device. The event sequence must be in
         the form created by the record method.
 
-        Scripts that use this method need to be run as root.
+        You need the required permissions to access the device file to
+        succeed (usually root).
         """
         if not hasattr(events_file, "read"):
             raise TypeError("expected file")
@@ -299,7 +301,8 @@ class Device(object):
         allowing a virtual input device to emit the exact same event
         sequence.
 
-        Scripts that use this method need to be run as root.
+        You need the required permissions to access the device file to
+        succeed (usually root).
         """
         if not hasattr(events_file, "read"):
             raise TypeError("expected file")
