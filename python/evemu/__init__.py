@@ -255,8 +255,10 @@ class Device(object):
 
         You need the required permissions to access the device file to
         succeed (usually root).
+
+        prop_file must be a real file with fileno(), not file-like.
         """
-        if not hasattr(prop_file, "read"):
+        if not hasattr(prop_file, "fileno"):
             raise TypeError("expected file")
 
         fs = self._libc.fdopen(prop_file.fileno(), b"w")
@@ -267,9 +269,12 @@ class Device(object):
         """
         Reads the events from the given file and returns them as a list of
         dicts.
+
+        If not None, events_file must be a real file with fileno(), not
+        file-like. If None, the file used for creating this device is used.
         """
         if events_file:
-            if not hasattr(events_file, "read"):
+            if not hasattr(events_file, "fileno"):
                 raise TypeError("expected file")
         else:
             events_file = self._file
@@ -287,8 +292,10 @@ class Device(object):
 
         You need the required permissions to access the device file to
         succeed (usually root).
+
+        events_file must be a real file with fileno(), not file-like.
         """
-        if not hasattr(events_file, "read"):
+        if not hasattr(events_file, "fileno"):
             raise TypeError("expected file")
 
         fs = self._libc.fdopen(events_file.fileno(), b"r")
@@ -303,8 +310,10 @@ class Device(object):
 
         You need the required permissions to access the device file to
         succeed (usually root).
+
+        events_file must be a real file with fileno(), not file-like.
         """
-        if not hasattr(events_file, "read"):
+        if not hasattr(events_file, "fileno"):
             raise TypeError("expected file")
 
         fs = self._libc.fdopen(events_file.fileno(), b"w")
