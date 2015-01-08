@@ -13,7 +13,7 @@ AM_CPPFLAGS =-I$(top_srcdir)/src/
 AM_LDFLAGS = $(top_builddir)/src/libevemu.la
 
 evemu_describe_SOURCES = evemu-record.c find_event_devices.c find_event_devices.h
-evemu_record_SOURCES = evemu-record.c find_event_devices.c find_event_devices.h
+evemu_record_SOURCES = $(evemu_describe_SOURCES)
 
 evemu_event_CFLAGS = $(LIBEVDEV_CFLAGS)
 evemu_event_LDADD = $(LIBEVDEV_LIBS)
