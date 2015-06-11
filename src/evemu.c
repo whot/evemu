@@ -52,6 +52,7 @@
 #include <poll.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <sys/utsname.h>
 
 #include "version.h"
 
@@ -343,11 +344,24 @@ static void write_desc(const struct evemu_device *dev, FILE *fp)
 #endif
 }
 
+static void
+write_header(FILE *fp)
+{
+	struct utsname u;
+
+	fprintf(fp, "# EVEMU %d.%d\n", EVEMU_FILE_MAJOR, EVEMU_FILE_MINOR);
+
+	if (uname(&u) == -1)
+		return;
+
+	fprintf(fp, "# Kernel: %s\n", u.release);
+}
+
 int evemu_write(const struct evemu_device *dev, FILE *fp)
 {
 	int i;
 
-	fprintf(fp, "# EVEMU %d.%d\n", EVEMU_FILE_MAJOR, EVEMU_FILE_MINOR);
+	write_header(fp);
 
 	write_desc(dev, fp);
 
