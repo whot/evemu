@@ -348,6 +348,8 @@ static void
 write_header(FILE *fp)
 {
 	struct utsname u;
+	char modalias[2048];
+	FILE *dmi;
 
 	fprintf(fp, "# EVEMU %d.%d\n", EVEMU_FILE_MAJOR, EVEMU_FILE_MINOR);
 
@@ -355,6 +357,14 @@ write_header(FILE *fp)
 		return;
 
 	fprintf(fp, "# Kernel: %s\n", u.release);
+
+	dmi = fopen("/sys/class/dmi/id/modalias", "r");
+	if (dmi) {
+		if (fgets(modalias, sizeof(modalias), dmi)) {
+			fprintf(fp, "# DMI: %s", modalias);
+		}
+		fclose(dmi);
+	}
 }
 
 int evemu_write(const struct evemu_device *dev, FILE *fp)
