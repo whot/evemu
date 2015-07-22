@@ -37,7 +37,7 @@ Device Description Format
 evemu produces two different data formats, one for the device description
 and one for the device event data. hex data is without a 0x prefix.
 
-    # EVEMU 1.2
+    # EVEMU 1.3
     # comments start with a # character and go to the end of the line
     N: <device name>
     I: <bustype (hex)> <vendor (hex)> <product (hex)> <version (hex)>
@@ -49,11 +49,17 @@ and one for the device event data. hex data is without a 0x prefix.
     B: <index (hex)> <byte 8 (hex)> ...
      --- for each absolute axis ---
     A: <index (hex)> <min> <max> <fuzz> <flat> <resolution>
+     --- for each LED ---
+    L: <index (hex)> <state>
+     --- for each switch ---
+    S: <index (hex)> <state>
 
 The first line is a special comment and taken to describe the file format
 version. It is always comment character (#), space, "EVEMU", space, followed
 by a numeric version number in the format major.minor.
 If the line is missing, file format 1.0 is assumed.
+
+If L and S are missing, the state of each LED/switch is 0
 
 minor version numbers are additions of new fields, or alterations of a
 field.
@@ -65,6 +71,7 @@ Current file format versions supported:
  * 1.1 - comments may be present at any line of the file, including at the
 	 end of a line
  * 1.2 - abs axis information has the resolution appended
+ * 1.3 - LED/switch state added
 
 Event Data Format
 -----------------
@@ -97,4 +104,4 @@ Copyright
 
  * Copyright (C) 2010 Henrik Rydberg <rydberg@euromail.se>
  * Copyright (C) 2010 Canonical Ltd.
- * Copyright (C) 2013 Red Hat, Inc.
+ * Copyright (C) 2013-2015 Red Hat, Inc.

@@ -3,7 +3,7 @@
  * evemu - Kernel device emulation
  *
  * Copyright (C) 2010-2012 Canonical Ltd.
- * Copyright (C) 2013 Red Hat, Inc.
+ * Copyright (C) 2013-2015 Red Hat, Inc.
  *
  * This library is free software: you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version 3
@@ -59,7 +59,7 @@
 /* File format version we write out
    NOTE: if you bump the version number, make sure you update README */
 #define EVEMU_FILE_MAJOR 1
-#define EVEMU_FILE_MINOR 2
+#define EVEMU_FILE_MINOR 3
 
 #define SYSCALL(call) while (((call) == -1) && (errno == EINTR))
 
@@ -296,10 +296,21 @@ static void write_abs(FILE *fp, int index, const struct input_absinfo *abs)
 		abs->minimum, abs->maximum, abs->fuzz, abs->flat, abs->resolution);
 }
 
+static void write_led(FILE *fp, int index, int state)
+{
+	fprintf(fp, "L: %02x %d\n", index, state);
+}
+
+static void write_sw(FILE *fp, int index, int state)
+{
+	fprintf(fp, "S: %02x %d\n", index, state);
+}
+
 /* Print an evtest-like description */
 static void write_desc(const struct evemu_device *dev, FILE *fp)
 {
 	int i, j;
+	int state;
 	fprintf(fp, "# Input device name: \"%s\"\n", evemu_get_name(dev));
 	fprintf(fp, "# Input device ID: bus %#04x vendor %#04x product %#04x version %#04x\n",
 		evemu_get_id_bustype(dev), evemu_get_id_vendor(dev),
@@ -316,7 +327,8 @@ static void write_desc(const struct evemu_device *dev, FILE *fp)
 
 			fprintf(fp, "#     Event code %d (%s)\n",
 				    j, libevdev_event_code_get_name(i, j));
-			if (i == EV_ABS) {
+			switch(i) {
+				case EV_ABS:
 				fprintf(fp, "#       Value %6d\n"
 					    "#       Min   %6d\n"
 					    "#       Max   %6d\n"
@@ -329,6 +341,13 @@ static void write_desc(const struct evemu_device *dev, FILE *fp)
 					    evemu_get_abs_fuzz(dev, j),
 					    evemu_get_abs_flat(dev, j),
 					    evemu_get_abs_resolution(dev, j));
+				case EV_LED:
+				case EV_SW:
+					state = libevdev_get_event_value(dev->evdev, i, j);
+					fprintf(fp, "#        State %d\n", state);
+					break;
+				default:
+					break;
 			}
 		}
 	}
@@ -370,6 +389,7 @@ write_header(FILE *fp)
 int evemu_write(const struct evemu_device *dev, FILE *fp)
 {
 	int i;
+	int state;
 
 	write_header(fp);
 
@@ -389,6 +409,16 @@ int evemu_write(const struct evemu_device *dev, FILE *fp)
 	for (i = 0; i < ABS_CNT; i++)
 		if (evemu_has_event(dev, EV_ABS, i))
 			write_abs(fp, i, libevdev_get_abs_info(dev->evdev, i));
+
+	for (i = 0; i < LED_CNT; i++)
+		if (evemu_has_event(dev, EV_LED, i) &&
+		    (state = libevdev_get_event_value(dev->evdev, EV_LED, i)) != 0)
+			write_led(fp, i, state);
+
+	for (i = 0; i < SW_CNT; i++)
+		if (evemu_has_event(dev, EV_SW, i) &&
+		    (state = libevdev_get_event_value(dev->evdev, EV_SW, i)) != 0)
+			write_sw(fp, i, state);
 
 	return 0;
 }
@@ -525,6 +555,50 @@ static int parse_abs(struct evemu_device *dev, const char *line, struct version 
 	return 1;
 }
 
+static int parse_led(const char *line)
+{
+	int matched;
+	unsigned int index;
+	int state;
+
+	if (strlen(line) <= 2 || strncmp(line, "L:", 2) != 0)
+		return 0;
+
+	matched = sscanf(line, "L: %02x %d\n", &index, &state);
+
+	if (matched != 2) {
+		error(FATAL, "Invalid EV_LED line. Parsed %d numbers, expected 2: %s", matched, line);
+		return -1;
+	}
+
+	/* We can't set the LEDs directly, we'd have to send an event
+	 * through the device but that's potentially racy */
+
+	return 1;
+}
+
+static int parse_sw(const char *line)
+{
+	int matched;
+	unsigned int index;
+	int state;
+
+	if (strlen(line) <= 2 || strncmp(line, "S:", 2) != 0)
+		return 0;
+
+	matched = sscanf(line, "S: %02x %d\n", &index, &state);
+
+	if (matched != 2) {
+		error(FATAL, "Invalid EV_SW line. Parsed %d numbers, expected 2: %s", matched, line);
+		return -1;
+	}
+
+	/* We can't set the switches directly, we'd have to send an event
+	 * through the device but that's potentially racy */
+
+	return 1;
+}
+
 static struct version parse_file_format_version(const char *line)
 {
 	struct version v;
@@ -598,6 +672,18 @@ int evemu_read(struct evemu_device *dev, FILE *fp)
 		goto out;
 
 	while((rc = parse_abs(dev, line, &file_version)) > 0)
+		if (!next_line(fp, &line, &size))
+			break;
+	if (rc == -1)
+		goto out;
+
+	while((rc = parse_led(line)) > 0)
+		if (!next_line(fp, &line, &size))
+			break;
+	if (rc == -1)
+		goto out;
+
+	while((rc = parse_sw(line)) > 0)
 		if (!next_line(fp, &line, &size))
 			break;
 	if (rc == -1)
