@@ -696,19 +696,31 @@ out:
 	return rc;
 }
 
+static inline unsigned long millis(const struct timeval *tv)
+{
+	return tv->tv_sec * 1000 + tv->tv_usec/1000;
+}
+
 static int write_event_desc(FILE *fp, const struct input_event *ev)
 {
 	int rc;
+	static unsigned long last_ms = 0;
+	unsigned long time, dt;
 
 	if (ev->type == EV_SYN) {
-		if (ev->code == SYN_MT_REPORT)
+		if (ev->code == SYN_MT_REPORT) {
 			rc = fprintf(fp, "# ++++++++++++ %s (%d) ++++++++++\n",
 				     libevdev_event_code_get_name(ev->type, ev->code),
 				     ev->value);
-		else
-			rc = fprintf(fp, "# ------------ %s (%d) ----------\n",
+		} else {
+			time = millis(&ev->time);
+			dt = time - last_ms;
+			last_ms = time;
+			rc = fprintf(fp, "# ------------ %s (%d) ---------- +%ldms\n",
 				     libevdev_event_code_get_name(ev->type, ev->code),
-				     ev->value);
+				     ev->value,
+				     dt);
+		}
 	} else {
 		rc = fprintf(fp, "# %s / %-20s %d\n",
 			     libevdev_event_type_get_name(ev->type),
