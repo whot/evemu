@@ -691,6 +691,8 @@ int evemu_read(struct evemu_device *dev, FILE *fp)
 
 	rc = 1;
 
+	fseek(fp, -strlen(line), SEEK_CUR);
+
 out:
 	free(line);
 	return rc;
