@@ -743,13 +743,13 @@ int evemu_write_event(FILE *fp, const struct input_event *ev)
 }
 
 static inline long time_to_long(const struct timeval *tv) {
-	return tv->tv_sec * 1000000 + tv->tv_usec;
+	return tv->tv_sec * 1000000L + tv->tv_usec;
 }
 
 static inline struct timeval long_to_time(long time) {
 	struct timeval tv;
-	tv.tv_sec = time/1000000;
-	tv.tv_usec = time % 1000000;
+	tv.tv_sec = time/1000000L;
+	tv.tv_usec = time % 1000000L;
 	return tv;
 }
 
@@ -838,8 +838,7 @@ int evemu_read_event_realtime(FILE *fp, struct input_event *ev,
 	if (evtime) {
 		if (!evtime->tv_sec)
 			*evtime = ev->time;
-		usec = 1000000L * (ev->time.tv_sec - evtime->tv_sec);
-		usec += ev->time.tv_usec - evtime->tv_usec;
+		usec = time_to_long(&ev->time) - time_to_long(evtime);
 		if (usec > 500) {
 			usleep(usec);
 			*evtime = ev->time;
