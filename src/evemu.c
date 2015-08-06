@@ -846,7 +846,7 @@ int evemu_read_event_realtime(FILE *fp, struct input_event *ev,
 		return ret;
 
 	if (evtime) {
-		if (!evtime->tv_sec)
+		if (evtime->tv_sec == 0 && evtime->tv_usec == 0)
 			*evtime = ev->time;
 		usec = time_to_long(&ev->time) - time_to_long(evtime);
 		if (usec > 500) {
