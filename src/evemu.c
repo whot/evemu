@@ -825,6 +825,16 @@ int evemu_create_event(struct input_event *ev, int type, int code, int value)
 	return 0;
 }
 
+static inline unsigned long s2us(unsigned long s)
+{
+	return s * 1000000L;
+}
+
+static inline unsigned long us2s(unsigned long us)
+{
+	return us / 1000000L;
+}
+
 int evemu_read_event_realtime(FILE *fp, struct input_event *ev,
 			      struct timeval *evtime)
 {
@@ -840,6 +850,8 @@ int evemu_read_event_realtime(FILE *fp, struct input_event *ev,
 			*evtime = ev->time;
 		usec = time_to_long(&ev->time) - time_to_long(evtime);
 		if (usec > 500) {
+			if (usec > s2us(10))
+				error(INFO, "Sleeping for %lds.\n", us2s(usec));
 			usleep(usec);
 			*evtime = ev->time;
 		}
