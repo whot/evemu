@@ -839,6 +839,7 @@ int evemu_read_event_realtime(FILE *fp, struct input_event *ev,
 			      struct timeval *evtime)
 {
 	unsigned long usec;
+	const unsigned long ERROR_MARGIN = 150; /* µs */
 	int ret;
 
 	ret = evemu_read_event(fp, ev);
@@ -849,10 +850,10 @@ int evemu_read_event_realtime(FILE *fp, struct input_event *ev,
 		if (evtime->tv_sec == 0 && evtime->tv_usec == 0)
 			*evtime = ev->time;
 		usec = time_to_long(&ev->time) - time_to_long(evtime);
-		if (usec > 500) {
+		if (usec > ERROR_MARGIN * 2) {
 			if (usec > s2us(10))
 				error(INFO, "Sleeping for %lds.\n", us2s(usec));
-			usleep(usec);
+			usleep(usec - ERROR_MARGIN);
 			*evtime = ev->time;
 		}
 	}
