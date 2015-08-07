@@ -768,7 +768,7 @@ int evemu_record(FILE *fp, int fd, int ms)
 			long time;
 
 			if (offset == 0)
-				offset = time_to_long(&ev.time);
+				offset = time_to_long(&ev.time) - 1;
 
 			time = time_to_long(&ev.time);
 			ev.time = long_to_time(time - offset);
