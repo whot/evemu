@@ -79,9 +79,9 @@ char* find_event_devices(void)
 	}
 
 	fprintf(stderr, "Select the device event number [0-%d]: ", max_device);
-	scanf("%d", &devnum);
+	rc = scanf("%d", &devnum);
 
-	if (devnum > max_device || devnum < 0)
+	if (rc != 1 || devnum > max_device || devnum < 0)
 		return NULL;
 
 	asprintf(&filename, "%s/%s%d",
