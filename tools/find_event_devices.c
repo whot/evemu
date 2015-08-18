@@ -47,6 +47,7 @@ char* find_event_devices(void)
 	int i, ndev, devnum;
 	char *filename;
 	int max_device = 0;
+	int rc;
 
 	ndev = scandir(DEV_INPUT_EVENT, &namelist, is_event_device, versionsort);
 	if (ndev <= 0)
@@ -70,8 +71,8 @@ char* find_event_devices(void)
 		fprintf(stderr, "%s:	%s\n", fname, name);
 		close(fd);
 
-		sscanf(namelist[i]->d_name, "event%d", &devnum);
-		if (devnum > max_device)
+		rc = sscanf(namelist[i]->d_name, "event%d", &devnum);
+		if (rc == 1 && devnum > max_device)
 			max_device = devnum;
 
 		free(namelist[i]);
