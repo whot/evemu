@@ -72,8 +72,10 @@ void check_evemu_read(int fd, const char *file, enum flags flags)
 	FILE *fp;
 	struct evemu_device *dev;
 	const char *device_name;
+	int rc;
 
-	ftruncate(fd, 0);
+	rc = ftruncate(fd, 0);
+	assert(rc == 0);
 	lseek(fd, 0, SEEK_SET);
 
 	if (flags & EMPTYLINE)
