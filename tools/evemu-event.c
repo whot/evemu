@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 {
 	int rc = -1;
 	int fd = -1;
-	long int type, code, value;
+	long int type, code, value = LONG_MAX;
 	struct input_event ev;
 	int sync = 0;
 	const char *path = NULL;
@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if (!type_arg || !code_arg) {
+	if (!type_arg || !code_arg || value == LONG_MAX) {
 		usage();
 		goto out;
 	}
