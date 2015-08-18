@@ -135,6 +135,9 @@ struct evemu_device *evemu_new(const char *name)
 
 void evemu_delete(struct evemu_device *dev)
 {
+	if (dev == NULL)
+		return;
+
 	if (dev->uidev)
 		evemu_destroy(dev);
 	libevdev_free(dev->evdev);
