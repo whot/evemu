@@ -84,9 +84,9 @@ char* find_event_devices(void)
 	if (rc != 1 || devnum > max_device || devnum < 0)
 		return NULL;
 
-	asprintf(&filename, "%s/%s%d",
-		 DEV_INPUT_EVENT, EVENT_DEV_NAME,
-		 devnum);
+	rc = asprintf(&filename, "%s/%s%d",
+		      DEV_INPUT_EVENT, EVENT_DEV_NAME,
+		      devnum);
 
-	return filename;
+	return rc == -1 ? NULL : filename;
 }
