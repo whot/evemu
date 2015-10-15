@@ -42,3 +42,12 @@ dist_man_MANS = $(man_pages)
 CLEANFILES = $(dist_man_MANS)
 MAINTAINERCLEANFILES = $(man_pages) *.xml
 endif
+
+# make sure manpages were built before running dist
+dist-hook:
+	@test -f $(distdir)/evemu-describe.1 || (\
+		echo "******************************************************" && \
+		echo "Couldn't find man pages, refusing make dist." && \
+		echo "Install xmlto/asciidoc to build man pages for tarball." && \
+		echo "******************************************************" && \
+		test )
