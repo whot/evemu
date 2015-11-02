@@ -55,7 +55,7 @@
 
 FILE *output;
 
-static int describe_device(int fd)
+static int describe_device(FILE *output, int fd)
 {
 	struct evemu_device *dev;
 	int ret = -ENOMEM;
@@ -67,7 +67,7 @@ static int describe_device(int fd)
 	if (ret)
 		goto out;
 
-	evemu_write(dev, stdout);
+	evemu_write(dev, output);
 out:
 	evemu_delete(dev);
 	return ret;
@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if (describe_device(fd)) {
+	if (describe_device(output, fd)) {
 		fprintf(stderr, "error: could not describe device\n");
 		goto out;
 	}
