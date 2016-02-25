@@ -69,6 +69,7 @@ static int describe_device(FILE *output, int fd)
 		goto out;
 
 	evemu_write(dev, output);
+	fflush(output);
 out:
 	evemu_delete(dev);
 	return ret;
