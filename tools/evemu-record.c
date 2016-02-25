@@ -41,6 +41,7 @@
 
 #define _GNU_SOURCE
 #include "evemu.h"
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -80,6 +81,19 @@ static void handler (int sig __attribute__((unused)))
 		fclose(output);
 		output = stdout;
 	}
+}
+
+static inline bool test_grab_device(int fd)
+{
+	if (ioctl(fd, EVIOCGRAB, (void*)1) < 0) {
+		fprintf(stderr, "error: this device is grabbed and I cannot record events\n");
+		fprintf(stderr, "see the evemu-record man page for more information\n");
+		return false;
+	} else {
+		ioctl(fd, EVIOCGRAB, (void*)0);
+	}
+
+	return true;
 }
 
 enum mode {
@@ -146,12 +160,8 @@ int main(int argc, char *argv[])
 		int clockid = CLOCK_MONOTONIC;
 		ioctl(fd, EVIOCSCLOCKID, &clockid);
 #endif
-		if (ioctl(fd, EVIOCGRAB, (void*)1) < 0) {
-			fprintf(stderr, "error: this device is grabbed and I cannot record events\n");
-			fprintf(stderr, "see the evemu-record man page for more information\n");
+		if (!test_grab_device(fd))
 			goto out;
-		} else
-			ioctl(fd, EVIOCGRAB, (void*)0);
 
 		fprintf(output,  "################################\n");
 		fprintf(output,  "#      Waiting for events      #\n");
