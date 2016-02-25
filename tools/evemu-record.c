@@ -90,10 +90,13 @@ enum mode {
 int main(int argc, char *argv[])
 {
 	enum mode mode = EVEMU_RECORD;
-	int fd;
+	int fd = -1;
 	struct sigaction act;
 	char *prgm_name = program_invocation_short_name;
-	char *device;
+	char *device = NULL;
+	int rc = 1;
+
+	output = stdout;
 
 	if (prgm_name && (strcmp(prgm_name, "evemu-describe") == 0 ||
 			/* when run directly from the sources (not installed) */
@@ -104,12 +107,12 @@ int main(int argc, char *argv[])
 
 	if (device == NULL) {
 		fprintf(stderr, "Usage: %s <device> [output file]\n", argv[0]);
-		return -1;
+		goto out;
 	}
 	fd = open(device, O_RDONLY | O_NONBLOCK);
 	if (fd < 0) {
 		fprintf(stderr, "error: could not open device (%m)\n");
-		return -1;
+		goto out;
 	}
 
 	memset (&act, '\0', sizeof(act));
@@ -117,11 +120,11 @@ int main(int argc, char *argv[])
 
 	if (sigaction(SIGTERM, &act, NULL) < 0) {
 		fprintf (stderr, "Could not attach TERM signal handler (%m)\n");
-		return 1;
+		goto out;
 	}
 	if (sigaction(SIGINT, &act, NULL) < 0) {
 		fprintf (stderr, "Could not attach INT signal handler (%m)\n");
-		return 1;
+		goto out;
 	}
 
 	if (argc < 3)
@@ -146,7 +149,7 @@ int main(int argc, char *argv[])
 		if (ioctl(fd, EVIOCGRAB, (void*)1) < 0) {
 			fprintf(stderr, "error: this device is grabbed and I cannot record events\n");
 			fprintf(stderr, "see the evemu-record man page for more information\n");
-			return -1;
+			goto out;
 		} else
 			ioctl(fd, EVIOCGRAB, (void*)0);
 
@@ -157,6 +160,7 @@ int main(int argc, char *argv[])
 			fprintf(stderr, "error: could not describe device\n");
 	}
 
+	rc = 0;
 out:
 	free(device);
 	close(fd);
@@ -164,5 +168,5 @@ out:
 		fclose(output);
 		output = stdout;
 	}
-	return 0;
+	return rc;
 }
