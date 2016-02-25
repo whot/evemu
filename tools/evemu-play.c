@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
 	}
 	fd = open(argv[1], O_WRONLY);
 	if (fd < 0) {
-		fprintf(stderr, "error: could not open device\n");
+		fprintf(stderr, "error: could not open device (%m)\n");
 		return -1;
 	}
 	if (evemu_play(stdin, fd)) {

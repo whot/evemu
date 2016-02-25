@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
 	}
 	fp = fopen(argv[1], "r");
 	if (!fp) {
-		fprintf(stderr, "error: could not open file\n");
+		fprintf(stderr, "error: could not open file (%m)\n");
 		return -1;
 	}
 	ret = evemu_device(fp);

@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
 
 	fd = open(path, O_WRONLY);
 	if (fd < 0) {
-		fprintf(stderr, "error: could not open device\n");
+		fprintf(stderr, "error: could not open device (%m)\n");
 		goto out;
 	}
 

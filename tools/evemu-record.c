@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
 	}
 	fd = open(device, O_RDONLY | O_NONBLOCK);
 	if (fd < 0) {
-		fprintf(stderr, "error: could not open device\n");
+		fprintf(stderr, "error: could not open device (%m)\n");
 		return -1;
 	}
 
@@ -116,11 +116,11 @@ int main(int argc, char *argv[])
 	act.sa_handler = &handler;
 
 	if (sigaction(SIGTERM, &act, NULL) < 0) {
-		fprintf (stderr, "Could not attach TERM signal handler.\n");
+		fprintf (stderr, "Could not attach TERM signal handler (%m)\n");
 		return 1;
 	}
 	if (sigaction(SIGINT, &act, NULL) < 0) {
-		fprintf (stderr, "Could not attach INT signal handler.\n");
+		fprintf (stderr, "Could not attach INT signal handler (%m)\n");
 		return 1;
 	}
 
@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
 	else {
 		output = fopen(argv[2], "w");
 		if (!output) {
-			fprintf(stderr, "error: could not open output file");
+			fprintf(stderr, "error: could not open output file (%m)");
 		}
 	}
 
