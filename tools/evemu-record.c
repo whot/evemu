@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
 		fprintf(output,  "#      Waiting for events      #\n");
 		fprintf(output,  "################################\n");
 		if (evemu_record(output, fd, INFINITE))
-			fprintf(stderr, "error: could not describe device\n");
+			fprintf(stderr, "error: could not record device\n");
 	}
 
 	rc = 0;
