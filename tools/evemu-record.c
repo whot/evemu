@@ -146,6 +146,7 @@ static bool record_device(int fd, unsigned int timeout, const char *prefix)
 {
 	char *filename = NULL;
 	bool rc = false;
+	long ftell_start = 0 , ftell_end = 1;
 
 	assert(!autorestart || prefix != NULL);
 
@@ -178,12 +179,15 @@ static bool record_device(int fd, unsigned int timeout, const char *prefix)
 		fprintf(output,  "################################\n");
 		fprintf(output,  "#      Waiting for events      #\n");
 		fprintf(output,  "################################\n");
-		if (autorestart)
+		if (autorestart) {
 			fprintf(output, "# Autorestart timeout: %d\n", timeout);
+			ftell_start = ftell(output);
+		}
 
 		if (evemu_record(output, fd, timeout)) {
 			fprintf(stderr, "error: could not record device\n");
 		} else if (autorestart) {
+			ftell_end = ftell(output);
 			fprintf(output, "# Closing after %ds inactivity\n",
 				timeout/1000);
 		}
@@ -192,6 +196,9 @@ static bool record_device(int fd, unsigned int timeout, const char *prefix)
 		if (output != stdout) {
 			fclose(output);
 			output = stdout;
+
+			if (autorestart && ftell_start == ftell_end)
+				unlink(filename);
 		}
 	} while (autorestart);
 
