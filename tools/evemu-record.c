@@ -41,6 +41,9 @@
 
 #define _GNU_SOURCE
 #include "evemu.h"
+#include <assert.h>
+#include <getopt.h>
+#include <limits.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -55,6 +58,7 @@
 #define INFINITE -1
 
 FILE *output;
+bool autorestart = false;
 
 static int describe_device(FILE *output, int fd)
 {
@@ -82,6 +86,120 @@ static void handler (int sig __attribute__((unused)))
 		fclose(output);
 		output = stdout;
 	}
+	autorestart = false;
+}
+
+static inline bool safe_atoi(const char *str, int *val)
+{
+	char *endptr;
+	long v;
+
+	v = strtol(str, &endptr, 10);
+	if (str == endptr)
+		return false;
+	if (*str != '\0' && *endptr != '\0')
+		return false;
+
+	if (v > INT_MAX || v < INT_MIN)
+		return false;
+
+	*val = v;
+	return true;
+}
+
+static inline void usage()
+{
+	fprintf(stderr, "Usage: %s [--autorestart=s] <device> [output file]\n",
+		program_invocation_short_name);
+	fprintf(stderr, "Options:\n");
+	fprintf(stderr, "    --autorestart=s\n");
+	fprintf(stderr, "	Terminate the current recording after <s> seconds\n"
+			"	of inactivity and restart a new recording. This option requires\n"
+			"	an output file, the file is suffixed with the date and time of \n"
+			"	the recording's start.\n"
+			"	The timeout must be greater than 0.\n"
+			"	This option is only valid for evemu-record.\n");
+}
+
+static inline char* make_filename(const char *prefix)
+{
+	char *filename;
+	struct tm *tm;
+	time_t t;
+	int rc;
+	char buf[64];
+
+	t = time(NULL);
+	tm = localtime(&t);
+	rc = strftime(buf, sizeof(buf), "%F-%T", tm);
+	if (rc < 0)
+		return NULL;
+
+	rc = asprintf(&filename, "%s.%s", prefix, buf);
+	if (rc < 0)
+		return NULL;
+
+	return filename;
+}
+
+static bool record_device(int fd, unsigned int timeout, const char *prefix)
+{
+	char *filename = NULL;
+	bool rc = false;
+
+	assert(!autorestart || prefix != NULL);
+
+	do {
+		free(filename);
+
+		if (prefix == NULL) {
+			output = stdout;
+		} else {
+			if (autorestart)
+				filename = make_filename(prefix);
+			else
+				filename = strdup(prefix);
+			if (filename == NULL) {
+				fprintf(stderr, "error: failed to init the filename\n");
+				goto out;
+			}
+			output = fopen(filename, "w");
+			if (!output) {
+				fprintf(stderr, "error: could not open output file (%m)");
+				goto out;
+			}
+		}
+
+		if (describe_device(output, fd)) {
+			fprintf(stderr, "error: could not describe device\n");
+			goto out;
+		}
+
+		fprintf(output,  "################################\n");
+		fprintf(output,  "#      Waiting for events      #\n");
+		fprintf(output,  "################################\n");
+		if (autorestart)
+			fprintf(output, "# Autorestart timeout: %d\n", timeout);
+
+		if (evemu_record(output, fd, timeout)) {
+			fprintf(stderr, "error: could not record device\n");
+		} else if (autorestart) {
+			fprintf(output, "# Closing after %ds inactivity\n",
+				timeout/1000);
+		}
+
+		fflush(output);
+		if (output != stdout) {
+			fclose(output);
+			output = stdout;
+		}
+	} while (autorestart);
+
+	rc = true;
+
+out:
+	free(filename);
+	return rc;
 }
 
 static inline bool test_grab_device(int fd)
@@ -102,6 +220,10 @@ enum mode {
 	EVEMU_DESCRIBE
 };
 
+enum options {
+	OPT_AUTORESTART,
+};
+
 int main(int argc, char *argv[])
 {
 	enum mode mode = EVEMU_RECORD;
@@ -109,6 +231,12 @@ int main(int argc, char *argv[])
 	struct sigaction act;
 	char *prgm_name = program_invocation_short_name;
 	char *device = NULL;
+	int timeout = INFINITE;
+	struct option opts[] = {
+		{ "autorestart", required_argument, 0, OPT_AUTORESTART },
+		{ 0, 0, 0, 0},
+	};
+	const char *prefix = NULL;
 	int rc = 1;
 
 	output = stdout;
@@ -118,10 +246,34 @@ int main(int argc, char *argv[])
 			strcmp(prgm_name, "lt-evemu-describe") == 0))
 		mode = EVEMU_DESCRIBE;
 
-	device = (argc < 2) ? find_event_devices() : strdup(argv[1]);
+	while (1) {
+		int c;
+		int option_index = 0;
+
+		c = getopt_long(argc, argv, "", opts, &option_index);
+		if (c == -1)
+			break;
+
+		switch (c) {
+			case OPT_AUTORESTART:
+				if (!safe_atoi(optarg, &timeout) ||
+				    timeout <= 0) {
+					usage();
+					goto out;
+				}
+				timeout *= 1000; /* sec to ms */
+				autorestart = true;
+				break;
+			default:
+				usage();
+				goto out;
+		}
+	}
+
+	device = (optind >= argc) ? find_event_devices() : strdup(argv[optind++]);
 
 	if (device == NULL) {
-		fprintf(stderr, "Usage: %s <device> [output file]\n", argv[0]);
+		usage();
 		goto out;
 	}
 	fd = open(device, O_RDONLY | O_NONBLOCK);
@@ -142,13 +294,13 @@ int main(int argc, char *argv[])
 		goto out;
 	}
 
-	if (argc < 3)
-		output = stdout;
-	else {
-		output = fopen(argv[2], "w");
-		if (!output) {
-			fprintf(stderr, "error: could not open output file (%m)");
+	if (optind >= argc) {
+		if (autorestart) {
+			fprintf(stderr, "Option --autoresume requires an output file\n");
+			goto out;
 		}
+	} else {
+		prefix = argv[optind++];
 	}
 
 	if (mode == EVEMU_RECORD) {
@@ -159,17 +311,17 @@ int main(int argc, char *argv[])
 		if (!test_grab_device(fd))
 			goto out;
 
-		if (describe_device(output, fd)) {
-			fprintf(stderr, "error: could not describe device\n");
-			goto out;
+		record_device(fd, timeout,  prefix);
+
+	} else if (mode == EVEMU_DESCRIBE) {
+		if (prefix) {
+			output = fopen(argv[optind++], "w");
+			if (!output) {
+				fprintf(stderr, "error: could not open output file (%m)");
+				goto out;
+			}
 		}
 
-		fprintf(output,  "################################\n");
-		fprintf(output,  "#      Waiting for events      #\n");
-		fprintf(output,  "################################\n");
-		if (evemu_record(output, fd, INFINITE))
-			fprintf(stderr, "error: could not record device\n");
-	} else if (mode == EVEMU_DESCRIBE) {
 		if (describe_device(output, fd)) {
 			fprintf(stderr, "error: could not describe device\n");
 			goto out;
