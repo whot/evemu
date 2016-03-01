@@ -151,11 +151,6 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if (describe_device(output, fd)) {
-		fprintf(stderr, "error: could not describe device\n");
-		goto out;
-	}
-
 	if (mode == EVEMU_RECORD) {
 #ifdef EVIOCSCLOCKID
 		int clockid = CLOCK_MONOTONIC;
@@ -164,11 +159,21 @@ int main(int argc, char *argv[])
 		if (!test_grab_device(fd))
 			goto out;
 
+		if (describe_device(output, fd)) {
+			fprintf(stderr, "error: could not describe device\n");
+			goto out;
+		}
+
 		fprintf(output,  "################################\n");
 		fprintf(output,  "#      Waiting for events      #\n");
 		fprintf(output,  "################################\n");
 		if (evemu_record(output, fd, INFINITE))
 			fprintf(stderr, "error: could not record device\n");
+	} else if (mode == EVEMU_DESCRIBE) {
+		if (describe_device(output, fd)) {
+			fprintf(stderr, "error: could not describe device\n");
+			goto out;
+		}
 	}
 
 	rc = 0;
