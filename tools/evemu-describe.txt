@@ -9,9 +9,9 @@ NAME
 
 SYNOPSIS
 --------
-     evemu-describe [/dev/input/eventX]
+     evemu-describe [/dev/input/eventX] [output file]
 
-     evemu-record [/dev/input/eventX]
+     evemu-record [/dev/input/eventX] [output file]
 
 DESCRIPTION
 -----------
@@ -29,6 +29,8 @@ most cases this means they must be run as root.
 If an event node is provided, evemu-describe and evemu-record use that event
 node. Otherwise, the user must interactively choose from a list of detected
 devices.
+
+If no output file is given, stdout is used.
 
 DIAGNOSTICS
 -----------
