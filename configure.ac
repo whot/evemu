@@ -1,7 +1,7 @@
 # Initialize Autoconf
 AC_PREREQ([2.60])
 AC_INIT([Kernel device emulation],
-        [2.3.1],
+        [2.4.0],
         [],
         [evemu])
 AC_CONFIG_SRCDIR([Makefile.am])
@@ -21,7 +21,7 @@ AM_MAINTAINER_MODE([enable])
 # - If binary compatibility has been broken (eg removed or changed interfaces)
 #   change to C+1:0:0
 # - If the interface is the same as the previous version, change to C:R+1:A
-LIB_VERSION=3:0:0
+LIB_VERSION=3:1:0
 AC_SUBST([LIB_VERSION])
 
 # Initialize libtool
