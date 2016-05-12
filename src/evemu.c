@@ -432,7 +432,7 @@ static int parse_name(struct evemu_device *dev, const char *line)
 	int matched;
 	char *devname = NULL;
 
-	if ((matched = sscanf(line, "N: %m[^\n]\n", &devname)) > 0) {
+	if ((matched = sscanf(line, "N: %m[^\n\r]\n", &devname)) > 0) {
 		if (strlen(evemu_get_name(dev)) == 0)
 			evemu_set_name(dev, devname);
 	}
