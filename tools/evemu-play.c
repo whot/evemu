@@ -45,31 +45,41 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
-/*
- * Finds the newly created device node and holds it open.
- */
-static void hold_device(struct evemu_device *dev)
+static int open_evemu_device(struct evemu_device *dev)
 {
-	char data[256];
-	int ret;
 	int fd;
 	const char *device_node = evemu_get_devnode(dev);
 
 	if (!device_node) {
 		fprintf(stderr, "can not determine device node\n");
-		return;
+		return -1;
 	}
 
-	fd = open(device_node, O_RDONLY);
+	fd = open(device_node, O_RDWR);
 	if (fd < 0) {
 		fprintf(stderr, "error %d opening %s: %s\n",
 			errno, device_node, strerror(errno));
-		return;
+		return -1;
 	}
 	fprintf(stdout, "%s: %s\n", evemu_get_name(dev), device_node);
 	fflush(stdout);
+
+	return fd;
+}
+
+static void open_and_hold_device(struct evemu_device *dev)
+{
+	char data[256];
+	int ret;
+	int fd;
+
+	fd = open_evemu_device(dev);
+	if (fd < 0)
+		return;
 
 	while ((ret = read(fd, data, sizeof(data))) > 0)
 		;
@@ -77,10 +87,11 @@ static void hold_device(struct evemu_device *dev)
 	close(fd);
 }
 
-static int evemu_device(FILE *fp)
+static struct evemu_device* create_device(FILE *fp)
 {
 	struct evemu_device *dev;
 	int ret = -ENOMEM;
+	int saved_errno;
 
 	dev = evemu_new(NULL);
 	if (!dev)
@@ -98,13 +109,29 @@ static int evemu_device(FILE *fp)
 	ret = evemu_create_managed(dev);
 	if (ret < 0)
 		goto out;
-	hold_device(dev);
-	evemu_destroy(dev);
 
 out:
+	if (ret && dev) {
+		saved_errno = errno;
+		evemu_destroy(dev);
+		dev = NULL;
+		errno = saved_errno;
+	}
+	return dev;
+}
+
+static int evemu_device(FILE *fp)
+{
+	struct evemu_device *dev;
+
+	dev = create_device(fp);
+	if (dev == NULL)
+		return -1;
+
+	open_and_hold_device(dev);
 	evemu_delete(dev);
 
-	return ret;
+	return 0;
 }
 
 static int device(int argc, char *argv[])
@@ -129,24 +156,97 @@ static int device(int argc, char *argv[])
 	return 0;
 }
 
+static int play_from_stdin(int fd)
+{
+	int ret;
+
+	ret = evemu_play(stdin, fd);
+
+	if (ret != 0)
+		fprintf(stderr, "error: could not replay device\n");
+
+	return ret;
+}
+
+static int play_from_file(int recording_fd)
+{
+	FILE *fp;
+	struct evemu_device *dev = NULL;
+	int fd;
+
+	fp = fdopen(recording_fd, "r");
+	if (!fp) {
+		fprintf(stderr, "error: could not open file (%m)\n");
+		return -1;
+	}
+
+	dev = create_device(fp);
+	if (!dev) {
+		fprintf(stderr, "error: could not create device: %m\n");
+		fclose(fp);
+		return -1;
+	}
+
+	fd = open_evemu_device(dev);
+	if (fd < 0)
+		goto out;
+
+	while (1) {
+		int ret;
+		char line[32];
+
+		printf("Hit enter to start replaying");
+		fflush(stdout);
+		fgets(line, sizeof(line), stdin);
+
+		fseek(fp, 0, SEEK_SET);
+		ret = evemu_play(fp, fd);
+		if (ret != 0) {
+			fprintf(stderr, "error: could not replay device\n");
+			break;
+		}
+	}
+
+out:
+	evemu_delete(dev);
+	fclose(fp);
+	close(fd);
+	return 0;
+}
+
 static int play(int argc, char *argv[])
 {
 	int fd;
+	struct stat st;
 
 	if (argc != 2) {
-		fprintf(stderr, "Usage: %s <device>\n", argv[0]);
+		fprintf(stderr, "Usage: %s <device>|<recording>\n", argv[0]);
 		fprintf(stderr, "\n");
-		fprintf(stderr, "Event data is read from standard input.\n");
+		fprintf(stderr, "If the argument is an input event node,\n"
+				"event data is read from standard input.\n");
+		fprintf(stderr, "If the argument is an evemu recording,\n"
+				"the device is created and the event data is"
+				"read from the same device.\n");
 		return -1;
 	}
-	fd = open(argv[1], O_WRONLY);
+
+	fd = open(argv[1], O_RDWR);
 	if (fd < 0) {
-		fprintf(stderr, "error: could not open device (%m)\n");
+		fprintf(stderr, "error: could not open file or device (%m)\n");
 		return -1;
 	}
-	if (evemu_play(stdin, fd)) {
-		fprintf(stderr, "error: could not describe device\n");
+
+	if (fstat(fd, &st) == -1) {
+		fprintf(stderr, "error: failed to look at file (%m)\n");
+		return -1;
 	}
+
+	if (S_ISCHR(st.st_mode))
+		play_from_stdin(fd);
+	else
+		play_from_file(fd);
+
+
 	close(fd);
 	return 0;
 }

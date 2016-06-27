@@ -12,6 +12,7 @@ SYNOPSIS
      evemu-device [description-file]
 
      evemu-play /dev/input/eventX < event-sequence
+     evemu-play event-sequence.txt
 
      evemu-event /dev/input/eventX [--sync] --type <type> --code <code> --value <value>
 
@@ -25,6 +26,8 @@ stdout.
 
 evemu-play replays the event sequence given on stdin through the input
 device. The event sequence must be in the form created by evemu-record(1).
+If the argument is a file containing a recording, evemu-play creates the device
+and prompts the user for an interactive replay of the events.
 
 evemu-event plays exactly one event with the current time. If *--sync* is
 given, evemu-event generates an *EV_SYN* event after the event. The event
