@@ -39,15 +39,100 @@
  *
  ****************************************************************************/
 
+#define _GNU_SOURCE
 #include "evemu.h"
+#include <errno.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
 
-int main(int argc, char *argv[])
+/*
+ * Finds the newly created device node and holds it open.
+ */
+static void hold_device(struct evemu_device *dev)
+{
+	char data[256];
+	int ret;
+	int fd;
+	const char *device_node = evemu_get_devnode(dev);
+
+	if (!device_node) {
+		fprintf(stderr, "can not determine device node\n");
+		return;
+	}
+
+	fd = open(device_node, O_RDONLY);
+	if (fd < 0) {
+		fprintf(stderr, "error %d opening %s: %s\n",
+			errno, device_node, strerror(errno));
+		return;
+	}
+	fprintf(stdout, "%s: %s\n", evemu_get_name(dev), device_node);
+	fflush(stdout);
+
+	while ((ret = read(fd, data, sizeof(data))) > 0)
+		;
+
+	close(fd);
+}
+
+static int evemu_device(FILE *fp)
+{
+	struct evemu_device *dev;
+	int ret = -ENOMEM;
+
+	dev = evemu_new(NULL);
+	if (!dev)
+		goto out;
+	ret = evemu_read(dev, fp);
+	if (ret <= 0)
+		goto out;
+
+	if (strlen(evemu_get_name(dev)) == 0) {
+		char name[64];
+		sprintf(name, "evemu-%d", getpid());
+		evemu_set_name(dev, name);
+	}
+
+	ret = evemu_create_managed(dev);
+	if (ret < 0)
+		goto out;
+	hold_device(dev);
+	evemu_destroy(dev);
+
+out:
+	evemu_delete(dev);
+
+	return ret;
+}
+
+static int device(int argc, char *argv[])
+{
+	FILE *fp;
+	int ret;
+	if (argc < 2) {
+		fprintf(stderr, "Usage: %s <dev.prop>\n", argv[0]);
+		return -1;
+	}
+	fp = fopen(argv[1], "r");
+	if (!fp) {
+		fprintf(stderr, "error: could not open file (%m)\n");
+		return -1;
+	}
+	ret = evemu_device(fp);
+	if (ret <= 0) {
+		fprintf(stderr, "error: could not create device: %d\n", ret);
+		return -1;
+	}
+	fclose(fp);
+	return 0;
+}
+
+static int play(int argc, char *argv[])
 {
 	int fd;
+
 	if (argc != 2) {
 		fprintf(stderr, "Usage: %s <device>\n", argv[0]);
 		fprintf(stderr, "\n");
@@ -64,4 +149,17 @@ int main(int argc, char *argv[])
 	}
 	close(fd);
 	return 0;
+}
+
+int main(int argc, char *argv[])
+{
+	const char *prgm_name = program_invocation_short_name;
+
+	if (prgm_name &&
+	    (strcmp(prgm_name, "evemu-device") == 0 ||
+	     /* when run directly from the sources (not installed) */
+	     strcmp(prgm_name, "lt-evemu-device") == 0))
+		return device(argc, argv);
+	else
+		return play(argc, argv);
 }

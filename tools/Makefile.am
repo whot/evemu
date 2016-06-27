@@ -15,6 +15,9 @@ AM_LDFLAGS = $(top_builddir)/src/libevemu.la
 evemu_describe_SOURCES = evemu-record.c find_event_devices.c find_event_devices.h
 evemu_record_SOURCES = $(evemu_describe_SOURCES)
 
+evemu_play_SOURCES = evemu-play.c
+evemu_device_SOURCES = $(evemu_play_SOURCES)
+
 evemu_event_CFLAGS = $(LIBEVDEV_CFLAGS)
 evemu_event_LDADD = $(LIBEVDEV_LIBS)
 
