@@ -332,12 +332,13 @@ static void write_desc(const struct evemu_device *dev, FILE *fp)
 				    j, libevdev_event_code_get_name(i, j));
 			switch(i) {
 				case EV_ABS:
-					fprintf(fp, "#       Value %6d\n"
-						"#       Min   %6d\n"
-						"#       Max   %6d\n"
-						"#       Fuzz  %6d\n"
-						"#       Flat  %6d\n"
-						"#       Resolution %d\n",
+					fprintf(fp,
+						"#       Value   %6d\n"
+						"#       Min     %6d\n"
+						"#       Max     %6d\n"
+						"#       Fuzz    %6d\n"
+						"#       Flat    %6d\n"
+						"#       Resolution %3d\n",
 						evemu_get_abs_current_value(dev, j),
 						evemu_get_abs_minimum(dev, j),
 						evemu_get_abs_maximum(dev,j),
