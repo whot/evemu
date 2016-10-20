@@ -321,6 +321,28 @@ static void write_desc(const struct evemu_device *dev, FILE *fp)
 	fprintf(fp, "# Input device ID: bus %#04x vendor %#04x product %#04x version %#04x\n",
 		evemu_get_id_bustype(dev), evemu_get_id_vendor(dev),
 		evemu_get_id_product(dev), evemu_get_id_version(dev));
+
+	if (evemu_has_event(dev, EV_ABS, ABS_X) &&
+	    evemu_has_event(dev, EV_ABS, ABS_Y)) {
+		int min, max, res;
+		int w = 0, h = 0;
+
+		min = evemu_get_abs_minimum(dev, ABS_X);
+		max = evemu_get_abs_maximum(dev, ABS_X);
+		res = evemu_get_abs_resolution(dev, ABS_X);
+		if (res != 0)
+			w = (max - min)/res;
+
+		min = evemu_get_abs_minimum(dev, ABS_Y);
+		max = evemu_get_abs_maximum(dev, ABS_Y);
+		res = evemu_get_abs_resolution(dev, ABS_Y);
+		if (res != 0)
+			h = (max - min)/res;
+
+		if (w != 0 && h != 0)
+			fprintf(fp, "# Size in mm: %dx%d\n", w, h);
+	}
+
 	fprintf(fp, "# Supported events:\n");
 	for (i = 0; i < EV_MAX; i++) {
 		if (!evemu_has_bit(dev, i))
