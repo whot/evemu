@@ -70,6 +70,9 @@ enum error_level {
 };
 
 static int error(enum error_level level, const char *format, ...)
+	        __attribute__ ((format (printf, 2, 3)));
+
+static int error(enum error_level level, const char *format, ...)
 {
 	va_list args;
 	const char *strlevel = NULL;
