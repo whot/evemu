@@ -511,7 +511,7 @@ static int parse_mask(struct evemu_device *dev, const char *line)
 				mask + 4, mask + 5, mask + 6, mask + 7);
 
 	if (matched != 9) {
-		error(WARNING, "Invalid EV_BIT line. Parsed %d numbers, expected 9: %s", matched, line);
+		error(FATAL, "Invalid EV_BIT line. Parsed %d numbers, expected 9: %s", matched, line);
 		return -1;
 	}
 
