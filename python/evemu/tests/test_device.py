@@ -142,8 +142,8 @@ class DeviceActionTestCase(evemu.testing.testcase.BaseTestCase):
     def test_read_events(self):
         device = evemu.Device(self.get_device_file(), create=False)
         events_file = self.get_events_file()
-        with open(events_file) as e:
-            events = [e for e in device.events(e)]
+        with open(events_file) as ef:
+            events = [e for e in device.events(ef)]
             self.assertTrue(len(events) > 1)
 
 class DevicePropertiesTestCase(evemu.testing.testcase.BaseTestCase):
