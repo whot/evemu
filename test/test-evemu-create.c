@@ -120,7 +120,7 @@ void check_evemu_read(int fd, const char *file, enum flags flags)
 		int i;
 		for (i = 0; i < EV_CNT; i++) {
 			int j;
-			for (j = 0; j < max[i]; j += 8) {
+			for (j = 0; j <= max[i]; j += 8) {
 				println(fd, flags, bits, i, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
 				if (flags & EMPTYLINE)
 					println(fd, flags, "%s", emptyline);
@@ -180,7 +180,7 @@ void check_evemu_read(int fd, const char *file, enum flags flags)
 			if (!evemu_has_bit(dev, i))
 				continue;
 
-			for (j = 0; j < max[i]; j++)
+			for (j = 0; j <= max[i]; j++)
 				assert(evemu_has_event(dev, i, j));
 		}
 	}

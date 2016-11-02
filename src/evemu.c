@@ -254,12 +254,12 @@ static void write_prop(FILE * fp, const struct evemu_device *dev)
 	int i;
 	unsigned char mask[max(8, (INPUT_PROP_MAX + 7)/8)] = {0};
 
-	for (i = 0; i < INPUT_PROP_MAX; i ++) {
+	for (i = 0; i < INPUT_PROP_CNT; i ++) {
 		if (evemu_has_prop(dev, i))
 			set_bit(mask, i);
 	}
 
-	for (i = 0; i < (INPUT_PROP_MAX + 7)/8; i +=8) {
+	for (i = 0; i < (INPUT_PROP_CNT + 7)/8; i +=8) {
 		fprintf(fp, "P: %02x %02x %02x %02x %02x %02x %02x %02x\n",
 			mask[i], mask[i + 1], mask[i + 2], mask[i + 3],
 			mask[i + 4], mask[i + 5], mask[i + 6], mask[i + 7]);
@@ -284,11 +284,11 @@ static void write_mask(FILE * fp, const struct evemu_device *dev)
 		if (max == -1)
 			continue;
 
-		for (code = 0; code < (unsigned int)max; code++)
+		for (code = 0; code <= (unsigned int)max; code++)
 			if (evemu_has_event(dev, type, code))
 				set_bit(mask, code);
 
-		for (i = 0; i < (max + 7)/8; i += 8) {
+		for (i = 0; i < ((max + 1) + 7)/8; i += 8) {
 			fprintf(fp, "B: %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
 				type, mask[i], mask[i + 1], mask[i + 2], mask[i + 3],
 				mask[i + 4], mask[i + 5], mask[i + 6], mask[i + 7]);
@@ -344,12 +344,12 @@ static void write_desc(const struct evemu_device *dev, FILE *fp)
 	}
 
 	fprintf(fp, "# Supported events:\n");
-	for (i = 0; i < EV_MAX; i++) {
+	for (i = 0; i < EV_CNT; i++) {
 		if (!evemu_has_bit(dev, i))
 			continue;
 
 		fprintf(fp, "#   Event type %d (%s)\n", i, libevdev_event_type_get_name(i));
-		for (j = 0; j < libevdev_event_type_get_max(i); j++) {
+		for (j = 0; j <= libevdev_event_type_get_max(i); j++) {
 			if (!evemu_has_event(dev, i, j))
 				continue;
 
@@ -384,7 +384,7 @@ static void write_desc(const struct evemu_device *dev, FILE *fp)
 
 #ifdef INPUT_PROP_MAX
 	fprintf(fp, "# Properties:\n");
-	for (i = 0; i < INPUT_PROP_MAX; i++) {
+	for (i = 0; i < INPUT_PROP_CNT; i++) {
 		if (!evemu_has_prop(dev, i))
 			continue;
 		fprintf(fp, "#   Property  type %d (%s)\n", i,
