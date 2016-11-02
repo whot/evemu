@@ -284,6 +284,8 @@ class Device(object):
         while self._libevemu.evemu_read_event(fs, ctypes.byref(event)) > 0:
             yield InputEvent(event.sec, event.usec, event.type, event.code, event.value)
 
+        self._libc.rewind(fs)
+
     def play(self, events_file):
         """
         Replays an event sequence, as provided by the events_file,

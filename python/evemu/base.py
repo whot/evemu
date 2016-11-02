@@ -156,6 +156,10 @@ class LibC(LibraryWrapper):
             "restype": c_int,
             "errcheck": expect_eq_zero
             },
+        "rewind": {
+            "argtypes": (c_void_p,),
+            "restype": None,
+            },
         }
 
 class LibEvdev(LibraryWrapper):

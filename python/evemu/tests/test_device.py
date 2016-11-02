@@ -146,6 +146,15 @@ class DeviceActionTestCase(evemu.testing.testcase.BaseTestCase):
             events = [e for e in device.events(ef)]
             self.assertTrue(len(events) > 1)
 
+    def test_read_events_twice(self):
+        device = evemu.Device(self.get_device_file(), create=False)
+        events_file = self.get_events_file()
+        with open(events_file) as ef:
+            e1 = [(e.type, e.code, e.value) for e in device.events(ef)]
+            e2 = [(e.type, e.code, e.value) for e in device.events(ef)]
+            self.assertEquals(len(e1), len(e2))
+            self.assertEquals(e1, e2)
+
 class DevicePropertiesTestCase(evemu.testing.testcase.BaseTestCase):
     """
     Verifies the workings of the various device property accessors.
