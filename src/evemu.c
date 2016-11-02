@@ -537,6 +537,11 @@ static int parse_mask(struct evemu_device *dev, const char *line)
 		return -1;
 	}
 
+	if (index >= EV_CNT) {
+		error(FATAL, "Invalid EV_* index %#x in line: %s", index, line);
+		return -1;
+	}
+
 	for (i = 0; i < sizeof(mask) * 8; i++) {
 		if (bit_is_set(mask, i)) {
 			struct input_absinfo abs = {0}; /* dummy */
