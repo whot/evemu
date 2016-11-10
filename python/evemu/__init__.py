@@ -50,17 +50,16 @@ def event_get_value(event_type, event_code = None):
 
     if isinstance(event_type, int):
         event_type = _libevdev.libevdev_event_type_get_name(event_type)
-        if event_type == 0: # NULL
+        if event_type is None:
             return None
 
     t = _libevdev.libevdev_event_type_from_name(str(event_type))
-
     if event_code is None:
         return None if t < 0 else t
 
     if isinstance(event_code, int):
         event_code = _libevdev.libevdev_event_code_get_name(t, event_code)
-        if event_code == 0: # NULL
+        if event_code is None:
             return None
 
     c = _libevdev.libevdev_event_code_from_name(t, str(event_code))
@@ -84,7 +83,7 @@ def event_get_name(event_type, event_code = None):
 
     if event_code is None:
         type_name = _libevdev.libevdev_event_type_get_name(event_type)
-        return None if type_name == 0 else type_name
+        return type_name
 
     if not isinstance(event_code, int):
         event_code = event_get_value(event_type, event_code)
@@ -94,7 +93,7 @@ def event_get_name(event_type, event_code = None):
 
     code_name = _libevdev.libevdev_event_code_get_name(event_type, event_code)
 
-    return None if code_name == 0 else code_name
+    return code_name
 
 def input_prop_get_name(prop):
     """
@@ -107,7 +106,7 @@ def input_prop_get_name(prop):
         return None
 
     prop = _libevdev.libevdev_property_get_name(prop)
-    return None if prop == 0 else prop
+    return prop
 
 def input_prop_get_value(prop):
     """
