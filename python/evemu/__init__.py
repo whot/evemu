@@ -53,7 +53,11 @@ def event_get_value(event_type, event_code = None):
         if event_type is None:
             return None
 
-    t = _libevdev.libevdev_event_type_from_name(str(event_type))
+        event_type = event_type.decode("iso8859-1")
+
+    event_type = str(event_type).encode("iso8859-1")
+    t = _libevdev.libevdev_event_type_from_name(event_type)
+
     if event_code is None:
         return None if t < 0 else t
 
@@ -62,7 +66,10 @@ def event_get_value(event_type, event_code = None):
         if event_code is None:
             return None
 
-    c = _libevdev.libevdev_event_code_from_name(t, str(event_code))
+        event_code = event_code.decode("iso8859-1")
+
+    event_code = str(event_code).encode("iso8859-1")
+    c = _libevdev.libevdev_event_code_from_name(t, event_code)
 
     return None if c < 0 else c
 
@@ -83,7 +90,11 @@ def event_get_name(event_type, event_code = None):
 
     if event_code is None:
         type_name = _libevdev.libevdev_event_type_get_name(event_type)
-        return type_name
+
+        if type_name is None:
+            return None
+
+        return type_name.decode("iso8859-1")
 
     if not isinstance(event_code, int):
         event_code = event_get_value(event_type, event_code)
@@ -92,8 +103,10 @@ def event_get_name(event_type, event_code = None):
         return None
 
     code_name = _libevdev.libevdev_event_code_get_name(event_type, event_code)
+    if code_name is None:
+        return None
 
-    return code_name
+    return code_name.decode("iso8859-1")
 
 def input_prop_get_name(prop):
     """
@@ -106,7 +119,10 @@ def input_prop_get_name(prop):
         return None
 
     prop = _libevdev.libevdev_property_get_name(prop)
-    return prop
+    if prop is None:
+        return None
+
+    return prop.decode("iso8859-1")
 
 def input_prop_get_value(prop):
     """
@@ -118,7 +134,8 @@ def input_prop_get_value(prop):
     if prop is None:
         return None
 
-    prop = _libevdev.libevdev_property_from_name(str(prop))
+    prop = str(prop).encode("iso8859-1")
+    prop = _libevdev.libevdev_property_from_name(prop)
     return None if prop < 0 else prop
 
 class InputEvent(object):
