@@ -4,7 +4,7 @@ evemu - Kernel device emulation
 The evemu library and tools are used to describe devices, record
 data, create devices and replay data from kernel evdev devices.
 
-* http://wiki.freedesktop.org/wiki/Evemu
+* http://www.freedesktop.org/wiki/Evemu
 * http://cgit.freedesktop.org/evemu/
 
 Development
