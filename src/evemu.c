@@ -753,7 +753,7 @@ static int write_event_desc(FILE *fp, const struct input_event *ev)
 			time = millis(&ev->time);
 			dt = time - last_ms;
 			last_ms = time;
-			rc = fprintf(fp, "# ------------ %s (%d) ---------- +%ldms\n",
+			rc = fprintf(fp, "# ------------ %s (%d) ---------- %+ldms\n",
 				     libevdev_event_code_get_name(ev->type, ev->code),
 				     ev->value,
 				     dt);
