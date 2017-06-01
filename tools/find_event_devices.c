@@ -57,7 +57,7 @@ char* find_event_devices(void)
 
 	for (i = 0; i < ndev; i++)
 	{
-		char fname[64];
+		char fname[PATH_MAX];
 		int fd = -1;
 		char name[256] = "???";
 
