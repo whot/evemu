@@ -57,8 +57,8 @@
 
 #define INFINITE -1
 
-FILE *output;
-bool autorestart = false;
+static FILE *output;
+static bool autorestart = false;
 
 static int describe_device(FILE *output, int fd)
 {
