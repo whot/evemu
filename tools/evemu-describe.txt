@@ -36,7 +36,7 @@ OPTIONS
 -------
 
   --autorestart=<s>
-	Terminate the curent recording after <s> seconds of device
+	Terminate the current recording after <s> seconds of device
 	inactivity. This option requires an output, the file is suffixed
 	with the date and time of the recording's start.
 	The timeout must be greater than 0.
