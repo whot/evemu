@@ -324,7 +324,7 @@ int main(int argc, char *argv[])
 		if (prefix) {
 			output = fopen(argv[optind++], "w");
 			if (!output) {
-				fprintf(stderr, "error: could not open output file (%m)");
+				fprintf(stderr, "error: could not open output file (%m)\n");
 				goto out;
 			}
 		}
