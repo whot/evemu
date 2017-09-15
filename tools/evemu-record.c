@@ -322,7 +322,7 @@ int main(int argc, char *argv[])
 
 	} else if (mode == EVEMU_DESCRIBE) {
 		if (prefix) {
-			output = fopen(argv[optind++], "w");
+			output = fopen(prefix, "w");
 			if (!output) {
 				fprintf(stderr, "error: could not open output file (%m)\n");
 				goto out;
