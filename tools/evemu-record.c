@@ -339,7 +339,7 @@ int main(int argc, char *argv[])
 out:
 	free(device);
 	close(fd);
-	if (output != stdout) {
+	if (output && output != stdout) {
 		fclose(output);
 		output = stdout;
 	}
