@@ -67,7 +67,7 @@ static void println(int fd, int flags, const char *format, ...)
 	va_end(args);
 }
 
-void check_evemu_read(int fd, const char *file, enum flags flags)
+static void check_evemu_read(int fd, const char *file, enum flags flags)
 {
 	FILE *fp;
 	struct evemu_device *dev;
